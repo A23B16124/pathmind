@@ -1,0 +1,1 @@
+/home/ubuntu/pathmind-prep/prompts/02_histopathologist.txt

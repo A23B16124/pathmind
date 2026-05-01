@@ -1,0 +1,1 @@
+/home/ubuntu/pathmind-prep/prompts/03_cross_slide_aggregator.txt
