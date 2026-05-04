@@ -15,12 +15,13 @@ async def embed_query(text: str) -> np.ndarray:
 
 
 async def retrieve_literature(query_embedding: np.ndarray, top_k: int = 20) -> list[dict]:
-    hits = await client.search(
+    resp = await client.query_points(
         collection_name=COLLECTION,
-        query_vector=query_embedding.tolist(),
+        query=query_embedding.tolist(),
         limit=top_k,
         with_payload=True,
     )
+    hits = resp.points if hasattr(resp, "points") else resp
     return [{
         "pmid": h.payload["pmid"],
         "title": h.payload["title"],

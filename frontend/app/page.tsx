@@ -39,11 +39,17 @@ export default function Home() {
   const [vramPct, setVramPct] = useState(0.06)
   const [report, setReport] = useState<Report | null>(null)
   const [activeCase, setActiveCase] = useState<DemoCase | null>(null)
+  const [debugStatus, setDebugStatus] = useState<string[]>([])
   const stopRef = useRef<(() => void) | null>(null)
+
+  const pushDebug = useCallback((line: string) => {
+    setDebugStatus((prev) => [...prev, line].slice(-6))
+  }, [])
 
   useEffect(() => () => stopRef.current?.(), [])
 
   const onEvent = useCallback((event: WSEvent) => {
+    pushDebug(`WS event: ${event.type} ${event.agent}`)
     setAgents((prev) =>
       prev.map((a) => {
         if (a.name !== event.agent) return a
@@ -62,10 +68,11 @@ export default function Home() {
       setIsRunning(false)
       if (event.report) setReport(event.report)
     }
-  }, [])
+  }, [pushDebug])
 
   const handleAnalyze = useCallback(async () => {
     if (slides.length === 0) return
+    setDebugStatus([])
     setIsRunning(true)
     setReport(null)
     setAgents(INITIAL_AGENTS)
@@ -75,9 +82,7 @@ export default function Home() {
     const patientId = activeCase?.patient_id ?? "anonymous"
     const slidePaths = slides.map((s) => s.path ?? s.name)
 
-    stopRef.current?.()
-    stopRef.current = connectStream(caseId, onEvent)
-
+    pushDebug("POST /api/analyze...")
     try {
       await startAnalysis({
         case_id: caseId,
@@ -87,10 +92,16 @@ export default function Home() {
           ? { age: activeCase.age, context: activeCase.clinical_context }
           : undefined,
       })
+      pushDebug(`POST OK case_id=${caseId}`)
     } catch (e) {
+      pushDebug(`POST ERREUR: ${e instanceof Error ? e.message : String(e)}`)
       console.warn("startAnalysis failed, mock stream will run anyway", e)
     }
-  }, [slides, activeCase, onEvent])
+
+    pushDebug("WS connecting...")
+    stopRef.current?.()
+    stopRef.current = connectStream(caseId, onEvent)
+  }, [slides, activeCase, onEvent, pushDebug])
 
   const handleLoadDemo = useCallback(() => {
     const demo = DEMO_DUBOIS
@@ -168,6 +179,16 @@ export default function Home() {
           patientLabel={activeCase?.patient_label}
           onClose={() => setReport(null)}
         />
+      )}
+
+      {debugStatus.length > 0 && (
+        <div
+          className="fixed bottom-2 right-2 z-50 font-mono text-[10px] text-amber-400 border border-amber-400 bg-black/80 p-2 max-w-[400px] pointer-events-none"
+        >
+          {debugStatus.map((line, i) => (
+            <div key={i} className="truncate">{line}</div>
+          ))}
+        </div>
       )}
     </div>
   )
