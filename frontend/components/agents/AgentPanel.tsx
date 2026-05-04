@@ -1,5 +1,6 @@
 
 "use client"
+import { useEffect, useRef, useState } from "react"
 import { AgentState, AgentStatus } from "@/lib/types"
 
 const AGENT_LABELS: Record<string, string> = {
@@ -35,6 +36,49 @@ interface Props {
 export function AgentPanel({ agents, vramPct, isRunning }: Props) {
   const vramGb = Math.round(vramPct * 192)
   const doneCount = agents.filter(a => a.status === "done").length
+
+  const [displayed, setDisplayed] = useState<Record<string, string>>({})
+  const targetsRef = useRef<Record<string, string>>({})
+  const intervalsRef = useRef<Record<string, ReturnType<typeof setInterval>>>({})
+
+  useEffect(() => {
+    for (const agent of agents) {
+      const latest = agent.messages.length > 0 ? agent.messages[agent.messages.length - 1] : ""
+      if (targetsRef.current[agent.name] === latest) continue
+      targetsRef.current[agent.name] = latest
+
+      if (intervalsRef.current[agent.name]) {
+        clearInterval(intervalsRef.current[agent.name])
+        delete intervalsRef.current[agent.name]
+      }
+
+      if (!latest) {
+        setDisplayed((d) => ({ ...d, [agent.name]: "" }))
+        continue
+      }
+
+      const words = latest.split(/(\s+)/)
+      let i = 0
+      setDisplayed((d) => ({ ...d, [agent.name]: "" }))
+      const id = setInterval(() => {
+        i += 1
+        const next = words.slice(0, i).join("")
+        setDisplayed((d) => ({ ...d, [agent.name]: next }))
+        if (i >= words.length) {
+          clearInterval(id)
+          delete intervalsRef.current[agent.name]
+        }
+      }, 60)
+      intervalsRef.current[agent.name] = id
+    }
+  }, [agents])
+
+  useEffect(() => {
+    const intervals = intervalsRef.current
+    return () => {
+      for (const id of Object.values(intervals)) clearInterval(id)
+    }
+  }, [])
 
   return (
     <div className="flex flex-col h-full bg-[var(--surface)] border-l border-[var(--border)]">
@@ -78,7 +122,10 @@ export function AgentPanel({ agents, vramPct, isRunning }: Props) {
             </div>
             {agent.messages.length > 0 && (
               <p className="text-[10px] font-mono text-[var(--muted)] leading-relaxed ml-3.5 line-clamp-3">
-                {agent.messages[agent.messages.length - 1]}
+                {displayed[agent.name] ?? ""}
+                {agent.status === "running" && (
+                  <span className="inline-block w-[6px] h-[10px] ml-0.5 align-[-1px] bg-[var(--running)] cursor-blink" />
+                )}
               </p>
             )}
             {agent.confidence !== undefined && (

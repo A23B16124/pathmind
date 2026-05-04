@@ -15,6 +15,13 @@ const WSIViewer = dynamicImport(
   { ssr: false }
 )
 
+const MOCK_OVERLAYS = [
+  { x: 0.18, y: 0.22, w: 0.16, h: 0.12, color: "#3b82f6", label: "Zone infiltrante" },
+  { x: 0.55, y: 0.18, w: 0.10, h: 0.09, color: "#f59e0b", label: "Marge" },
+  { x: 0.30, y: 0.55, w: 0.14, h: 0.11, color: "#10b981", label: "Grade III" },
+  { x: 0.62, y: 0.62, w: 0.09, h: 0.08, color: "#ef4444", label: "Ki-67+" },
+]
+
 const INITIAL_AGENTS: AgentState[] = [
   { name: "tile-triage", label: "Tile Triage", status: "pending", messages: [] },
   { name: "histopathologist", label: "Histopathologist", status: "pending", messages: [] },
@@ -146,6 +153,7 @@ export default function Home() {
           <WSIViewer
             slideId={slides[0]?.name ?? "Aucune lame"}
             className="w-full h-full"
+            overlays={isRunning || report ? MOCK_OVERLAYS : []}
           />
         </div>
       </div>

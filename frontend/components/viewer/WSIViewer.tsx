@@ -3,16 +3,27 @@ import { useEffect, useRef } from 'react'
 import OpenSeadragon from 'openseadragon'
 import { ZoomIn, ZoomOut, Home } from 'lucide-react'
 
+export interface Overlay {
+  x: number
+  y: number
+  w: number
+  h: number
+  color: string
+  label: string
+}
+
 interface WSIViewerProps {
   slideId: string
   className?: string
+  overlays?: Overlay[]
 }
 
 const TILE_SOURCE = 'https://openseadragon.github.io/example-images/highsmith/highsmith.dzi'
 
-export function WSIViewer({ slideId, className }: WSIViewerProps) {
+export function WSIViewer({ slideId, className, overlays }: WSIViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null)
+  const isReadyRef = useRef(false)
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -36,12 +47,67 @@ export function WSIViewer({ slideId, className }: WSIViewerProps) {
       zoomPerScroll: 1.5,
     })
     viewerRef.current = viewer
+    isReadyRef.current = false
+    viewer.addHandler('open', () => {
+      isReadyRef.current = true
+    })
 
     return () => {
+      isReadyRef.current = false
       viewer.destroy()
       viewerRef.current = null
     }
   }, [])
+
+  useEffect(() => {
+    const viewer = viewerRef.current
+    if (!viewer) return
+
+    const apply = () => {
+      viewer.clearOverlays()
+      if (!overlays || overlays.length === 0) return
+      for (const o of overlays) {
+        const el = document.createElement('div')
+        el.style.border = `2px solid ${o.color}`
+        el.style.boxSizing = 'border-box'
+        el.style.pointerEvents = 'none'
+        el.style.background = `${o.color}1a`
+        el.style.position = 'relative'
+
+        const label = document.createElement('div')
+        label.textContent = o.label
+        label.style.position = 'absolute'
+        label.style.top = '0'
+        label.style.left = '0'
+        label.style.transform = 'translateY(-100%)'
+        label.style.padding = '2px 6px'
+        label.style.background = o.color
+        label.style.color = '#0b0b0d'
+        label.style.font = '600 10px ui-monospace, SFMono-Regular, Menlo, monospace'
+        label.style.letterSpacing = '0.04em'
+        label.style.whiteSpace = 'nowrap'
+        el.appendChild(label)
+
+        viewer.addOverlay({
+          element: el,
+          location: new OpenSeadragon.Rect(o.x, o.y, o.w, o.h),
+        })
+      }
+    }
+
+    if (isReadyRef.current) {
+      apply()
+    } else {
+      const handler = () => {
+        apply()
+        viewer.removeHandler('open', handler)
+      }
+      viewer.addHandler('open', handler)
+      return () => {
+        viewer.removeHandler('open', handler)
+      }
+    }
+  }, [overlays])
 
   const zoomIn = () => viewerRef.current?.viewport.zoomBy(1.4)
   const zoomOut = () => viewerRef.current?.viewport.zoomBy(1 / 1.4)
