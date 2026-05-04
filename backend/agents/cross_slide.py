@@ -8,7 +8,7 @@ class CrossSlideAgent(BaseAgent):
     name = "cross_slide_aggregator"
 
     async def run(self, case_id: str, input_data: CrossSlideInput) -> CrossSlideOutput:
-        await self.emit(case_id, "running", f"Synthese {len(input_data.slides)} lames")
+        await self.emit(case_id, "running", f"Aggregating {len(input_data.slides)} slides")
         per_slide = "\n".join(
             f"Slide {s.slide_index}: {s.findings[:600]}" for s in input_data.slides
         )

@@ -8,7 +8,7 @@ class LiteratureHunterAgent(BaseAgent):
     name = "literature_hunter"
 
     async def run(self, case_id: str, input_data: LiteratureHunterInput) -> LiteratureHunterOutput:
-        await self.emit(case_id, "running", f"Recherche: {input_data.hypothesis[:80]}")
+        await self.emit(case_id, "running", f"Literature search: {input_data.hypothesis[:80]}")
         user = (
             f"Working hypothesis: {input_data.hypothesis}\n"
             f"Keywords: {', '.join(input_data.keywords)}\n"

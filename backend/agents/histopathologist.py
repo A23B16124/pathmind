@@ -8,7 +8,7 @@ class HistopathologistAgent(BaseAgent):
     name = "histopathologist"
 
     async def run(self, case_id: str, input_data: HistopathologistInput) -> HistopathologistOutput:
-        await self.emit(case_id, "running", f"Analyse histologique lame {input_data.slide_index}", {"slide": input_data.slide_index})
+        await self.emit(case_id, "running", f"Histopath analysis slide {input_data.slide_index}", {"slide": input_data.slide_index})
         user = (
             f"Slide index: {input_data.slide_index}\n"
             f"Slide path: {input_data.slide_path}\n"

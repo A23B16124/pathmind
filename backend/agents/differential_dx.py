@@ -8,7 +8,7 @@ class DifferentialDxAgent(BaseAgent):
     name = "differential_diagnostician"
 
     async def run(self, case_id: str, input_data: DifferentialDxInput) -> DifferentialDxOutput:
-        await self.emit(case_id, "running", "Etablissement diagnostics differentiels")
+        await self.emit(case_id, "running", "Building differential diagnoses")
         user = (
             f"Cross-slide synthesis:\n{input_data.cross_slide.synthesis}\n\n"
             f"Literature context:\n{input_data.literature.key_findings}\n\n"

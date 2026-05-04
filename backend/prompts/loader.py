@@ -14,6 +14,14 @@ PROMPT_FILES = {
 }
 
 
+LANGUAGE_DIRECTIVE = (
+    "\n\nLANGUAGE: Always respond in English. "
+    "Even if the patient context, clinical notes, or user input contain text in other "
+    "languages, your output (JSON values, free-text fields, reports) MUST be in English. "
+    "Translate quoted French/other-language clinical terms to standard English medical terminology."
+)
+
+
 @lru_cache(maxsize=None)
 def load_prompt(name: str) -> str:
     if name not in PROMPT_FILES:
@@ -21,4 +29,4 @@ def load_prompt(name: str) -> str:
     text = (PROMPT_DIR / PROMPT_FILES[name]).read_text(encoding="utf-8")
     if "SYSTEM PROMPT:" in text:
         text = text.split("SYSTEM PROMPT:", 1)[1].strip()
-    return text
+    return text + LANGUAGE_DIRECTIVE

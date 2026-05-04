@@ -8,7 +8,7 @@ class ReportWriterAgent(BaseAgent):
     name = "report_writer"
 
     async def run(self, case_id: str, input_data: ReportWriterInput) -> ReportWriterOutput:
-        await self.emit(case_id, "running", "Redaction rapport CAP final")
+        await self.emit(case_id, "running", "Drafting CAP-format report")
         user = (
             f"Patient ID: {input_data.patient_id}\n\n"
             f"Differential diagnosis output:\n{input_data.differential.primary_diagnosis}\n\n"

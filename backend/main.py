@@ -46,7 +46,7 @@ async def analyze(req: AnalyzeRequest):
 
 async def _run_pipeline(req: AnalyzeRequest):
     case_id = req.case_id
-    await manager.broadcast(case_id, {"agent": "pipeline", "status": "started", "content": f"{len(req.slide_paths)} lames"})
+    await manager.broadcast(case_id, {"agent": "pipeline", "status": "started", "content": f"{len(req.slide_paths)} slides"})
 
     triage_results = await asyncio.gather(*[
         TileTriageAgent().run(case_id, TileTriageInput(slide_path=p, slide_index=i))

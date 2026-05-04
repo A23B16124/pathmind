@@ -8,7 +8,7 @@ class TileTriageAgent(BaseAgent):
     name = "tile_triage"
 
     async def run(self, case_id: str, input_data: TileTriageInput) -> TileTriageOutput:
-        await self.emit(case_id, "running", f"Analyse lame {input_data.slide_index}", {"slide": input_data.slide_index})
+        await self.emit(case_id, "running", f"Triaging slide {input_data.slide_index}", {"slide": input_data.slide_index})
         user = (
             f"Slide index: {input_data.slide_index}\n"
             f"Slide path: {input_data.slide_path}\n"

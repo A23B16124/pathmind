@@ -126,7 +126,7 @@ export function createMockStream(onEvent: (event: WSEvent) => void): () => void 
         agent: 'pipeline',
         confidence: 0.91,
         report: {
-          diagnosis: 'Carcinome canalaire infiltrant grade III, marges saines',
+          diagnosis: 'Infiltrating ductal carcinoma grade III, clear margins',
           confidence: 0.91,
           grade: 'III',
           biomarkers: ['ER+', 'PR+', 'HER2-', 'Ki-67 35%'],
@@ -154,13 +154,13 @@ export function createMockStream(onEvent: (event: WSEvent) => void): () => void 
 
 function getMockMessage(agent: AgentName): string {
   const m: Record<AgentName, string> = {
-    'tile-triage': 'Detection de 847 regions dinteret sur 12 lames. Focus zones perinucleaires.',
-    histopathologist: 'Architecture canalaire infiltrante, cellules pleomorphes grade III.',
-    'cross-slide-aggregator': 'Coherence inter-lames confirmee. Envahissement marginal lames 8-9.',
-    'literature-hunter': '847 cas similaires TCGA breast cancer. 12 abstracts PubMed pertinents.',
-    'differential-diagnostician': 'DDx 1: CDI grade III (91%) — DDx 2: CLI (7%) — DDx 3: DCIS (2%)',
-    'quality-control': 'Verification agent histopath: grade III confirme. QC score 0.93.',
-    'report-writer': 'Rapport CAP genere. CDI grade III. Confiance 91%.',
+    'tile-triage': '847 ROIs detected across 12 slides. Focused on perinuclear zones.',
+    histopathologist: 'Infiltrating ductal architecture, grade III pleomorphic cells.',
+    'cross-slide-aggregator': 'Inter-slide coherence confirmed. Marginal invasion slides 8-9.',
+    'literature-hunter': '847 similar TCGA breast cases. 12 relevant PubMed abstracts.',
+    'differential-diagnostician': 'DDx 1: IDC grade III (91%) — DDx 2: ILC (7%) — DDx 3: DCIS (2%)',
+    'quality-control': 'Histopath agent reviewed: grade III confirmed. QC score 0.93.',
+    'report-writer': 'CAP report generated. IDC grade III. Confidence 91%.',
   }
   return m[agent] ?? 'Traitement en cours...'
 }

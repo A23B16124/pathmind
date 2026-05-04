@@ -8,7 +8,7 @@ class QualityControlAgent(BaseAgent):
     name = "quality_control"
 
     async def run(self, case_id: str, input_data: QualityControlInput) -> QualityControlOutput:
-        await self.emit(case_id, "running", "Verification qualite et coherence")
+        await self.emit(case_id, "running", "QC review and consistency check")
         user = (
             f"Primary differential diagnosis:\n{input_data.differential.primary_diagnosis}\n\n"
             f"Cross-slide synthesis:\n{input_data.cross_slide.synthesis}\n\n"
