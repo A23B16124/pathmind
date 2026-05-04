@@ -1,4 +1,43 @@
 import Link from "next/link"
+import { PrintButton } from "./PrintButton"
+
+const PRINT_STYLES = `
+@media print {
+  @page { margin: 16mm; }
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print\\:hidden, header.sticky, footer.fixed { display: none !important; }
+  main { padding-bottom: 0 !important; max-width: none !important; }
+  section, .rounded-xl, .rounded-md, .rounded-full {
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border-color: #d4d4d4 !important;
+    color: #000000 !important;
+  }
+  h1, h2, h3, p, span, li, div { color: #000000 !important; }
+  /* Force chips/bars to keep their accent colors */
+  [class*="bg-[var(--accent)]"],
+  [class*="text-[var(--accent)]"],
+  [class*="border-[var(--accent)]"] { color: #b8860b !important; border-color: #b8860b !important; }
+  [class*="bg-[var(--error)]"],
+  [class*="text-[var(--error)]"],
+  [class*="border-[var(--error)]"] { color: #b91c1c !important; border-color: #b91c1c !important; }
+  [class*="bg-[var(--running)]"],
+  [class*="text-[var(--running)]"],
+  [class*="border-[var(--running)]"] { color: #1d4ed8 !important; border-color: #1d4ed8 !important; }
+  [class*="bg-[var(--done)]"],
+  [class*="text-[var(--done)]"],
+  [class*="border-[var(--done)]"] { color: #15803d !important; border-color: #15803d !important; }
+  /* Confidence bar fill */
+  .h-2 > .bg-\\[var\\(--done\\)\\] { background: #15803d !important; }
+  .w-2.h-2 { background: #b91c1c !important; }
+}
+`
 
 const DIAGNOSIS = "Adénocarcinome pancréatique ductal infiltrant"
 const GRADE = "Grade II/III (OMS 2022)"
