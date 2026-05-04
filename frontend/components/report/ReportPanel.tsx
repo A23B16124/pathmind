@@ -94,6 +94,14 @@ export function ReportPanel({ report, patientLabel, onClose, onExport }: Props) 
             </button>
           )}
           <button
+            onClick={() => {
+              window.location.href = `/report/${report.id ?? "demo"}`
+            }}
+            className="text-[11px] font-mono px-3 py-1.5 rounded border border-[var(--accent)]/40 text-[var(--accent)] hover:bg-[var(--accent)]/10"
+          >
+            Voir rapport complet
+          </button>
+          <button
             onClick={onClose}
             className="text-[11px] font-mono px-3 py-1.5 rounded bg-[var(--accent)] text-[var(--surface)] hover:opacity-90"
           >

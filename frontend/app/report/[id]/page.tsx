@@ -104,6 +104,7 @@ export default async function ReportPage({
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] flex flex-col overflow-y-auto">
+      <style>{PRINT_STYLES}</style>
       <header className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
@@ -277,12 +278,7 @@ export default async function ReportPage({
             >
               Fermer
             </Link>
-            <button
-              type="button"
-              className="px-5 py-2.5 rounded-md bg-[var(--accent)] hover:bg-[var(--accent)]/90 text-[#0d0a04] text-sm font-bold transition-colors shadow-lg shadow-[var(--accent)]/20"
-            >
-              Exporter PDF
-            </button>
+            <PrintButton />
           </div>
         </div>
       </footer>
