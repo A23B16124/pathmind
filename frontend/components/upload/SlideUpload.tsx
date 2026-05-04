@@ -6,6 +6,7 @@ import { Slide } from "@/lib/types"
 interface Props {
   onSlides: (slides: Slide[]) => void
   onAnalyze: () => void
+  onLoadDemo?: () => void
   isRunning: boolean
   slides: Slide[]
 }
@@ -15,7 +16,7 @@ function formatSize(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`
 }
 
-export function SlideUpload({ onSlides, onAnalyze, isRunning, slides }: Props) {
+export function SlideUpload({ onSlides, onAnalyze, onLoadDemo, isRunning, slides }: Props) {
   const [isDragging, setIsDragging] = useState(false)
 
   const handleFiles = useCallback((files: FileList | null) => {
@@ -70,6 +71,16 @@ export function SlideUpload({ onSlides, onAnalyze, isRunning, slides }: Props) {
         <input id="file-input" type="file" multiple accept=".svs,.tiff,.tif,.ndpi,.qptiff" className="hidden"
           onChange={(e) => handleFiles(e.target.files)} />
       </div>
+
+      {onLoadDemo && (
+        <button
+          onClick={onLoadDemo}
+          disabled={isRunning}
+          className="mx-3 mt-2 text-[10px] font-mono py-1.5 rounded border border-[var(--accent)]/40 text-[var(--accent)] hover:bg-[var(--accent)]/5 disabled:opacity-30 disabled:cursor-not-allowed tracking-widest uppercase"
+        >
+          Cas demo — M. Dubois
+        </button>
+      )}
 
       {/* Slide list */}
       <div className="flex-1 overflow-y-auto px-3 mt-2 space-y-1">

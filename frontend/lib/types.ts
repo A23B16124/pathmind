@@ -6,6 +6,7 @@ export interface Slide {
   size: number
   status: SlideStatus
   thumbnailUrl?: string
+  path?: string
 }
 
 export type AgentName =
@@ -27,22 +28,42 @@ export interface AgentState {
   confidence?: number
 }
 
+export type WSEventType =
+  | 'agent_start'
+  | 'agent_message'
+  | 'agent_done'
+  | 'analysis_complete'
+  | 'pipeline_start'
+  | 'agent_error'
+
 export interface WSEvent {
-  type: 'agent_start' | 'agent_message' | 'agent_done' | 'analysis_complete'
-  agent: AgentName
+  type: WSEventType
+  agent: AgentName | 'pipeline'
   message?: string
   confidence?: number
   report_id?: string
+  report?: Report
 }
 
 export interface Report {
-  id: string
-  patientId: string
+  id?: string
+  patientId?: string
   diagnosis: string
-  grade: string
+  grade?: string
   confidence: number
-  biomarkers: string[]
-  margins: string
-  similarCases: number
-  slides: string[]
+  biomarkers?: string[]
+  margins?: string
+  similarCases?: number
+  slides?: string[]
+  rawText?: string
+}
+
+export interface DemoCase {
+  case_id: string
+  patient_id: string
+  patient_label: string
+  age: number
+  clinical_context: string
+  slide_paths: string[]
+  slide_names: string[]
 }
