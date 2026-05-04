@@ -6,7 +6,7 @@ export const DEMO_DUBOIS: DemoCase = {
   patient_label: 'M. Dubois, 67 ans',
   age: 67,
   clinical_context:
-    'Homme 67 ans, douleurs epigastriques persistantes, perte de poids 8 kg en 3 mois. Echographie: masse pancreatique 32 mm tete du pancreas. Biopsie 12 lames.',
+    'Homme 67 ans, douleurs épigastriques persistantes, perte de poids 8 kg en 3 mois. Echographie: masse pancréatique 32 mm tête du pancréas. Biopsie 12 lames.',
   slide_paths: [
     'data/slides/CMU-1-Small-Region.svs',
     'data/slides/JP2K-33003-1.svs',
