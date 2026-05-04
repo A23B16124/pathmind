@@ -1,90 +1,109 @@
-'use client'
-import { useCallback, useRef, useState } from 'react'
-import { Slide } from '@/lib/types'
-import { Button } from '@/components/ui/button'
+
+"use client"
+import { useCallback, useState } from "react"
+import { Slide } from "@/lib/types"
 
 interface Props {
   onSlides: (slides: Slide[]) => void
+  onAnalyze: () => void
+  isRunning: boolean
+  slides: Slide[]
 }
 
 function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
 }
 
-export function SlideUpload({ onSlides }: Props) {
-  const [files, setFiles] = useState<File[]>([])
-  const [dragOver, setDragOver] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+export function SlideUpload({ onSlides, onAnalyze, isRunning, slides }: Props) {
+  const [isDragging, setIsDragging] = useState(false)
 
-  const addFiles = useCallback((incoming: FileList | File[]) => {
-    setFiles((prev) => [...prev, ...Array.from(incoming)])
-  }, [])
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault()
-      setDragOver(false)
-      if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files)
-    },
-    [addFiles],
-  )
-
-  const handleAnalyse = () => {
-    const slides: Slide[] = files.map((f, i) => ({
+  const handleFiles = useCallback((files: FileList | null) => {
+    if (!files) return
+    const newSlides: Slide[] = Array.from(files).map((f, i) => ({
       id: `slide-${Date.now()}-${i}`,
       name: f.name,
       size: f.size,
-      status: 'ready',
+      status: "ready" as const,
     }))
-    onSlides(slides)
-  }
+    onSlides(newSlides)
+  }, [onSlides])
+
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    handleFiles(e.dataTransfer.files)
+  }, [handleFiles])
 
   return (
-    <div className="flex flex-col gap-4 p-4 h-full">
-      <div
-        onDragOver={(e) => {
-          e.preventDefault()
-          setDragOver(true)
-        }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={handleDrop}
-        onClick={() => inputRef.current?.click()}
-        className={`flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 text-center cursor-pointer transition-colors ${
-          dragOver ? 'border-blue-500 bg-blue-950/30' : 'border-zinc-700 bg-zinc-900/40 hover:border-zinc-600'
-        }`}
-      >
-        <span className="text-sm font-medium text-zinc-200">Deposer des lames WSI</span>
-        <span className="text-xs text-zinc-500">.svs .ndpi .tiff — glisser ou cliquer</span>
-        <input
-          ref={inputRef}
-          type="file"
-          multiple
-          accept=".svs,.ndpi,.tiff,.tif,.mrxs"
-          className="hidden"
-          onChange={(e) => {
-            if (e.target.files) addFiles(e.target.files)
-          }}
-        />
+    <div className="flex flex-col h-full bg-[var(--surface)] border-r border-[var(--border)]">
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-[var(--border)]">
+        <div className="flex items-baseline gap-2">
+          <span className="text-sm font-bold tracking-tight text-[var(--accent)]">PathMind</span>
+          <span className="text-[10px] font-mono text-[var(--muted)] tracking-widest uppercase">v0.1</span>
+        </div>
+        <p className="text-[10px] text-[var(--muted)] mt-0.5">Pathology Co-Pilot</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-2">
-        {files.map((f, i) => (
-          <div
-            key={`${f.name}-${i}`}
-            className="rounded border border-zinc-800 bg-zinc-900 p-2 flex items-center justify-between gap-2"
-          >
-            <span className="text-xs text-zinc-200 truncate">{f.name}</span>
-            <span className="text-xs text-zinc-500 shrink-0">{formatSize(f.size)}</span>
+      {/* Drop zone */}
+      <div
+        className={`mx-3 mt-3 rounded border-2 border-dashed transition-all duration-200 cursor-pointer flex flex-col items-center justify-center py-6 px-3 gap-2 ${
+          isDragging
+            ? "border-[var(--accent)] bg-[var(--accent)]/5"
+            : "border-[var(--border-2)] bg-[var(--surface-2)] hover:border-[var(--accent)]/40"
+        }`}
+        onDrop={onDrop}
+        onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+        onDragLeave={() => setIsDragging(false)}
+        onClick={() => document.getElementById("file-input")?.click()}
+      >
+        <div className="w-8 h-8 rounded border border-[var(--border-2)] flex items-center justify-center text-[var(--muted)]">
+          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 4v12M8 8l4-4 4 4"/>
+          </svg>
+        </div>
+        <p className="text-[11px] text-[var(--muted)] text-center">
+          Deposer les lames WSI<br/>
+          <span className="text-[var(--muted-2)]">.svs .tiff .ndpi .qptiff</span>
+        </p>
+        <input id="file-input" type="file" multiple accept=".svs,.tiff,.tif,.ndpi,.qptiff" className="hidden"
+          onChange={(e) => handleFiles(e.target.files)} />
+      </div>
+
+      {/* Slide list */}
+      <div className="flex-1 overflow-y-auto px-3 mt-2 space-y-1">
+        {slides.map((slide, i) => (
+          <div key={slide.id} className="flex items-center gap-2 px-2 py-1.5 rounded bg-[var(--surface-2)] border border-[var(--border)]">
+            <span className="text-[10px] font-mono text-[var(--accent)] w-4 text-right flex-shrink-0">{String(i + 1).padStart(2, "0")}</span>
+            <span className="text-[11px] text-[var(--text)] truncate flex-1">{slide.name}</span>
+            <span className="text-[10px] font-mono text-[var(--muted)] flex-shrink-0">{formatSize(slide.size)}</span>
           </div>
         ))}
       </div>
 
-      <Button disabled={files.length === 0} onClick={handleAnalyse} className="w-full">
-        Analyser
-      </Button>
+      {/* Analyze button */}
+      <div className="p-3 border-t border-[var(--border)]">
+        {slides.length > 0 && (
+          <p className="text-[10px] font-mono text-[var(--muted)] mb-2 text-center">
+            {slides.length} lame{slides.length > 1 ? "s" : ""} chargee{slides.length > 1 ? "s" : ""}
+          </p>
+        )}
+        <button
+          disabled={slides.length === 0 || isRunning}
+          onClick={onAnalyze}
+          className="w-full py-2.5 rounded text-sm font-bold tracking-wide transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+          style={{
+            background: slides.length > 0 && !isRunning
+              ? "linear-gradient(135deg, var(--accent-dim), var(--accent))"
+              : "var(--border)",
+            color: slides.length > 0 && !isRunning ? "#05080F" : "var(--muted)",
+            boxShadow: slides.length > 0 && !isRunning ? "0 0 20px var(--accent)/30" : "none",
+          }}
+        >
+          {isRunning ? "Analyse en cours..." : "Analyser"}
+        </button>
+      </div>
     </div>
   )
 }

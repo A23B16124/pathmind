@@ -1,42 +1,98 @@
-'use client'
-import { AgentState, AgentStatus } from '@/lib/types'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 
-const STATUS_COLOR: Record<AgentStatus, string> = {
-  pending: 'bg-zinc-700 text-zinc-400',
-  running: 'bg-blue-900 text-blue-300',
-  done: 'bg-emerald-900 text-emerald-300',
-  error: 'bg-red-900 text-red-300',
+"use client"
+import { AgentState, AgentStatus } from "@/lib/types"
+
+const AGENT_LABELS: Record<string, string> = {
+  "tile-triage": "Tile Triage",
+  "histopathologist": "Histopathologist",
+  "cross-slide-aggregator": "Cross-Slide Aggregator",
+  "literature-hunter": "Literature Hunter",
+  "differential-diagnostician": "Differential Dx",
+  "quality-control": "Quality Control",
+  "report-writer": "Report Writer",
+}
+
+const STATUS_DOT: Record<AgentStatus, string> = {
+  pending: "bg-[var(--muted-2)]",
+  running: "bg-[var(--running)] agent-running",
+  done: "bg-[var(--done)]",
+  error: "bg-[var(--error)]",
+}
+
+const STATUS_BORDER: Record<AgentStatus, string> = {
+  pending: "border-[var(--border)]",
+  running: "border-[var(--running)]/40",
+  done: "border-[var(--done)]/30",
+  error: "border-[var(--error)]/30",
 }
 
 interface Props {
   agents: AgentState[]
   vramPct: number
+  isRunning: boolean
 }
 
-export function AgentPanel({ agents, vramPct }: Props) {
+export function AgentPanel({ agents, vramPct, isRunning }: Props) {
+  const vramGb = Math.round(vramPct * 192)
+  const doneCount = agents.filter(a => a.status === "done").length
+
   return (
-    <div className="flex flex-col gap-4 p-4 h-full overflow-y-auto">
-      <div className="space-y-1">
-        <div className="flex justify-between text-xs text-zinc-400">
-          <span>VRAM MI300X</span>
-          <span>{Math.round(vramPct * 192)} / 192 GB</span>
-        </div>
-        <Progress value={vramPct * 100} className="h-1.5 bg-zinc-800" />
+    <div className="flex flex-col h-full bg-[var(--surface)] border-l border-[var(--border)]">
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
+        <span className="text-xs font-mono text-[var(--muted)] tracking-widest uppercase">Agents</span>
+        <span className="text-xs font-mono text-[var(--accent)]">{doneCount}/{agents.length}</span>
       </div>
-      <div className="space-y-3">
-        {agents.map((agent) => (
-          <div key={agent.name} className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">{agent.label}</span>
-              <Badge className={STATUS_COLOR[agent.status]}>{agent.status}</Badge>
+
+      {/* VRAM bar */}
+      <div className="px-4 py-3 border-b border-[var(--border)] space-y-1.5">
+        <div className="flex justify-between items-baseline">
+          <span className="text-[10px] font-mono text-[var(--muted)] tracking-widest uppercase">AMD MI300X VRAM</span>
+          <span className="text-[11px] font-mono text-[var(--accent)]">{vramGb} <span className="text-[var(--muted)]">/ 192 GB</span></span>
+        </div>
+        <div className="h-1 bg-[var(--border)] rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-700"
+            style={{
+              width: `${vramPct * 100}%`,
+              background: `linear-gradient(90deg, var(--accent-dim), var(--accent))`,
+              boxShadow: vramPct > 0 ? "0 0 8px var(--accent)" : "none",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Agent list */}
+      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
+        {agents.map((agent, i) => (
+          <div
+            key={agent.name}
+            className={`stagger-in rounded border p-3 transition-all duration-300 ${STATUS_BORDER[agent.status]} bg-[var(--surface-2)]`}
+            style={{ animationDelay: `${i * 60}ms` }}
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${STATUS_DOT[agent.status]}`} />
+              <span className="text-[11px] font-semibold tracking-wide text-[var(--text)] truncate">
+                {AGENT_LABELS[agent.name] ?? agent.name}
+              </span>
             </div>
             {agent.messages.length > 0 && (
-              <p className="text-xs text-zinc-400 leading-relaxed">{agent.messages[agent.messages.length - 1]}</p>
+              <p className="text-[10px] font-mono text-[var(--muted)] leading-relaxed ml-3.5 line-clamp-3">
+                {agent.messages[agent.messages.length - 1]}
+              </p>
             )}
             {agent.confidence !== undefined && (
-              <div className="text-xs text-emerald-400">Confiance {Math.round(agent.confidence * 100)}%</div>
+              <div className="mt-1.5 ml-3.5 flex items-center gap-1.5">
+                <div className="flex-1 h-0.5 bg-[var(--border)] rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-[var(--done)]"
+                    style={{ width: `${agent.confidence * 100}%` }}
+                  />
+                </div>
+                <span className="text-[10px] font-mono text-[var(--done)]">
+                  {Math.round(agent.confidence * 100)}%
+                </span>
+              </div>
             )}
           </div>
         ))}
