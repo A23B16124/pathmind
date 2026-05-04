@@ -1,6 +1,13 @@
+.env
 __pycache__/
 *.pyc
-.pytest_cache/
-*.npz
-/data/
-/cache/
+.venv/
+venv/
+*.egg-info/
+.next/
+node_modules/
+*.svs
+*.tiff
+*.tif
+data/qdrant/
+
