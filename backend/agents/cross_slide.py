@@ -30,6 +30,17 @@ CHUNK_SIZE = 10
 FINDINGS_TRUNCATE = 600
 
 
+def _as_str(v) -> str:
+    """Coerce LLM-returned value into a string. Models occasionally emit
+    nested objects/lists where a string is expected — flatten via JSON dump.
+    """
+    if v is None:
+        return ""
+    if isinstance(v, str):
+        return v
+    return json.dumps(v, ensure_ascii=False)
+
+
 def _format_findings(reads: list[HistopathologistOutput]) -> str:
     return "\n".join(
         f"Slide {r.slide_index}: {r.findings[:FINDINGS_TRUNCATE]}" for r in reads
@@ -113,11 +124,11 @@ class CrossSlideAgent(BaseAgent):
 
         data = repair_llm_json(result)
         return CrossSlideOutput(
-            synthesis_a=(data.get("synthesis_a") or (result if not data else "")) or "",
-            synthesis_b=(data.get("synthesis_b") or "") or "",
-            dominant_pattern=(data.get("dominant_pattern") or "") or "",
+            synthesis_a=_as_str(data.get("synthesis_a")) or (result if not data else ""),
+            synthesis_b=_as_str(data.get("synthesis_b")),
+            dominant_pattern=_as_str(data.get("dominant_pattern")),
             affected_slides=data.get("affected_slides") or [],
-            disagreements=data.get("disagreements") or [],
+            disagreements=[_as_str(d) for d in (data.get("disagreements") or [])],
             confidence=0.89,
         )
 
@@ -158,10 +169,10 @@ class CrossSlideAgent(BaseAgent):
         all_disagreements = list(dict.fromkeys(d for p in partials for d in p.disagreements))
 
         return CrossSlideOutput(
-            synthesis_a=(data.get("synthesis_a") or "; ".join(p.synthesis_a for p in partials if p.synthesis_a)) or "",
-            synthesis_b=(data.get("synthesis_b") or "; ".join(p.synthesis_b for p in partials if p.synthesis_b)) or "",
-            dominant_pattern=(data.get("dominant_pattern") or (partials[0].dominant_pattern if partials else "")) or "",
+            synthesis_a=_as_str(data.get("synthesis_a")) or "; ".join(p.synthesis_a for p in partials if p.synthesis_a),
+            synthesis_b=_as_str(data.get("synthesis_b")) or "; ".join(p.synthesis_b for p in partials if p.synthesis_b),
+            dominant_pattern=_as_str(data.get("dominant_pattern")) or (partials[0].dominant_pattern if partials else ""),
             affected_slides=data.get("affected_slides") or all_affected,
-            disagreements=data.get("disagreements") or all_disagreements,
+            disagreements=[_as_str(d) for d in (data.get("disagreements") or all_disagreements)],
             confidence=0.89,
         )
