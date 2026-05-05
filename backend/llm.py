@@ -2,21 +2,49 @@ import asyncio
 import base64
 import os
 import random
+import time
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Bound LLM concurrency. Without this, asyncio.gather over many slides can
-# fan out hundreds of in-flight requests, OOM-ing client buffers and the
-# vLLM scheduler. 8 is a reasonable default for a single MI300X.
 _LLM_CONCURRENCY = int(os.getenv("LLM_MAX_CONCURRENCY", "8"))
 _LLM_SEMAPHORE = asyncio.Semaphore(_LLM_CONCURRENCY)
 
-# Retry policy: 3 attempts with exponential backoff. Treats transient
-# transport errors as retryable (rate-limit, 5xx, network).
 _LLM_MAX_ATTEMPTS = int(os.getenv("LLM_MAX_ATTEMPTS", "3"))
-_LLM_BACKOFF_BASE = 1.0   # seconds
+_LLM_BACKOFF_BASE = 1.0
 _LLM_BACKOFF_MAX = 8.0
+
+# Task 5 — per-model circuit breaker
+# After CB_FAIL_THRESHOLD consecutive failures the breaker opens for CB_OPEN_SECONDS.
+# All calls during the open window return the last error immediately (fail-fast).
+_CB_FAIL_THRESHOLD = int(os.getenv("CB_FAIL_THRESHOLD", "3"))
+_CB_OPEN_SECONDS = float(os.getenv("CB_OPEN_SECONDS", "30"))
+
+_cb_fails: dict[str, int] = {}          # model_key → consecutive fail count
+_cb_open_until: dict[str, float] = {}   # model_key → epoch when breaker closes
+
+
+def _cb_is_open(model_key: str) -> bool:
+    until = _cb_open_until.get(model_key, 0)
+    if until and time.monotonic() < until:
+        return True
+    if until:
+        # Auto-reset on expiry
+        _cb_open_until.pop(model_key, None)
+        _cb_fails[model_key] = 0
+    return False
+
+
+def _cb_record_fail(model_key: str, last_error: str) -> None:
+    count = _cb_fails.get(model_key, 0) + 1
+    _cb_fails[model_key] = count
+    if count >= _CB_FAIL_THRESHOLD:
+        _cb_open_until[model_key] = time.monotonic() + _CB_OPEN_SECONDS
+
+
+def _cb_record_ok(model_key: str) -> None:
+    _cb_fails[model_key] = 0
+    _cb_open_until.pop(model_key, None)
 
 
 def _is_retryable_error(s: str) -> bool:
@@ -153,12 +181,18 @@ async def chat(
             return _MOCK_RESPONSES[agent_name]
         return _MOCK_RESPONSES["report_writer"]
 
+    # Circuit breaker check (Task 5)
+    if _cb_is_open(model_key):
+        return f"[LLM circuit open for {model_key} — too many consecutive failures]"
+
     last = ""
     async with _LLM_SEMAPHORE:
         for attempt in range(1, _LLM_MAX_ATTEMPTS + 1):
             last = await _call_once(messages, system, max_tokens, cache_system, model_key, timeout)
             if not _is_retryable_error(last):
+                _cb_record_ok(model_key)
                 return last
+            _cb_record_fail(model_key, last)
             if attempt == _LLM_MAX_ATTEMPTS:
                 break
             backoff = min(_LLM_BACKOFF_BASE * (2 ** (attempt - 1)), _LLM_BACKOFF_MAX)

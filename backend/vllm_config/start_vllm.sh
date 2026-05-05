@@ -6,13 +6,16 @@
 
 set -e
 
-echo "[1/2] Starting Qwen2.5-72B on port 8001..."
+echo "[1/2] Starting Qwen2.5-VL-72B on port 8001..."
 nohup python -m vllm.entrypoints.openai.api_server \
-  --model Qwen/Qwen2.5-72B-Instruct \
+  --model Qwen/Qwen2.5-VL-72B-Instruct \
   --port 8001 \
   --dtype bfloat16 \
   --gpu-memory-utilization 0.55 \
   --max-model-len 8192 \
+  --max-num-seqs 8 \
+  --limit-mm-per-prompt image=4 \
+  --trust-remote-code \
   --served-model-name qwen72b \
   > /tmp/vllm_qwen72b.log 2>&1 &
 

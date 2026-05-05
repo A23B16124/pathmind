@@ -57,6 +57,33 @@ export interface WSEvent {
   slide_dims?: [number, number]
 }
 
+export interface LiteraturePaper {
+  title: string
+  pmid: string
+  source: 'pubmed' | 'tcga_case' | string
+  url: string
+  score: number
+  snippet: string
+  journal?: string
+  year?: string
+  authors?: string
+  relevance?: string
+}
+
+export interface LiteratureBundle {
+  key_findings: string
+  similar_cases: number
+  used_papers: LiteraturePaper[]
+  suggested_papers: LiteraturePaper[]
+}
+
+export interface ReportWarning {
+  code: string
+  severity: 'info' | 'warn' | 'danger'
+  message: string
+  evidence?: string
+}
+
 export interface Report {
   id?: string
   patientId?: string
@@ -78,6 +105,8 @@ export interface Report {
   margin_status?: string
   recommendations?: string[]
   similar_cases?: number
+  literature?: LiteratureBundle
+  warnings?: ReportWarning[]
 }
 
 export interface DemoCase {

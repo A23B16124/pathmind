@@ -1,22 +1,25 @@
-
 "use client"
 import { useCallback, useState } from "react"
-import { Slide } from "@/lib/types"
+import { DemoCase, Slide } from "@/lib/types"
 
 interface Props {
   onSlides: (slides: Slide[]) => void
   onAnalyze: () => void
-  onLoadDemo?: () => void
+  onLoadDemo?: (demo: DemoCase) => void
+  demoCases?: DemoCase[]
+  activeCaseId?: string
   isRunning: boolean
   slides: Slide[]
 }
 
 function formatSize(bytes: number): string {
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} ko`
+  return `${(bytes / 1024 / 1024).toFixed(1)} Mo`
 }
 
-export function SlideUpload({ onSlides, onAnalyze, onLoadDemo, isRunning, slides }: Props) {
+export function SlideUpload({
+  onSlides, onAnalyze, onLoadDemo, demoCases, activeCaseId, isRunning, slides,
+}: Props) {
   const [isDragging, setIsDragging] = useState(false)
 
   const handleFiles = useCallback((files: FileList | null) => {
@@ -37,82 +40,113 @@ export function SlideUpload({ onSlides, onAnalyze, onLoadDemo, isRunning, slides
   }, [handleFiles])
 
   return (
-    <div className="flex flex-col h-full bg-[var(--surface)] border-r border-[var(--border)]">
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-[var(--border)]">
-        <div className="flex items-baseline gap-2">
-          <span className="text-sm font-bold tracking-tight text-[var(--accent)]">PathMind</span>
-          <span className="text-[10px] font-mono text-[var(--muted)] tracking-widest uppercase">v0.1</span>
+    <div className="flex flex-col h-full bg-[var(--paper)] border-r border-[var(--rule-strong)]">
+      {/* Brand header */}
+      <div className="px-4 py-3.5 border-b border-[var(--rule-strong)]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 border border-[var(--ink)] grid place-items-center font-serif italic font-semibold text-[var(--accent)]">
+            P
+          </div>
+          <div className="leading-tight">
+            <div className="font-serif text-[18px] font-semibold tracking-[-0.01em]">PathMind</div>
+            <div className="font-mono text-[10px] text-[var(--muted)]">v0.2 · clinique</div>
+          </div>
         </div>
-        <p className="text-[10px] text-[var(--muted)] mt-0.5">Pathology Co-Pilot</p>
+      </div>
+
+      {/* Section title */}
+      <div className="px-4 pt-4 pb-2 border-b border-[var(--rule)] flex items-baseline justify-between">
+        <span className="font-serif text-[15px] font-semibold">File de lecture</span>
+        <span className="font-mono text-[11px] text-[var(--muted)]">
+          {slides.length > 0 ? `${slides.length} lame${slides.length > 1 ? "s" : ""}` : "vide"}
+        </span>
       </div>
 
       {/* Drop zone */}
       <div
-        className={`mx-3 mt-3 rounded border-2 border-dashed transition-all duration-200 cursor-pointer flex flex-col items-center justify-center py-6 px-3 gap-2 ${
+        className={`mx-4 mt-3 border border-dashed cursor-pointer flex flex-col items-center justify-center py-5 px-3 gap-2 transition-colors ${
           isDragging
-            ? "border-[var(--accent)] bg-[var(--accent)]/5"
-            : "border-[var(--border-2)] bg-[var(--surface-2)] hover:border-[var(--accent)]/40"
+            ? "border-[var(--accent)] bg-[var(--accent-soft)]"
+            : "border-[var(--rule-strong)] bg-[var(--paper-2)] hover:border-[var(--accent)]"
         }`}
         onDrop={onDrop}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
         onDragLeave={() => setIsDragging(false)}
         onClick={() => document.getElementById("file-input")?.click()}
       >
-        <div className="w-8 h-8 rounded border border-[var(--border-2)] flex items-center justify-center text-[var(--muted)]">
-          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <div className="w-8 h-8 border border-[var(--rule-strong)] grid place-items-center text-[var(--ink-soft)]">
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
             <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 4v12M8 8l4-4 4 4"/>
           </svg>
         </div>
-        <p className="text-[11px] text-[var(--muted)] text-center">
-          Drop WSI slides<br/>
-          <span className="text-[var(--muted-2)]">.svs .tiff .ndpi .qptiff</span>
+        <p className="text-[11px] text-[var(--ink-soft)] text-center leading-snug">
+          Déposer une lame WSI<br/>
+          <span className="font-mono text-[10px] text-[var(--muted)]">.svs · .ndpi · .tiff · .qptiff</span>
         </p>
-        <input id="file-input" type="file" multiple accept=".svs,.tiff,.tif,.ndpi,.qptiff" className="hidden"
-          onChange={(e) => handleFiles(e.target.files)} />
+        <input
+          id="file-input" type="file" multiple
+          accept=".svs,.tiff,.tif,.ndpi,.qptiff"
+          className="hidden"
+          onChange={(e) => handleFiles(e.target.files)}
+        />
       </div>
 
-      {onLoadDemo && (
-        <button
-          onClick={onLoadDemo}
-          disabled={isRunning}
-          className="mx-3 mt-2 text-[10px] font-mono py-1.5 rounded border border-[var(--accent)]/40 text-[var(--accent)] hover:bg-[var(--accent)]/5 disabled:opacity-30 disabled:cursor-not-allowed tracking-widest uppercase"
-        >
-          Demo case — Mr. Dubois
-        </button>
+      {onLoadDemo && demoCases && demoCases.length > 0 && (
+        <div className="mx-4 mt-3">
+          <div className="smcaps mb-1.5">Cas démo</div>
+          <div className="flex flex-col">
+            {demoCases.map((d) => {
+              const active = d.case_id === activeCaseId
+              return (
+                <button
+                  key={d.case_id}
+                  onClick={() => onLoadDemo(d)}
+                  disabled={isRunning}
+                  className={`text-left px-2.5 py-2 text-[11px] border-b border-[var(--rule)] last:border-b-0 first:border-t border-x ${
+                    active
+                      ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--ink)]"
+                      : "border-[var(--rule)] hover:bg-[var(--paper-2)] text-[var(--ink-soft)]"
+                  } disabled:opacity-40 disabled:cursor-not-allowed transition-colors`}
+                >
+                  <div className="font-serif text-[12px] font-medium leading-tight">
+                    {d.patient_label}
+                  </div>
+                  <div className="font-mono text-[9.5px] text-[var(--muted)] mt-0.5 truncate">
+                    {d.case_id}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
       )}
 
       {/* Slide list */}
-      <div className="flex-1 overflow-y-auto px-3 mt-2 space-y-1">
+      <div className="flex-1 overflow-y-auto mt-3">
         {slides.map((slide, i) => (
-          <div key={slide.id} className="flex items-center gap-2 px-2 py-1.5 rounded bg-[var(--surface-2)] border border-[var(--border)]">
-            <span className="text-[10px] font-mono text-[var(--accent)] w-4 text-right flex-shrink-0">{String(i + 1).padStart(2, "0")}</span>
-            <span className="text-[11px] text-[var(--text)] truncate flex-1">{slide.name}</span>
-            <span className="text-[10px] font-mono text-[var(--muted)] flex-shrink-0">{formatSize(slide.size)}</span>
+          <div
+            key={slide.id}
+            className="grid grid-cols-[28px_1fr_auto] items-center gap-2.5 px-4 py-2.5 border-b border-[var(--rule)] hover:bg-[var(--paper-2)]"
+          >
+            <span className="font-mono text-[10px] text-[var(--accent)] text-right">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span className="font-serif text-[13px] text-[var(--ink)] truncate" title={slide.name}>
+              {slide.name}
+            </span>
+            <span className="font-mono text-[10px] text-[var(--muted)]">{formatSize(slide.size)}</span>
           </div>
         ))}
       </div>
 
       {/* Analyze button */}
-      <div className="flex-shrink-0 p-3 border-t border-[var(--border)]">
-        {slides.length > 0 && (
-          <p className="text-[10px] font-mono text-[var(--muted)] mb-2 text-center whitespace-nowrap">
-            {slides.length} slide{slides.length > 1 ? "s" : ""} loaded
-          </p>
-        )}
+      <div className="flex-shrink-0 p-4 border-t border-[var(--rule-strong)] bg-[var(--paper-2)]">
         <button
           disabled={slides.length === 0 || isRunning}
           onClick={onAnalyze}
-          className="w-full py-2.5 rounded text-sm font-bold tracking-wide transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{
-            background: slides.length > 0 && !isRunning
-              ? "linear-gradient(135deg, var(--accent-dim), var(--accent))"
-              : "var(--border)",
-            color: slides.length > 0 && !isRunning ? "#05080F" : "var(--muted)",
-            boxShadow: slides.length > 0 && !isRunning ? "0 0 20px var(--accent)/30" : "none",
-          }}
+          className="w-full py-2.5 text-[12px] font-medium tracking-wide bg-[var(--ink)] text-[var(--paper)] border border-[var(--ink)] hover:bg-[var(--accent)] hover:border-[var(--accent)] disabled:bg-[var(--rule)] disabled:border-[var(--rule)] disabled:text-[var(--muted)] disabled:cursor-not-allowed transition-colors"
         >
-          {isRunning ? "Running..." : "Analyze"}
+          {isRunning ? "Pipeline en cours…" : "Analyser le cas"}
         </button>
       </div>
     </div>

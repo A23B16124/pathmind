@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 from typing import Any, Optional
 
 from langgraph.graph import StateGraph, END
@@ -43,6 +44,9 @@ from backend.agents.cross_slide import CrossSlideAgent
 from backend.agents.literature_hunter import LiteratureHunterAgent
 from backend.agents.chief import ChiefAgent
 
+# Task 7: per-node timeout budget (seconds). Overridable via env.
+_NODE_TIMEOUT = float(os.environ.get("NODE_TIMEOUT", "300"))  # 5 min per node
+
 
 class PipelineState(TypedDict):
     case_id: str
@@ -61,39 +65,76 @@ class PipelineState(TypedDict):
 
 # ── Node definitions ──────────────────────────────────────────────────────────
 
+async def _triage_one(case_id: str, path: str, idx: int) -> TileTriageOutput:
+    """Run triage for one slide; on any failure return a parse_failed sentinel."""
+    try:
+        return await asyncio.wait_for(
+            TileTriageAgent.instance().run(case_id, TileTriageInput(slide_path=path, slide_index=idx)),
+            timeout=_NODE_TIMEOUT,
+        )
+    except (asyncio.TimeoutError, Exception) as exc:
+        return TileTriageOutput(
+            slide_index=idx,
+            slide_path=path,
+            parse_failed=True,
+            summary=f"triage error: {exc}",
+        )
+
+
 async def node_tile_triage(state: PipelineState) -> dict:
     results = await asyncio.gather(*[
-        TileTriageAgent().run(
-            state["case_id"],
-            TileTriageInput(slide_path=p, slide_index=i),
-        )
+        _triage_one(state["case_id"], p, i)
         for i, p in enumerate(state["slide_paths"])
     ])
     return {"triage_results": list(results)}
 
 
 async def node_histo_parallel(state: PipelineState) -> dict:
+    # Task 10: skip slides that failed triage (not found / corrupt)
+    good = [t for t in state["triage_results"] if not t.parse_failed]
+    failed = [t for t in state["triage_results"] if t.parse_failed]
+
     histo_inputs = [
         HistopathologistInput(
             slide_index=t.slide_index,
             slide_path=state["slide_paths"][t.slide_index],
             regions_of_interest=t.regions_of_interest,
         )
-        for t in state["triage_results"]
+        for t in good
     ]
 
+    def _failed_output(t: TileTriageOutput, agent_id: str) -> HistopathologistOutput:
+        return HistopathologistOutput(
+            slide_index=t.slide_index,
+            agent_id=agent_id,
+            findings=f"[skipped — slide parse failed: {t.summary}]",
+            confidence=0.0,
+        )
+
+    if not histo_inputs:
+        # All slides failed
+        fallback_a = [_failed_output(t, "histo_a") for t in failed]
+        fallback_b = [_failed_output(t, "histo_b") for t in failed]
+        return {"histo_a_results": fallback_a, "histo_b_results": fallback_b}
+
     results_a, results_b = await asyncio.gather(
-        asyncio.gather(*[HistopathologistAAgent().run(state["case_id"], inp) for inp in histo_inputs]),
-        asyncio.gather(*[HistopathologistBAgent().run(state["case_id"], inp) for inp in histo_inputs]),
+        asyncio.gather(*[
+            asyncio.wait_for(HistopathologistAAgent.instance().run(state["case_id"], inp), timeout=_NODE_TIMEOUT)
+            for inp in histo_inputs
+        ]),
+        asyncio.gather(*[
+            asyncio.wait_for(HistopathologistBAgent.instance().run(state["case_id"], inp), timeout=_NODE_TIMEOUT)
+            for inp in histo_inputs
+        ]),
     )
     return {
-        "histo_a_results": list(results_a),
-        "histo_b_results": list(results_b),
+        "histo_a_results": list(results_a) + [_failed_output(t, "histo_a") for t in failed],
+        "histo_b_results": list(results_b) + [_failed_output(t, "histo_b") for t in failed],
     }
 
 
 async def node_cross_slide(state: PipelineState) -> dict:
-    cross = await CrossSlideAgent().run(
+    cross = await CrossSlideAgent.instance().run(
         state["case_id"],
         CrossSlideInput(
             slides_a=state["histo_a_results"],
@@ -107,7 +148,7 @@ async def node_cross_slide(state: PipelineState) -> dict:
 async def node_literature(state: PipelineState) -> dict:
     cross = state["cross_slide"]
     hypothesis = cross.dominant_pattern or cross.synthesis_a or "indeterminate pathology"
-    lit = await LiteratureHunterAgent().run(
+    lit = await LiteratureHunterAgent.instance().run(
         state["case_id"],
         LiteratureHunterInput(
             hypothesis=hypothesis,
@@ -118,7 +159,7 @@ async def node_literature(state: PipelineState) -> dict:
 
 
 async def node_chief(state: PipelineState) -> dict:
-    report = await ChiefAgent().run(
+    report = await ChiefAgent.instance().run(
         state["case_id"],
         ChiefInput(
             patient_id=state["patient_id"],
@@ -160,8 +201,16 @@ async def run_pipeline(
     patient_id: str,
     slide_paths: list[str],
     clinical_data: dict | None = None,
-) -> ChiefOutput:
-    """Invoke the compiled LangGraph pipeline and return the chief report."""
+) -> tuple[ChiefOutput, LiteratureHunterOutput, list[dict]]:
+    """Invoke the compiled LangGraph pipeline.
+
+    Returns (chief_report, literature, warnings) so the API layer can surface:
+      - the dual-read diagnosis,
+      - used vs suggested literature,
+      - hallucination/safety warnings flagged by the post-hoc audit.
+    """
+    from backend.utils.hallucination_guard import audit_report
+
     initial_state: PipelineState = {
         "case_id": case_id,
         "patient_id": patient_id,
@@ -176,4 +225,12 @@ async def run_pipeline(
         "error": None,
     }
     final_state = await _graph.ainvoke(initial_state)
-    return final_state["report"]
+
+    warnings = audit_report(
+        report=final_state["report"],
+        literature=final_state["literature"],
+        triage=final_state["triage_results"] or [],
+        histo_a=final_state["histo_a_results"] or [],
+        histo_b=final_state["histo_b_results"] or [],
+    )
+    return final_state["report"], final_state["literature"], warnings
