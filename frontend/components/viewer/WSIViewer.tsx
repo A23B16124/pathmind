@@ -91,14 +91,9 @@ export function WSIViewer({ slideId, className, overlays }: WSIViewerProps) {
         label.style.whiteSpace = 'nowrap'
         el.appendChild(label)
 
-        // Task 8: clamp coords to [0, 1] to prevent overlay clipping outside slide
-        const cx = Math.max(0, Math.min(1, o.x))
-        const cy = Math.max(0, Math.min(1, o.y))
-        const cw = Math.max(0.001, Math.min(1 - cx, o.w))
-        const ch = Math.max(0.001, Math.min(1 - cy, o.h))
         viewer.addOverlay({
           element: el,
-          location: new OpenSeadragon.Rect(cx, cy, cw, ch),
+          location: new OpenSeadragon.Rect(o.x, o.y, o.w, o.h),
         })
       }
     }

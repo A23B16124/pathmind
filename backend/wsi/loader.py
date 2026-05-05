@@ -52,30 +52,8 @@ class SlideMeta:
         }
 
 
-# Task 2: format whitelist + size guard
-SUPPORTED_EXTENSIONS = {".svs", ".ndpi", ".tiff", ".tif", ".qptiff", ".mrxs", ".scn", ".vms", ".vmu"}
-MAX_SLIDE_BYTES = int(os.getenv("MAX_SLIDE_BYTES", str(8 * 1024 ** 3)))  # 8 GB default
-MIN_SLIDE_BYTES = 1024  # < 1 KB → almost certainly empty/corrupt
-
-
 class WSILoadError(Exception):
     pass
-
-
-def _validate_slide_path(resolved: Path) -> None:
-    """Raise WSILoadError for unsupported extension or suspicious file size."""
-    ext = resolved.suffix.lower()
-    if ext not in SUPPORTED_EXTENSIONS:
-        raise WSILoadError(
-            f"unsupported format '{ext}' — allowed: {', '.join(sorted(SUPPORTED_EXTENSIONS))}"
-        )
-    size = resolved.stat().st_size
-    if size < MIN_SLIDE_BYTES:
-        raise WSILoadError(f"slide file too small ({size} bytes) — likely empty or corrupt")
-    if size > MAX_SLIDE_BYTES:
-        raise WSILoadError(
-            f"slide file too large ({size / 1024**3:.1f} GB) — max {MAX_SLIDE_BYTES / 1024**3:.0f} GB"
-        )
 
 
 def _resolve_path(slide_path: str) -> Optional[Path]:
@@ -100,12 +78,8 @@ def open_slide(slide_path: str) -> SlideMeta:
     if resolved is None:
         raise WSILoadError(f"slide not found: {slide_path}")
 
-    _validate_slide_path(resolved)
-
     try:
         slide = OpenSlide(str(resolved))
-    except WSILoadError:
-        raise
     except Exception as e:
         raise WSILoadError(f"failed to open slide {resolved}: {e}") from e
 

@@ -22,12 +22,30 @@ from backend.schemas.agents import (
 )
 from backend.llm import chat
 from backend.prompts import load_prompt
-from backend.utils.json_repair import repair_llm_json
 
 
 CHUNK_THRESHOLD = 20    # slides above which we chunk
 CHUNK_SIZE = 10
 FINDINGS_TRUNCATE = 600
+
+
+def _strip_fences(s: str) -> str:
+    s = s.strip()
+    if s.startswith("```"):
+        parts = s.split("```")
+        if len(parts) >= 2:
+            s = parts[1]
+            if s.startswith("json"):
+                s = s[4:]
+    return s.strip().rstrip("`").strip()
+
+
+def _parse_json_safe(text: str) -> dict:
+    try:
+        v = json.loads(_strip_fences(text))
+        return v if isinstance(v, dict) else {}
+    except Exception:
+        return {}
 
 
 def _format_findings(reads: list[HistopathologistOutput]) -> str:
@@ -111,7 +129,7 @@ class CrossSlideAgent(BaseAgent):
         if emit_done:
             await self.emit(case_id, "done", result)
 
-        data = repair_llm_json(result)
+        data = _parse_json_safe(result)
         return CrossSlideOutput(
             synthesis_a=data.get("synthesis_a", result if not data else ""),
             synthesis_b=data.get("synthesis_b", ""),
@@ -153,7 +171,7 @@ class CrossSlideAgent(BaseAgent):
             max_tokens=2500,
         )
 
-        data = repair_llm_json(result)
+        data = _parse_json_safe(result)
         all_affected = sorted({s for p in partials for s in p.affected_slides})
         all_disagreements = list(dict.fromkeys(d for p in partials for d in p.disagreements))
 

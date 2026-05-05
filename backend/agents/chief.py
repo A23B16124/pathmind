@@ -3,7 +3,6 @@ from backend.agents.base import BaseAgent
 from backend.schemas.agents import ChiefInput, ChiefOutput, DebateRound
 from backend.llm import chat
 from backend.prompts import load_prompt
-from backend.utils.json_repair import repair_llm_json
 
 
 class ChiefAgent(BaseAgent):
@@ -43,8 +42,23 @@ class ChiefAgent(BaseAgent):
 
         await self.emit(case_id, "done", result)
 
-        data = repair_llm_json(result)
-        parse_failed = not bool(data)
+        # Strip markdown fences if present (LLMs ignore "JSON only" under load)
+        raw = result.strip()
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+            raw = raw.strip().rstrip("`").strip()
+
+        parse_failed = False
+        try:
+            data = json.loads(raw)
+            if not isinstance(data, dict):
+                data = {}
+                parse_failed = True
+        except Exception:
+            data = {}
+            parse_failed = True
 
         if parse_failed:
             await self.emit(case_id, "error", "Chief JSON parse failed — degraded output")
