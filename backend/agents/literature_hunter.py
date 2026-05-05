@@ -12,6 +12,8 @@ Returns LiteratureHunterOutput with used_papers + suggested_papers separated.
 
 from __future__ import annotations
 
+import json
+
 from backend.agents.base import BaseAgent
 from backend.schemas.agents import (
     LiteratureHunterInput,
@@ -114,7 +116,8 @@ class LiteratureHunterAgent(BaseAgent):
         await self.emit(case_id, "done", result)
 
         data = repair_llm_json(result)
-        key_findings = data.get("key_findings") or result
+        kf_raw = data.get("key_findings") or result
+        key_findings = kf_raw if isinstance(kf_raw, str) else json.dumps(kf_raw, ensure_ascii=False)
 
         def _resolve(refs: list, fallback: list[dict]) -> list[LiteraturePaper]:
             out: list[LiteraturePaper] = []
