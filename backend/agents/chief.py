@@ -42,10 +42,26 @@ class ChiefAgent(BaseAgent):
 
         await self.emit(case_id, "done", result)
 
+        # Strip markdown fences if present (LLMs ignore "JSON only" under load)
+        raw = result.strip()
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+            raw = raw.strip().rstrip("`").strip()
+
+        parse_failed = False
         try:
-            data = json.loads(result)
+            data = json.loads(raw)
+            if not isinstance(data, dict):
+                data = {}
+                parse_failed = True
         except Exception:
             data = {}
+            parse_failed = True
+
+        if parse_failed:
+            await self.emit(case_id, "error", "Chief JSON parse failed — degraded output")
 
         rounds = [
             DebateRound(
@@ -56,11 +72,28 @@ class ChiefAgent(BaseAgent):
             for r in data.get("debate_rounds", [])
         ]
 
+        report_html = ""
+        if not parse_failed and data:
+            report_html = (
+                f"<div class='cap-report'>"
+                f"<h2>{data.get('primary_diagnosis', 'Pending diagnosis')}</h2>"
+                f"<p><strong>ICD-O:</strong> {data.get('icd_o_code', 'N/A')} | "
+                f"<strong>Stage:</strong> {data.get('pt_stage', 'N/A')} {data.get('pn_stage', 'N/A')} | "
+                f"<strong>Margin:</strong> {data.get('margin_status', 'N/A')}</p>"
+                f"<h3>Debate Summary</h3><p>{data.get('debate_summary', '')}</p>"
+                f"<h3>Recommended Biomarkers</h3><ul>"
+                + "".join(f"<li>{b}</li>" for b in data.get('biomarkers', []))
+                + f"</ul><h3>Recommendations</h3><ul>"
+                + "".join(f"<li>{r}</li>" for r in data.get('recommendations', []))
+                + f"</ul></div>"
+            )
+
         return ChiefOutput(
             debate_rounds=rounds,
             debate_summary=data.get("debate_summary", ""),
             diagnosis=data.get("primary_diagnosis", ""),
             biomarkers=data.get("biomarkers", []),
-            confidence=float(data.get("confidence", 0.92)),
+            confidence=0.0 if parse_failed else float(data.get("confidence", 0.92)),
             cap_report=data,
+            report_html=report_html,
         )
