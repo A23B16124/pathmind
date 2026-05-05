@@ -1,50 +1,69 @@
-@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap");
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap");
+@import "tailwindcss";
 
 :root {
-  --bg: #05080F;
-  --surface: #0D1420;
-  --surface-2: #131D30;
-  --border: #1A2540;
-  --border-2: #243358;
-  --accent: #E8A234;
-  --accent-dim: #7A5218;
-  --done: #3DD68C;
-  --running: #3B82F6;
-  --error: #F43F5E;
-  --text: #E8EAF0;
-  --muted: #6B7FA3;
-  --muted-2: #3D4F70;
+  /* Clinical / editorial palette */
+  --paper:        #f4f1ea;   /* ivory */
+  --paper-2:      #ebe6db;
+  --rule:         #c8c1b1;
+  --rule-strong:  #5e574b;
+  --ink:          #1c1a16;
+  --ink-soft:     #4a4538;
+  --muted:        #807866;
+  --accent:       #6b1d1d;   /* oxblood */
+  --accent-soft:  rgba(164, 57, 57, 0.13);
+  --warn:         #8a5a14;
+  --ok:           #2f5d3a;
+  --running:      #6b1d1d;
+
+  /* Legacy aliases — kept so existing components don't break while we migrate */
+  --bg:        var(--paper);
+  --surface:   var(--paper);
+  --surface-2: var(--paper-2);
+  --border:    var(--rule);
+  --border-2:  var(--rule-strong);
+  --text:      var(--ink);
+  --done:      var(--ok);
+  --error:     var(--accent);
+  --muted-2:   var(--rule);
 }
 
 * { box-sizing: border-box; }
 
+html, body { height: 100%; }
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: "Syne", sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11", "tnum";
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
+  line-height: 1.45;
 }
 
+/* Utility classes used throughout the clinical UI */
+.font-serif { font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.005em; }
+.font-mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; font-feature-settings: "ss02"; }
+.smcaps     { text-transform: uppercase; letter-spacing: 0.18em; font-size: 10px; font-weight: 600; color: var(--muted); }
+
+/* Animations */
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(59,130,246,0); }
-  100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(107, 29, 29, 0.45); }
+  50%      { box-shadow: 0 0 0 6px rgba(107, 29, 29, 0); }
 }
+.agent-running { animation: pulse-ring 1.4s ease-in-out infinite; }
 
 @keyframes stagger-in {
   from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
-.agent-running { animation: pulse-ring 1.5s ease-out infinite; }
 .stagger-in { animation: stagger-in 0.4s ease both; }
 
 @keyframes cursor-blink {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+  0%, 49%  { opacity: 1; }
+  50%, 100%{ opacity: 0; }
 }
 .cursor-blink { animation: cursor-blink 1s steps(1) infinite; }
+
+/* OpenSeadragon container needs a dark backdrop matching the viewer */
+#osd-viewer { background: #1a1815; }

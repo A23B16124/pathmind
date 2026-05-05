@@ -8,7 +8,10 @@ Falls back to text-only if patch extraction fails (e.g. WSI parse error upstream
 from __future__ import annotations
 
 import asyncio
+import io
 import json
+
+from PIL import Image
 
 from backend.agents.base import BaseAgent
 from backend.schemas.agents import HistopathologistInput, HistopathologistOutput
@@ -16,9 +19,31 @@ from backend.llm import chat, build_user_message, encode_image_b64
 from backend.prompts import load_prompt
 from backend.wsi.loader import read_region_jpeg, WSILoadError
 
-# Cap how many patches we send to the LLM per slide (cost + context budget)
 MAX_PATCHES_PER_SLIDE = 4
-PATCH_PIXEL_SIZE = 1024  # output JPEG side, downsampled from level-0 region
+PATCH_PIXEL_SIZE = 1024
+# Task 3: hard limits to stay within LLM context
+MAX_PATCH_BYTES = 1 * 1024 * 1024   # 1 MB
+MAX_PATCH_SIDE = 2048                # px
+
+
+def _downscale_if_needed(jpeg: bytes) -> bytes:
+    """Downscale JPEG until it fits MAX_PATCH_BYTES and MAX_PATCH_SIDE."""
+    if len(jpeg) <= MAX_PATCH_BYTES:
+        img = Image.open(io.BytesIO(jpeg))
+        if max(img.size) <= MAX_PATCH_SIDE:
+            return jpeg
+    img = Image.open(io.BytesIO(jpeg)).convert("RGB")
+    # Cap dimensions first
+    if max(img.size) > MAX_PATCH_SIDE:
+        img.thumbnail((MAX_PATCH_SIDE, MAX_PATCH_SIDE), Image.LANCZOS)
+    # Then iterate quality down until size fits
+    for quality in (80, 70, 60, 50, 40):
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=quality)
+        data = buf.getvalue()
+        if len(data) <= MAX_PATCH_BYTES:
+            return data
+    return data  # best effort even if slightly over
 
 
 def _extract_patches(slide_path: str, rois: list[dict]) -> list[str]:
@@ -34,6 +59,7 @@ def _extract_patches(slide_path: str, rois: list[dict]) -> list[str]:
                 level=0,
                 quality=85,
             )
+            jpeg = _downscale_if_needed(jpeg)
             patches.append(encode_image_b64(jpeg))
         except (WSILoadError, KeyError, OSError):
             continue
