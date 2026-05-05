@@ -105,7 +105,7 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden">
+    <div className="flex h-[100dvh] w-screen overflow-hidden">
       <div className="w-64 flex-shrink-0 h-full">
         <SlideUpload
           slides={slides}
