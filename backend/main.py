@@ -17,6 +17,13 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 _STARTUP_TIME = time.time()
 
+# Cap how many cases run concurrently. Each case fans out across many agents
+# and the underlying LLM semaphore already throttles per-call concurrency, but
+# this guards against the wider scheduler drowning under burst load.
+_CASE_MAX_CONCURRENCY = int(os.getenv("CASE_MAX_CONCURRENCY", "3"))
+_CASE_SEMAPHORE = asyncio.Semaphore(_CASE_MAX_CONCURRENCY)
+_CASE_INFLIGHT: dict[str, asyncio.Task] = {}
+
 
 class AnalyzeRequest(BaseModel):
     case_id: str
@@ -102,50 +109,74 @@ async def websocket_endpoint(websocket: WebSocket, case_id: str):
 
 @app.post("/api/analyze")
 async def analyze(req: AnalyzeRequest):
-    asyncio.create_task(_run_pipeline(req))
-    return {"case_id": req.case_id, "status": "started"}
+    """Submit a case. Idempotent on case_id while a previous run is in-flight."""
+    existing = _CASE_INFLIGHT.get(req.case_id)
+    if existing and not existing.done():
+        return {"case_id": req.case_id, "status": "already_running"}
+
+    task = asyncio.create_task(_run_pipeline(req))
+    _CASE_INFLIGHT[req.case_id] = task
+    task.add_done_callback(lambda _t: _CASE_INFLIGHT.pop(req.case_id, None))
+    return {
+        "case_id": req.case_id,
+        "status": "started",
+        "queue_size": len([t for t in _CASE_INFLIGHT.values() if not t.done()]),
+    }
+
+
+@app.get("/api/queue")
+async def queue_status():
+    active = [cid for cid, t in _CASE_INFLIGHT.items() if not t.done()]
+    return {
+        "active_cases": active,
+        "active_count": len(active),
+        "max_concurrent": _CASE_MAX_CONCURRENCY,
+    }
 
 
 async def _run_pipeline(req: AnalyzeRequest):
+    """Run the LangGraph pipeline for one case under the case-level semaphore."""
     case_id = req.case_id
-    try:
-        await manager.broadcast(
-            case_id,
-            {"agent": "pipeline", "status": "started", "content": f"{len(req.slide_paths)} slides — LangGraph dual-read pipeline"},
-        )
+    async with _CASE_SEMAPHORE:
+        try:
+            await manager.broadcast(
+                case_id,
+                {"agent": "pipeline", "status": "started",
+                 "content": f"{len(req.slide_paths)} slides — LangGraph dual-read pipeline"},
+            )
 
-        report = await run_pipeline(
-            case_id=case_id,
-            patient_id=req.patient_id,
-            slide_paths=req.slide_paths,
-            clinical_data=req.clinical_data,
-        )
+            report = await run_pipeline(
+                case_id=case_id,
+                patient_id=req.patient_id,
+                slide_paths=req.slide_paths,
+                clinical_data=req.clinical_data,
+            )
 
-        report_dict = {
-            "diagnosis": report.diagnosis,
-            "biomarkers": report.biomarkers,
-            "debate_summary": report.debate_summary,
-            "confidence": report.confidence,
-            "cap_report": report.cap_report,
-            "report_html": report.report_html,
-        }
-
-        # content = JSON-stringified report so frontend ws.ts parser works.
-        # report = same dict for forward-compat consumers.
-        await manager.broadcast(
-            case_id,
-            {
-                "agent": "pipeline",
-                "status": "complete",
-                "content": json.dumps(report_dict),
+            report_dict = {
+                "diagnosis": report.diagnosis,
+                "biomarkers": report.biomarkers,
+                "debate_summary": report.debate_summary,
                 "confidence": report.confidence,
-                "report": report_dict,
-            },
-        )
+                "cap_report": report.cap_report,
+                "report_html": report.report_html,
+            }
 
-    except Exception as e:
-        await manager.broadcast(
-            case_id,
-            {"agent": "pipeline", "status": "error", "content": f"Pipeline error: {e}"},
-        )
-        raise
+            # content = JSON-stringified report so frontend ws.ts parser works.
+            # report = same dict for forward-compat consumers.
+            await manager.broadcast(
+                case_id,
+                {
+                    "agent": "pipeline",
+                    "status": "complete",
+                    "content": json.dumps(report_dict),
+                    "confidence": report.confidence,
+                    "report": report_dict,
+                },
+            )
+
+        except Exception as e:
+            await manager.broadcast(
+                case_id,
+                {"agent": "pipeline", "status": "error", "content": f"Pipeline error: {e}"},
+            )
+            raise
