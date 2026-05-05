@@ -6,19 +6,22 @@ import asyncio
 
 from backend.ws_manager import manager
 from backend.schemas.agents import (
-    TileTriageInput, HistopathologistInput, CrossSlideInput,
-    LiteratureHunterInput, DifferentialDxInput, QualityControlInput, ReportWriterInput,
+    TileTriageInput,
+    HistopathologistInput,
+    CrossSlideInput,
+    LiteratureHunterInput,
+    ChiefInput,
 )
 from backend.agents.tile_triage import TileTriageAgent
-from backend.agents.histopathologist import HistopathologistAgent
+from backend.agents.histopathologist_a import HistopathologistAAgent
+from backend.agents.histopathologist_b import HistopathologistBAgent
 from backend.agents.cross_slide import CrossSlideAgent
 from backend.agents.literature_hunter import LiteratureHunterAgent
-from backend.agents.differential_dx import DifferentialDxAgent
-from backend.agents.quality_control import QualityControlAgent
-from backend.agents.report_writer import ReportWriterAgent
+from backend.agents.chief import ChiefAgent
 
-app = FastAPI(title="PathMind API", version="0.1.0")
+app = FastAPI(title="PathMind API", version="0.2.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
 
 class AnalyzeRequest(BaseModel):
     case_id: str
@@ -26,9 +29,11 @@ class AnalyzeRequest(BaseModel):
     slide_paths: list[str]
     clinical_data: Optional[dict] = None
 
+
 @app.get("/health")
 def health():
-    return {"ok": True, "version": "0.1.0"}
+    return {"ok": True, "version": "0.2.0"}
+
 
 @app.websocket("/ws/{case_id}")
 async def websocket_endpoint(websocket: WebSocket, case_id: str):
@@ -39,33 +44,84 @@ async def websocket_endpoint(websocket: WebSocket, case_id: str):
     except WebSocketDisconnect:
         manager.disconnect(case_id, websocket)
 
+
 @app.post("/api/analyze")
 async def analyze(req: AnalyzeRequest):
     asyncio.create_task(_run_pipeline(req))
     return {"case_id": req.case_id, "status": "started"}
 
+
 async def _run_pipeline(req: AnalyzeRequest):
     case_id = req.case_id
-    await manager.broadcast(case_id, {"agent": "pipeline", "status": "started", "content": f"{len(req.slide_paths)} slides"})
+    await manager.broadcast(
+        case_id,
+        {"agent": "pipeline", "status": "started", "content": f"{len(req.slide_paths)} slides — dual-read pipeline"},
+    )
 
+    # 1. Tile Triage (parallel per slide)
     triage_results = await asyncio.gather(*[
         TileTriageAgent().run(case_id, TileTriageInput(slide_path=p, slide_index=i))
         for i, p in enumerate(req.slide_paths)
     ])
 
-    histo_results = await asyncio.gather(*[
-        HistopathologistAgent().run(case_id, HistopathologistInput(
+    # 2+3. Histo-A (Qwen72B) + Histo-B (Meditron70B) — both run in parallel for every slide
+    histo_inputs = [
+        HistopathologistInput(
             slide_index=t.slide_index,
             slide_path=req.slide_paths[t.slide_index],
             regions_of_interest=t.regions_of_interest,
-        ))
+        )
         for t in triage_results
-    ])
+    ]
 
-    cross = await CrossSlideAgent().run(case_id, CrossSlideInput(slides=list(histo_results), patient_id=req.patient_id))
-    lit = await LiteratureHunterAgent().run(case_id, LiteratureHunterInput(hypothesis=cross.synthesis, keywords=[cross.dominant_pattern]))
-    dx = await DifferentialDxAgent().run(case_id, DifferentialDxInput(cross_slide=cross, literature=lit, clinical_data=req.clinical_data or {}))
-    qc = await QualityControlAgent().run(case_id, QualityControlInput(differential=dx, cross_slide=cross, all_slide_findings=list(histo_results)))
-    report = await ReportWriterAgent().run(case_id, ReportWriterInput(patient_id=req.patient_id, differential=dx, qc=qc, literature=lit, cross_slide=cross))
+    results_a, results_b = await asyncio.gather(
+        asyncio.gather(*[HistopathologistAAgent().run(case_id, inp) for inp in histo_inputs]),
+        asyncio.gather(*[HistopathologistBAgent().run(case_id, inp) for inp in histo_inputs]),
+    )
 
-    await manager.broadcast(case_id, {"agent": "pipeline", "status": "complete", "content": report.diagnosis, "confidence": report.confidence})
+    # 4. Cross-Slide Aggregator (consumes both reads, identifies disagreements)
+    cross = await CrossSlideAgent().run(
+        case_id,
+        CrossSlideInput(
+            slides_a=list(results_a),
+            slides_b=list(results_b),
+            patient_id=req.patient_id,
+        ),
+    )
+
+    # 5. Literature Hunter
+    lit = await LiteratureHunterAgent().run(
+        case_id,
+        LiteratureHunterInput(
+            hypothesis=cross.dominant_pattern or cross.synthesis_a,
+            keywords=[cross.dominant_pattern] if cross.dominant_pattern else [],
+        ),
+    )
+
+    # 6. Chief — debate + arbitration + CAP report
+    report = await ChiefAgent().run(
+        case_id,
+        ChiefInput(
+            patient_id=req.patient_id,
+            cross_slide=cross,
+            literature=lit,
+            clinical_data=req.clinical_data or {},
+        ),
+    )
+
+    await manager.broadcast(
+        case_id,
+        {
+            "agent": "pipeline",
+            "status": "complete",
+            "content": report.diagnosis,
+            "confidence": report.confidence,
+            "report": {
+                "diagnosis": report.diagnosis,
+                "biomarkers": report.biomarkers,
+                "debate_summary": report.debate_summary,
+                "cap_report": report.cap_report,
+                "report_html": report.report_html,
+            },
+        },
+    )
