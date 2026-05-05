@@ -5,12 +5,15 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 const AGENT_NAMES: Record<string, AgentName> = {
   tile_triage: 'tile-triage',
-  histopathologist: 'histopathologist',
+  histopathologist: 'histopathologist-a',          // legacy fallback
+  histopathologist_a: 'histopathologist-a',
+  histopathologist_b: 'histopathologist-b',
   cross_slide_aggregator: 'cross-slide-aggregator',
   literature_hunter: 'literature-hunter',
-  differential_diagnostician: 'differential-diagnostician',
-  quality_control: 'quality-control',
-  report_writer: 'report-writer',
+  differential_diagnostician: 'chief',             // legacy fallback
+  quality_control: 'chief',                         // legacy fallback
+  report_writer: 'chief',                           // legacy fallback
+  chief: 'chief',
 }
 
 function normalizeAgent(raw: string): AgentName | 'pipeline' {
@@ -32,13 +35,19 @@ function backendToFrontend(ev: BackendEvent): WSEvent | null {
 
   if (agent === 'pipeline' && ev.status === 'complete') {
     let report: Report | undefined
-    try {
-      report = ev.content ? JSON.parse(ev.content) : undefined
-    } catch {
-      report = {
-        diagnosis: ev.content ?? 'Diagnostic indisponible',
-        confidence: ev.confidence ?? 0,
-        rawText: ev.content,
+    // Backend now sends a structured `report` field (preferred). Fall back to JSON-parsing content (legacy).
+    const evWithReport = ev as BackendEvent & { report?: Report }
+    if (evWithReport.report) {
+      report = evWithReport.report
+    } else {
+      try {
+        report = ev.content ? JSON.parse(ev.content) : undefined
+      } catch {
+        report = {
+          diagnosis: ev.content ?? 'Diagnostic indisponible',
+          confidence: ev.confidence ?? 0,
+          rawText: ev.content,
+        }
       }
     }
     return { type: 'analysis_complete', agent, confidence: ev.confidence, report }
@@ -109,12 +118,11 @@ export function connectStream(caseId: string, onEvent: (event: WSEvent) => void)
 export function createMockStream(onEvent: (event: WSEvent) => void): () => void {
   const agents: AgentName[] = [
     'tile-triage',
-    'histopathologist',
+    'histopathologist-a',
+    'histopathologist-b',
     'cross-slide-aggregator',
     'literature-hunter',
-    'differential-diagnostician',
-    'quality-control',
-    'report-writer',
+    'chief',
   ]
 
   let i = 0
@@ -155,12 +163,11 @@ export function createMockStream(onEvent: (event: WSEvent) => void): () => void 
 function getMockMessage(agent: AgentName): string {
   const m: Record<AgentName, string> = {
     'tile-triage': '847 ROIs detected across 12 slides. Focused on perinuclear zones.',
-    histopathologist: 'Infiltrating ductal architecture, grade III pleomorphic cells.',
-    'cross-slide-aggregator': 'Inter-slide coherence confirmed. Marginal invasion slides 8-9.',
+    'histopathologist-a': 'Histo-A (Qwen72B): infiltrating ductal architecture, grade III.',
+    'histopathologist-b': 'Histo-B (Meditron70B): acinar variant pattern, grade II.',
+    'cross-slide-aggregator': 'Inter-slide coherence — disagreement on grade II vs III, margin status.',
     'literature-hunter': '847 similar TCGA breast cases. 12 relevant PubMed abstracts.',
-    'differential-diagnostician': 'DDx 1: IDC grade III (91%) — DDx 2: ILC (7%) — DDx 3: DCIS (2%)',
-    'quality-control': 'Histopath agent reviewed: grade III confirmed. QC score 0.93.',
-    'report-writer': 'CAP report generated. IDC grade III. Confidence 91%.',
+    'chief': 'Debate: 2 disagreements identified. Arbitrating grade and margin.',
   }
-  return m[agent] ?? 'Traitement en cours...'
+  return m[agent] ?? 'Processing...'
 }

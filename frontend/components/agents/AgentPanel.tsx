@@ -5,12 +5,17 @@ import { AgentState, AgentStatus } from "@/lib/types"
 
 const AGENT_LABELS: Record<string, string> = {
   "tile-triage": "Tile Triage",
-  "histopathologist": "Histopathologist",
+  "histopathologist-a": "Histo-A",
+  "histopathologist-b": "Histo-B",
   "cross-slide-aggregator": "Cross-Slide Aggregator",
   "literature-hunter": "Literature Hunter",
-  "differential-diagnostician": "Differential Dx",
-  "quality-control": "Quality Control",
-  "report-writer": "Report Writer",
+  "chief": "Chief (Arbitrator)",
+}
+
+const AGENT_MODEL_BADGE: Record<string, string> = {
+  "histopathologist-a": "Qwen 72B",
+  "histopathologist-b": "Meditron 70B",
+  "chief": "Qwen 72B",
 }
 
 const STATUS_DOT: Record<AgentStatus, string> = {
@@ -119,6 +124,16 @@ export function AgentPanel({ agents, vramPct, isRunning }: Props) {
               <span className="text-[11px] font-semibold tracking-wide text-[var(--text)] truncate">
                 {AGENT_LABELS[agent.name] ?? agent.name}
               </span>
+              {AGENT_MODEL_BADGE[agent.name] && (
+                <span className="text-[8px] font-mono px-1 py-0 rounded border border-[var(--border)] text-[var(--muted)] flex-shrink-0">
+                  {AGENT_MODEL_BADGE[agent.name]}
+                </span>
+              )}
+              {agent.name === "chief" && agent.messages.some(m => m.includes("Debate:")) && (
+                <span className="text-[8px] font-mono px-1 py-0 rounded border border-amber-500/40 text-amber-400 bg-amber-500/5 flex-shrink-0">
+                  DEBATE
+                </span>
+              )}
             </div>
             {agent.messages.length > 0 && (
               <p className="text-[10px] font-mono text-[var(--muted)] leading-relaxed ml-3.5 line-clamp-3">

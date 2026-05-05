@@ -11,12 +11,11 @@ export interface Slide {
 
 export type AgentName =
   | 'tile-triage'
-  | 'histopathologist'
+  | 'histopathologist-a'
+  | 'histopathologist-b'
   | 'cross-slide-aggregator'
   | 'literature-hunter'
-  | 'differential-diagnostician'
-  | 'quality-control'
-  | 'report-writer'
+  | 'chief'
 
 export type AgentStatus = 'pending' | 'running' | 'done' | 'error'
 
@@ -56,6 +55,16 @@ export interface Report {
   similarCases?: number
   slides?: string[]
   rawText?: string
+  debate_summary?: string
+  cap_report?: Record<string, unknown>
+  report_html?: string
+  primary_diagnosis?: string
+  icd_o_code?: string
+  pt_stage?: string
+  pn_stage?: string
+  margin_status?: string
+  recommendations?: string[]
+  similar_cases?: number
 }
 
 export interface DemoCase {

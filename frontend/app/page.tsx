@@ -23,13 +23,12 @@ const MOCK_OVERLAYS = [
 ]
 
 const INITIAL_AGENTS: AgentState[] = [
-  { name: "tile-triage", label: "Tile Triage", status: "pending", messages: [] },
-  { name: "histopathologist", label: "Histopathologist", status: "pending", messages: [] },
+  { name: "tile-triage",            label: "Tile Triage",            status: "pending", messages: [] },
+  { name: "histopathologist-a",     label: "Histo-A (Qwen 72B)",     status: "pending", messages: [] },
+  { name: "histopathologist-b",     label: "Histo-B (Meditron 70B)", status: "pending", messages: [] },
   { name: "cross-slide-aggregator", label: "Cross-Slide Aggregator", status: "pending", messages: [] },
-  { name: "literature-hunter", label: "Literature Hunter", status: "pending", messages: [] },
-  { name: "differential-diagnostician", label: "Differential Dx", status: "pending", messages: [] },
-  { name: "quality-control", label: "Quality Control", status: "pending", messages: [] },
-  { name: "report-writer", label: "Report Writer", status: "pending", messages: [] },
+  { name: "literature-hunter",      label: "Literature Hunter",      status: "pending", messages: [] },
+  { name: "chief",                  label: "Chief (Arbitrator)",     status: "pending", messages: [] },
 ]
 
 export default function Home() {
