@@ -4,6 +4,10 @@ from pydantic import BaseModel
 from typing import Optional
 import asyncio
 import json
+import os
+import time
+
+import httpx
 
 from backend.ws_manager import manager
 from backend.schemas.agents import (
@@ -23,6 +27,8 @@ from backend.agents.chief import ChiefAgent
 app = FastAPI(title="PathMind API", version="0.2.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
+_STARTUP_TIME = time.time()
+
 
 class AnalyzeRequest(BaseModel):
     case_id: str
@@ -31,9 +37,69 @@ class AnalyzeRequest(BaseModel):
     clinical_data: Optional[dict] = None
 
 
+async def _probe(url: str, timeout: float = 1.0) -> bool:
+    """1-second probe of an OpenAI-compatible /models endpoint."""
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as c:
+            r = await c.get(url.rstrip("/") + "/models")
+            return r.status_code == 200
+    except Exception:
+        return False
+
+
+def _qdrant_status() -> dict:
+    """Probe Qdrant via the existing rag.search client. Never raises."""
+    qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
+    collection = os.getenv("PATHMIND_COLLECTION", "pathmind_literature")
+    try:
+        from backend.rag.search import _client
+        client = _client()
+        info = client.get_collection(collection)
+        return {
+            "url": qdrant_url,
+            "reachable": True,
+            "literature_chunks": info.points_count or 0,
+        }
+    except Exception:
+        return {
+            "url": qdrant_url,
+            "reachable": False,
+            "literature_chunks": 0,
+        }
+
+
 @app.get("/health")
-def health():
-    return {"ok": True, "version": "0.2.0"}
+async def health():
+    from backend.llm import LLM_BACKEND, VLLM_BASE_URL_MAP
+
+    qwen_url = VLLM_BASE_URL_MAP["qwen72b"]
+    meditron_url = VLLM_BASE_URL_MAP["meditron70b"]
+
+    qwen_ok, meditron_ok = await asyncio.gather(
+        _probe(qwen_url),
+        _probe(meditron_url),
+    )
+    qdrant = await asyncio.to_thread(_qdrant_status)
+
+    return {
+        "ok": True,
+        "version": "0.2.0",
+        "llm_backend": LLM_BACKEND,
+        "vllm_models": {
+            "qwen72b":     {"url": qwen_url,     "reachable": qwen_ok},
+            "meditron70b": {"url": meditron_url, "reachable": meditron_ok},
+        },
+        "qdrant": qdrant,
+        "agents": [
+            "tile-triage",
+            "histopathologist-a",
+            "histopathologist-b",
+            "cross-slide-aggregator",
+            "literature-hunter",
+            "chief",
+        ],
+        "uptime_seconds": int(time.time() - _STARTUP_TIME),
+    }
 
 
 @app.websocket("/ws/{case_id}")
