@@ -19,6 +19,7 @@ from backend.ws_manager import manager
 from backend.graph import run_pipeline
 from backend.report_export import render_pdf, render_docx
 from backend.api.slides import router as slides_router
+from backend.utils import report_cache
 
 app = FastAPI(title="PathMind API", version="0.2.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -246,6 +247,19 @@ async def case_slides(case_id: str):
     return {"case_id": case_id, "slides": slides}
 
 
+@app.get("/api/case/{case_id}/report")
+async def get_cached_report(case_id: str):
+    """Return the cached pipeline report for case_id, or 404."""
+    payload = report_cache.load(case_id)
+    if payload is None:
+        return Response(
+            content=json.dumps({"detail": "report not cached"}),
+            status_code=404,
+            media_type="application/json",
+        )
+    return payload
+
+
 @app.get("/api/queue")
 async def queue_status():
     active = [cid for cid, t in _CASE_INFLIGHT.items() if not t.done()]
@@ -289,6 +303,14 @@ async def _run_pipeline(req: AnalyzeRequest):
                 },
                 "warnings": warnings,
             }
+
+            # Snapshot the report to disk so the next demo run for this
+            # case_id can short-circuit the 5–10 min pipeline and serve via
+            # /api/case/{case_id}/report (or future replay).
+            try:
+                report_cache.save(case_id, report_dict)
+            except Exception:
+                pass
 
             # content = JSON-stringified report so frontend ws.ts parser works.
             # report = same dict for forward-compat consumers.
