@@ -1,3 +1,4 @@
+import base64
 import os
 from dotenv import load_dotenv
 
@@ -57,6 +58,41 @@ _MOCK_RESPONSES = {
 }
 
 
+def encode_image_b64(jpeg_bytes: bytes) -> str:
+    """Encode raw JPEG bytes as base64 string (no data: prefix)."""
+    return base64.b64encode(jpeg_bytes).decode("ascii")
+
+
+def build_user_message(text: str, images_b64: list[str] | None = None, *, backend: str | None = None) -> dict:
+    """
+    Build a user message with optional image attachments, formatted for the
+    target backend (anthropic vs openai/vllm). Returns a single message dict.
+
+    images_b64: list of base64-encoded JPEG strings (no data: prefix).
+    """
+    if not images_b64:
+        return {"role": "user", "content": text}
+
+    backend = backend or LLM_BACKEND
+    if backend == "anthropic":
+        content = [{"type": "text", "text": text}]
+        for b in images_b64:
+            content.append({
+                "type": "image",
+                "source": {"type": "base64", "media_type": "image/jpeg", "data": b},
+            })
+        return {"role": "user", "content": content}
+
+    # OpenAI / vLLM (Qwen2.5-VL etc.) format
+    content = [{"type": "text", "text": text}]
+    for b in images_b64:
+        content.append({
+            "type": "image_url",
+            "image_url": {"url": f"data:image/jpeg;base64,{b}"},
+        })
+    return {"role": "user", "content": content}
+
+
 async def chat(
     messages: list[dict],
     system: str = "",
@@ -64,6 +100,7 @@ async def chat(
     model_key: str = "default",
     max_tokens: int = 2000,
     cache_system: bool = True,
+    timeout: float = 90.0,
 ) -> str:
     """Call the LLM. Routes to mock, anthropic (with caching), or vLLM (OpenAI-compat)."""
     if MOCK_MODE:
@@ -71,9 +108,19 @@ async def chat(
             return _MOCK_RESPONSES[agent_name]
         return _MOCK_RESPONSES["report_writer"]
 
-    if LLM_BACKEND == "anthropic":
-        return await _chat_anthropic(messages, system, max_tokens, cache_system)
-    return await _chat_openai(messages, system, max_tokens, model_key)
+    import asyncio as _asyncio
+    try:
+        if LLM_BACKEND == "anthropic":
+            return await _asyncio.wait_for(
+                _chat_anthropic(messages, system, max_tokens, cache_system),
+                timeout=timeout,
+            )
+        return await _asyncio.wait_for(
+            _chat_openai(messages, system, max_tokens, model_key),
+            timeout=timeout,
+        )
+    except _asyncio.TimeoutError:
+        return f"[LLM timeout after {timeout}s]"
 
 
 async def _chat_anthropic(messages, system, max_tokens, cache_system):

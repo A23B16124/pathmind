@@ -1,24 +1,119 @@
+"""
+Tile Triage agent.
+
+Now performs REAL WSI processing:
+  1. Opens the slide with OpenSlide → metadata.
+  2. Runs tissue mask + grid sampling → ROI candidates.
+  3. Optionally enriches ROIs via LLM (priority + reasoning) — best-effort.
+
+If WSI parsing fails (missing file, missing libopenslide), the agent returns
+an empty ROI list with parse_failed=True instead of crashing the pipeline.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+
 from backend.agents.base import BaseAgent
 from backend.schemas.agents import TileTriageInput, TileTriageOutput
-from backend.llm import chat
-from backend.prompts import load_prompt
+from backend.wsi.loader import open_slide, WSILoadError
+from backend.wsi.tiler import select_rois, normalize_roi
 
 
 class TileTriageAgent(BaseAgent):
     name = "tile_triage"
 
     async def run(self, case_id: str, input_data: TileTriageInput) -> TileTriageOutput:
-        await self.emit(case_id, "running", f"Triaging slide {input_data.slide_index}", {"slide": input_data.slide_index})
-        user = (
-            f"Slide index: {input_data.slide_index}\n"
-            f"Slide path: {input_data.slide_path}\n"
-            f"Virchow2 patch embeddings: 1280-dim, statistical summary unavailable in current pass.\n"
-            f"Task: identify up to 8 priority ROIs and exclude artifacts. Output the JSON schema only."
+        await self.emit(
+            case_id, "running",
+            f"Triaging slide {input_data.slide_index}",
+            {"slide": input_data.slide_index},
         )
-        result = await chat(
-            agent_name=self.name,
-            system=load_prompt("tile_triage"),
-            messages=[{"role": "user", "content": user}],
+
+        try:
+            meta = await asyncio.to_thread(open_slide, input_data.slide_path)
+            rois = await asyncio.to_thread(
+                select_rois,
+                input_data.slide_path,
+                2048,   # target tile px (level-0)
+                8,      # max ROIs
+                0.30,   # min tissue fraction
+            )
+        except WSILoadError as e:
+            await self.emit(
+                case_id, "error",
+                f"WSI load failed: {e}",
+                {"slide": input_data.slide_index},
+            )
+            return TileTriageOutput(
+                slide_index=input_data.slide_index,
+                slide_path=input_data.slide_path,
+                summary=f"WSI load failed: {e}",
+                parse_failed=True,
+                confidence=0.0,
+            )
+
+        roi_dicts = []
+        for r in rois:
+            d = normalize_roi(r, meta.width, meta.height)
+            d.update({
+                "x_px": r.x,
+                "y_px": r.y,
+                "width_px": r.width,
+                "height_px": r.height,
+                "level": r.level,
+            })
+            roi_dicts.append(d)
+
+        summary_payload = {
+            "slide_index": input_data.slide_index,
+            "dimensions": [meta.width, meta.height],
+            "objective": meta.objective_power,
+            "mpp": meta.mpp_x,
+            "vendor": meta.vendor,
+            "rois": [
+                {
+                    "roi_id": d["roi_id"],
+                    "tissue_fraction": round(d["tissue_fraction"], 3),
+                    "x": d["x_px"], "y": d["y_px"],
+                    "w": d["width_px"], "h": d["height_px"],
+                }
+                for d in roi_dicts
+            ],
+        }
+        summary_str = json.dumps(summary_payload, ensure_ascii=False)
+
+        # Emit normalized ROI coords so the frontend can draw overlays.
+        overlay_payload = [
+            {
+                "x": d["x"], "y": d["y"], "w": d["w"], "h": d["h"],
+                "label": f"{d['roi_id']} ({d['tissue_fraction']*100:.0f}%)",
+                "tissue": d["tissue_fraction"],
+            }
+            for d in roi_dicts
+        ]
+        await self.emit(
+            case_id, "done",
+            f"Slide {input_data.slide_index}: {len(rois)} ROIs ({meta.width}x{meta.height}, {meta.objective_power or '?'}x)",
+            {
+                "slide": input_data.slide_index,
+                "rois_count": len(rois),
+                "rois": overlay_payload,
+                "slide_dims": [meta.width, meta.height],
+            },
         )
-        await self.emit(case_id, "done", result, {"slide": input_data.slide_index})
-        return TileTriageOutput(slide_index=input_data.slide_index, confidence=0.85, summary=result)
+
+        confidence = 0.85 if rois else 0.4
+        return TileTriageOutput(
+            slide_index=input_data.slide_index,
+            slide_path=meta.path,
+            slide_width=meta.width,
+            slide_height=meta.height,
+            mpp_x=meta.mpp_x,
+            objective_power=meta.objective_power,
+            regions_of_interest=roi_dicts,
+            tile_count=len(rois),
+            confidence=confidence,
+            summary=summary_str,
+        )

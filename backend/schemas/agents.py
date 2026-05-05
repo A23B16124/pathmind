@@ -9,10 +9,16 @@ class TileTriageInput(BaseModel):
 
 class TileTriageOutput(BaseModel):
     slide_index: int
+    slide_path: str = ""
+    slide_width: int = 0
+    slide_height: int = 0
+    mpp_x: Optional[float] = None
+    objective_power: Optional[float] = None
     regions_of_interest: list[dict] = Field(default_factory=list)
     tile_count: int = 0
     confidence: float = 0.0
     summary: str = ""
+    parse_failed: bool = False
 
 
 class HistopathologistInput(BaseModel):

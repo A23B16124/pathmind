@@ -8,9 +8,11 @@ export interface Overlay {
   y: number
   w: number
   h: number
-  color: string
-  label: string
+  color?: string
+  label?: string
 }
+
+const DEFAULT_OVERLAY_COLOR = "#3b82f6"
 
 interface WSIViewerProps {
   slideId: string
@@ -67,21 +69,22 @@ export function WSIViewer({ slideId, className, overlays }: WSIViewerProps) {
       viewer.clearOverlays()
       if (!overlays || overlays.length === 0) return
       for (const o of overlays) {
+        const color = o.color ?? DEFAULT_OVERLAY_COLOR
         const el = document.createElement('div')
-        el.style.border = `2px solid ${o.color}`
+        el.style.border = `2px solid ${color}`
         el.style.boxSizing = 'border-box'
         el.style.pointerEvents = 'none'
-        el.style.background = `${o.color}1a`
+        el.style.background = `${color}1a`
         el.style.position = 'relative'
 
         const label = document.createElement('div')
-        label.textContent = o.label
+        label.textContent = o.label ?? ''
         label.style.position = 'absolute'
         label.style.top = '0'
         label.style.left = '0'
         label.style.transform = 'translateY(-100%)'
         label.style.padding = '2px 6px'
-        label.style.background = o.color
+        label.style.background = color
         label.style.color = '#0b0b0d'
         label.style.font = '600 10px ui-monospace, SFMono-Regular, Menlo, monospace'
         label.style.letterSpacing = '0.04em'

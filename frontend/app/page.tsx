@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic"
 import { useState, useCallback, useEffect, useRef } from "react"
 import dynamicImport from "next/dynamic"
-import { Slide, AgentState, WSEvent, Report, DemoCase } from "@/lib/types"
+import { Slide, AgentState, WSEvent, Report, DemoCase, ROIOverlay } from "@/lib/types"
 import { SlideUpload } from "@/components/upload/SlideUpload"
 import { AgentPanel } from "@/components/agents/AgentPanel"
 import { ReportPanel } from "@/components/report/ReportPanel"
@@ -15,11 +15,11 @@ const WSIViewer = dynamicImport(
   { ssr: false }
 )
 
-const MOCK_OVERLAYS = [
-  { x: 0.18, y: 0.22, w: 0.16, h: 0.12, color: "#3b82f6", label: "Zone infiltrante" },
-  { x: 0.55, y: 0.18, w: 0.10, h: 0.09, color: "#f59e0b", label: "Marge" },
-  { x: 0.30, y: 0.55, w: 0.14, h: 0.11, color: "#10b981", label: "Grade III" },
-  { x: 0.62, y: 0.62, w: 0.09, h: 0.08, color: "#ef4444", label: "Ki-67+" },
+const ROI_COLORS = ["#3b82f6", "#f59e0b", "#10b981", "#ef4444", "#a855f7", "#06b6d4", "#ec4899", "#84cc16"]
+const FALLBACK_OVERLAYS: ROIOverlay[] = [
+  { x: 0.18, y: 0.22, w: 0.16, h: 0.12, color: "#3b82f6", label: "ROI 1" },
+  { x: 0.55, y: 0.18, w: 0.10, h: 0.09, color: "#f59e0b", label: "ROI 2" },
+  { x: 0.30, y: 0.55, w: 0.14, h: 0.11, color: "#10b981", label: "ROI 3" },
 ]
 
 const INITIAL_AGENTS: AgentState[] = [
@@ -38,6 +38,7 @@ export default function Home() {
   const [vramPct, setVramPct] = useState(0.06)
   const [report, setReport] = useState<Report | null>(null)
   const [activeCase, setActiveCase] = useState<DemoCase | null>(null)
+  const [overlays, setOverlays] = useState<ROIOverlay[]>([])
   const stopRef = useRef<(() => void) | null>(null)
 
   useEffect(() => () => stopRef.current?.(), [])
@@ -57,6 +58,10 @@ export default function Home() {
       })
     )
     if (event.type === "agent_start") setVramPct((p) => Math.min(p + 0.12, 0.89))
+    if (event.type === "agent_done" && event.agent === "tile-triage" && event.rois && event.rois.length > 0) {
+      const colored = event.rois.map((r, i) => ({ ...r, color: r.color ?? ROI_COLORS[i % ROI_COLORS.length] }))
+      setOverlays((prev) => (event.slide === 0 || prev.length === 0 ? colored : [...prev, ...colored]))
+    }
     if (event.type === "analysis_complete") {
       setIsRunning(false)
       if (event.report) setReport(event.report)
@@ -69,6 +74,7 @@ export default function Home() {
     setReport(null)
     setAgents(INITIAL_AGENTS)
     setVramPct(0.06)
+    setOverlays([])
 
     const caseId = activeCase?.case_id ?? `case-${Date.now()}`
     const patientId = activeCase?.patient_id ?? "anonymous"
@@ -152,7 +158,7 @@ export default function Home() {
           <WSIViewer
             slideId={slides[0]?.name ?? "No slide"}
             className="w-full h-full"
-            overlays={isRunning || report ? MOCK_OVERLAYS : []}
+            overlays={overlays.length > 0 ? overlays : (isRunning || report ? FALLBACK_OVERLAYS : [])}
           />
         </div>
       </div>

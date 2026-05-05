@@ -35,6 +35,16 @@ export type WSEventType =
   | 'pipeline_start'
   | 'agent_error'
 
+export interface ROIOverlay {
+  x: number   // normalized 0..1
+  y: number
+  w: number
+  h: number
+  label?: string
+  tissue?: number
+  color?: string
+}
+
 export interface WSEvent {
   type: WSEventType
   agent: AgentName | 'pipeline'
@@ -42,6 +52,9 @@ export interface WSEvent {
   confidence?: number
   report_id?: string
   report?: Report
+  slide?: number
+  rois?: ROIOverlay[]
+  slide_dims?: [number, number]
 }
 
 export interface Report {

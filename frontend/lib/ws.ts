@@ -21,13 +21,18 @@ function normalizeAgent(raw: string): AgentName | 'pipeline' {
   return AGENT_NAMES[raw] ?? (raw as AgentName)
 }
 
+import type { ROIOverlay } from './types'
+
 interface BackendEvent {
   agent: string
   status: 'started' | 'running' | 'done' | 'complete' | 'error'
   content?: string
   confidence?: number
+  slide?: number
   slide_idx?: number
   type?: string
+  rois?: ROIOverlay[]
+  slide_dims?: [number, number]
 }
 
 function backendToFrontend(ev: BackendEvent): WSEvent | null {
@@ -59,7 +64,15 @@ function backendToFrontend(ev: BackendEvent): WSEvent | null {
     return { type: 'agent_start', agent, message: ev.content }
   }
   if (ev.status === 'done' || ev.status === 'complete') {
-    return { type: 'agent_done', agent, confidence: ev.confidence, message: ev.content }
+    return {
+      type: 'agent_done',
+      agent,
+      confidence: ev.confidence,
+      message: ev.content,
+      slide: ev.slide,
+      rois: ev.rois,
+      slide_dims: ev.slide_dims,
+    }
   }
   if (ev.status === 'error') {
     return { type: 'agent_error', agent, message: ev.content }
