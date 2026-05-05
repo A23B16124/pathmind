@@ -88,9 +88,9 @@ export function AgentPanel({ agents, vramPct, isRunning }: Props) {
   return (
     <div className="flex flex-col h-full bg-[var(--surface)] border-l border-[var(--border)]">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
-        <span className="text-xs font-mono text-[var(--muted)] tracking-widest uppercase">Agents</span>
-        <span className="text-xs font-mono text-[var(--accent)]">{doneCount}/{agents.length}</span>
+      <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between gap-2">
+        <span className="text-xs font-mono text-[var(--muted)] tracking-widest uppercase whitespace-nowrap">Agents</span>
+        <span className="text-xs font-mono text-[var(--accent)] whitespace-nowrap flex-shrink-0">{doneCount}/{agents.length}</span>
       </div>
 
       {/* VRAM bar */}

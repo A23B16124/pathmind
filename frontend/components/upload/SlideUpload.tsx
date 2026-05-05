@@ -65,7 +65,7 @@ export function SlideUpload({ onSlides, onAnalyze, onLoadDemo, isRunning, slides
           </svg>
         </div>
         <p className="text-[11px] text-[var(--muted)] text-center">
-          Deposer les lames WSI<br/>
+          Drop WSI slides<br/>
           <span className="text-[var(--muted-2)]">.svs .tiff .ndpi .qptiff</span>
         </p>
         <input id="file-input" type="file" multiple accept=".svs,.tiff,.tif,.ndpi,.qptiff" className="hidden"
@@ -78,7 +78,7 @@ export function SlideUpload({ onSlides, onAnalyze, onLoadDemo, isRunning, slides
           disabled={isRunning}
           className="mx-3 mt-2 text-[10px] font-mono py-1.5 rounded border border-[var(--accent)]/40 text-[var(--accent)] hover:bg-[var(--accent)]/5 disabled:opacity-30 disabled:cursor-not-allowed tracking-widest uppercase"
         >
-          Cas demo — M. Dubois
+          Demo case — Mr. Dubois
         </button>
       )}
 
@@ -94,10 +94,10 @@ export function SlideUpload({ onSlides, onAnalyze, onLoadDemo, isRunning, slides
       </div>
 
       {/* Analyze button */}
-      <div className="p-3 border-t border-[var(--border)]">
+      <div className="flex-shrink-0 p-3 border-t border-[var(--border)]">
         {slides.length > 0 && (
-          <p className="text-[10px] font-mono text-[var(--muted)] mb-2 text-center">
-            {slides.length} lame{slides.length > 1 ? "s" : ""} chargee{slides.length > 1 ? "s" : ""}
+          <p className="text-[10px] font-mono text-[var(--muted)] mb-2 text-center whitespace-nowrap">
+            {slides.length} slide{slides.length > 1 ? "s" : ""} loaded
           </p>
         )}
         <button
@@ -112,7 +112,7 @@ export function SlideUpload({ onSlides, onAnalyze, onLoadDemo, isRunning, slides
             boxShadow: slides.length > 0 && !isRunning ? "0 0 20px var(--accent)/30" : "none",
           }}
         >
-          {isRunning ? "Analyse en cours..." : "Analyser"}
+          {isRunning ? "Running..." : "Analyze"}
         </button>
       </div>
     </div>

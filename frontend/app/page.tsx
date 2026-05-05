@@ -38,17 +38,11 @@ export default function Home() {
   const [vramPct, setVramPct] = useState(0.06)
   const [report, setReport] = useState<Report | null>(null)
   const [activeCase, setActiveCase] = useState<DemoCase | null>(null)
-  const [debugStatus, setDebugStatus] = useState<string[]>([])
   const stopRef = useRef<(() => void) | null>(null)
-
-  const pushDebug = useCallback((line: string) => {
-    setDebugStatus((prev) => [...prev, line].slice(-6))
-  }, [])
 
   useEffect(() => () => stopRef.current?.(), [])
 
   const onEvent = useCallback((event: WSEvent) => {
-    pushDebug(`WS event: ${event.type} ${event.agent}`)
     setAgents((prev) =>
       prev.map((a) => {
         if (a.name !== event.agent) return a
@@ -67,11 +61,10 @@ export default function Home() {
       setIsRunning(false)
       if (event.report) setReport(event.report)
     }
-  }, [pushDebug])
+  }, [])
 
   const handleAnalyze = useCallback(async () => {
     if (slides.length === 0) return
-    setDebugStatus([])
     setIsRunning(true)
     setReport(null)
     setAgents(INITIAL_AGENTS)
@@ -81,7 +74,6 @@ export default function Home() {
     const patientId = activeCase?.patient_id ?? "anonymous"
     const slidePaths = slides.map((s) => s.path ?? s.name)
 
-    pushDebug("POST /api/analyze...")
     try {
       await startAnalysis({
         case_id: caseId,
@@ -91,16 +83,13 @@ export default function Home() {
           ? { age: activeCase.age, context: activeCase.clinical_context }
           : undefined,
       })
-      pushDebug(`POST OK case_id=${caseId}`)
     } catch (e) {
-      pushDebug(`POST ERREUR: ${e instanceof Error ? e.message : String(e)}`)
       console.warn("startAnalysis failed, mock stream will run anyway", e)
     }
 
-    pushDebug("WS connecting...")
     stopRef.current?.()
     stopRef.current = connectStream(caseId, onEvent)
-  }, [slides, activeCase, onEvent, pushDebug])
+  }, [slides, activeCase, onEvent])
 
   const handleLoadDemo = useCallback(() => {
     const demo = DEMO_DUBOIS
@@ -117,7 +106,7 @@ export default function Home() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
-      <div className="w-64 flex-shrink-0">
+      <div className="w-64 flex-shrink-0 h-full">
         <SlideUpload
           slides={slides}
           onSlides={handleSetSlides}
@@ -131,7 +120,7 @@ export default function Home() {
         <div className="h-10 flex items-center px-4 border-b border-[var(--border)] bg-[var(--surface)] gap-3 flex-shrink-0">
           <span className="text-[10px] font-mono text-[var(--muted)] tracking-widest uppercase">Viewer</span>
           <span className="text-[11px] font-mono text-[var(--text)] truncate">
-            {slides[0]?.name ?? "Aucune lame chargee"}
+            {slides[0]?.name ?? "No slide loaded"}
           </span>
           {activeCase && (
             <span className="text-[10px] font-mono text-[var(--accent)] truncate ml-2">
@@ -141,7 +130,7 @@ export default function Home() {
           {isRunning && (
             <span className="ml-auto flex items-center gap-1.5 text-[10px] font-mono text-[var(--running)]">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--running)] agent-running inline-block" />
-              Analyse en cours
+              Running
             </span>
           )}
           {!isRunning && report && (
@@ -149,26 +138,26 @@ export default function Home() {
               onClick={() => setReport(report)}
               className="ml-auto text-[10px] font-mono px-2 py-0.5 rounded border border-[var(--accent)]/40 text-[var(--accent)] hover:bg-[var(--accent)]/5"
             >
-              Voir rapport
+              View report
             </button>
           )}
         </div>
         {activeCase && (
           <div className="px-4 py-2 border-b border-[var(--border)] bg-[var(--surface-2)] text-[11px] text-[var(--muted)] leading-snug">
-            <span className="text-[9px] font-mono text-[var(--accent)] tracking-widest uppercase mr-2">Contexte</span>
+            <span className="text-[9px] font-mono text-[var(--accent)] tracking-widest uppercase mr-2">Context</span>
             {activeCase.clinical_context}
           </div>
         )}
         <div className="flex-1 min-h-0">
           <WSIViewer
-            slideId={slides[0]?.name ?? "Aucune lame"}
+            slideId={slides[0]?.name ?? "No slide"}
             className="w-full h-full"
             overlays={isRunning || report ? MOCK_OVERLAYS : []}
           />
         </div>
       </div>
 
-      <div className="w-80 flex-shrink-0">
+      <div className="w-80 flex-shrink-0 h-full">
         <AgentPanel agents={agents} vramPct={vramPct} isRunning={isRunning} />
       </div>
 
@@ -180,15 +169,6 @@ export default function Home() {
         />
       )}
 
-      {debugStatus.length > 0 && (
-        <div
-          className="fixed bottom-2 right-2 z-50 font-mono text-[10px] text-amber-400 border border-amber-400 bg-black/80 p-2 max-w-[400px] pointer-events-none"
-        >
-          {debugStatus.map((line, i) => (
-            <div key={i} className="truncate">{line}</div>
-          ))}
-        </div>
-      )}
     </div>
   )
 }
