@@ -11,6 +11,8 @@ PROMPT_FILES = {
     "differential_diagnostician": "05_differential_diagnostician.txt",
     "quality_control": "06_quality_control.txt",
     "report_writer": "07_report_writer.txt",
+    "histopathologist_b": "08_histopathologist_b.txt",
+    "chief": "09_chief.txt",
 }
 
 
