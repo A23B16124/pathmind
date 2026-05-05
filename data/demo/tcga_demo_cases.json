@@ -1,0 +1,68 @@
+[
+  {
+    "case_id": "tcga-TCGA-OL-A66K",
+    "patient_id": "TCGA-OL-A66K",
+    "patient_label": "Patiente BRCA · TCGA",
+    "age": 0,
+    "clinical_context": "Macrobiopsie mammaire — recherche carcinome canalaire infiltrant. Statut HER2 et Ki-67 à confirmer en IHC.",
+    "slide_paths": [
+      "tcga/TCGA-OL-A66K-01Z-00-DX1.C1DC85F1-4FAE-4411-9886-11DCB5E70CC3.svs"
+    ],
+    "slide_names": [
+      "TCGA-OL-A66K-01Z-00-DX1.C1DC85F1-4FAE-4411-9886-11DCB5E70CC3.svs"
+    ],
+    "tcga": {
+      "file_id": "07e24277-17a0-4442-9d56-b235c93e4142",
+      "case_id": "2ab1b35b-9e56-475c-ac9b-15ed0a422683",
+      "submitter_id": "TCGA-OL-A66K",
+      "primary_diagnosis": "Lobular carcinoma, NOS",
+      "tumor_grade": null,
+      "stage": "Stage IIA",
+      "pt": "T2",
+      "pn": "N0",
+      "pm": "MX",
+      "morphology": "8520/3",
+      "site": "Breast, NOS",
+      "pni": null,
+      "lvi": null,
+      "gender": "female",
+      "year_of_birth": null,
+      "file_size_bytes": 3401266790,
+      "download_url": "https://api.gdc.cancer.gov/data/07e24277-17a0-4442-9d56-b235c93e4142",
+      "md5": "246ecfccfdfda3254c50f14f3082a4ac"
+    }
+  },
+  {
+    "case_id": "tcga-TCGA-2L-AAQJ",
+    "patient_id": "TCGA-2L-AAQJ",
+    "patient_label": "Patient PAAD · TCGA",
+    "age": 0,
+    "clinical_context": "Biopsie tête de pancréas — adénocarcinome suspecté. Évaluation marges, engainement périnerveux, invasion lymphovasculaire.",
+    "slide_paths": [
+      "tcga/TCGA-2L-AAQJ-01Z-00-DX1.91D3718F-DF73-48BA-BCB8-A00A000043F7.svs"
+    ],
+    "slide_names": [
+      "TCGA-2L-AAQJ-01Z-00-DX1.91D3718F-DF73-48BA-BCB8-A00A000043F7.svs"
+    ],
+    "tcga": {
+      "file_id": "e45d6d7b-9367-434f-98d8-51d9110acfe1",
+      "case_id": "f96ab3fe-bb11-4585-a35e-52d400e55ab7",
+      "submitter_id": "TCGA-2L-AAQJ",
+      "primary_diagnosis": "Infiltrating duct carcinoma, NOS",
+      "tumor_grade": "G2",
+      "stage": "Stage III",
+      "pt": "T4",
+      "pn": "N0",
+      "pm": "MX",
+      "morphology": "8500/3",
+      "site": "Pancreas, NOS",
+      "pni": null,
+      "lvi": null,
+      "gender": "female",
+      "year_of_birth": null,
+      "file_size_bytes": 3385737162,
+      "download_url": "https://api.gdc.cancer.gov/data/e45d6d7b-9367-434f-98d8-51d9110acfe1",
+      "md5": "579febdf133a7eeeb920ad0d8c1ac713"
+    }
+  }
+]

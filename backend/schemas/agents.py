@@ -1,13 +1,18 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional
 
 
-class TileTriageInput(BaseModel):
+class _StrictModel(BaseModel):
+    # Task 6: strict mode — no extra fields silently accepted
+    model_config = ConfigDict(extra="ignore", validate_assignment=True)
+
+
+class TileTriageInput(_StrictModel):
     slide_path: str
     slide_index: int
 
 
-class TileTriageOutput(BaseModel):
+class TileTriageOutput(_StrictModel):
     slide_index: int
     slide_path: str = ""
     slide_width: int = 0
@@ -21,13 +26,13 @@ class TileTriageOutput(BaseModel):
     parse_failed: bool = False
 
 
-class HistopathologistInput(BaseModel):
+class HistopathologistInput(_StrictModel):
     slide_index: int
     slide_path: str
     regions_of_interest: list[dict] = Field(default_factory=list)
 
 
-class HistopathologistOutput(BaseModel):
+class HistopathologistOutput(_StrictModel):
     slide_index: int
     agent_id: str = "histo_a"          # "histo_a" | "histo_b"
     model_used: str = "qwen72b"        # "qwen72b" | "meditron70b"
@@ -39,13 +44,13 @@ class HistopathologistOutput(BaseModel):
     raw_json: str = ""                 # full JSON string from LLM
 
 
-class CrossSlideInput(BaseModel):
+class CrossSlideInput(_StrictModel):
     slides_a: list[HistopathologistOutput]   # Histo-A results
     slides_b: list[HistopathologistOutput]   # Histo-B results
     patient_id: str
 
 
-class CrossSlideOutput(BaseModel):
+class CrossSlideOutput(_StrictModel):
     synthesis_a: str = ""
     synthesis_b: str = ""
     dominant_pattern: str = ""
@@ -54,32 +59,54 @@ class CrossSlideOutput(BaseModel):
     confidence: float = 0.0
 
 
-class LiteratureHunterInput(BaseModel):
+class LiteratureHunterInput(_StrictModel):
     hypothesis: str
     keywords: list[str] = Field(default_factory=list)
 
 
-class LiteratureHunterOutput(BaseModel):
-    papers: list[dict] = Field(default_factory=list)
+class LiteraturePaper(_StrictModel):
+    """A single literature reference with provenance.
+
+    `used` indicates whether the chief/diagnosis cited this paper.
+    `suggested` references are surfaced to the clinician but were not used
+    in the LLM's reasoning (related cohort, alternative differential, etc.).
+    """
+    title: str = ""
+    pmid: str = ""               # PubMed ID (or TCGA case_id if from TCGA)
+    source: str = "pubmed"       # "pubmed" | "tcga_case"
+    url: str = ""                # canonical link (PubMed / TCGA portal)
+    score: float = 0.0           # cosine similarity from RAG
+    snippet: str = ""            # short excerpt (<= 320 chars)
+    journal: str = ""
+    year: str = ""
+    authors: str = ""            # "Smith J et al."
+    relevance: str = ""          # one-line why it matters for THIS case
+
+
+class LiteratureHunterOutput(_StrictModel):
+    used_papers: list[LiteraturePaper] = Field(default_factory=list)
+    suggested_papers: list[LiteraturePaper] = Field(default_factory=list)
     similar_cases: int = 0
     key_findings: str = ""
     confidence: float = 0.0
+    # Legacy field kept for backward compat with existing agents/tests.
+    papers: list[dict] = Field(default_factory=list)
 
 
-class DebateRound(BaseModel):
+class DebateRound(_StrictModel):
     agent_id: str          # "histo_a" | "histo_b"
     argument: str
     conceded: bool = False
 
 
-class ChiefInput(BaseModel):
+class ChiefInput(_StrictModel):
     patient_id: str
     cross_slide: CrossSlideOutput
     literature: LiteratureHunterOutput
     clinical_data: dict = Field(default_factory=dict)
 
 
-class ChiefOutput(BaseModel):
+class ChiefOutput(_StrictModel):
     debate_rounds: list[DebateRound] = Field(default_factory=list)
     debate_summary: str = ""
     diagnosis: str = ""

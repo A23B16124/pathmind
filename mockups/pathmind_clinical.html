@@ -1,0 +1,927 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PathMind — Console clinique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #f4f1ea;            /* ivoire imprimerie */
+    --paper-2: #ebe6db;          /* surface secondaire */
+    --rule: #c8c1b1;             /* trait fin */
+    --rule-strong: #5e574b;
+    --ink: #1c1a16;              /* encre */
+    --ink-soft: #4a4538;
+    --muted: #807866;
+    --accent: #6b1d1d;            /* oxblood / bordeaux clinique */
+    --accent-soft: #a4393922;
+    --warn: #8a5a14;              /* moutarde foncé */
+    --ok: #2f5d3a;                /* vert apothicaire */
+    --running: #6b1d1d;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11", "tnum";
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.45;
+  }
+  .serif { font-family: 'Newsreader', Georgia, serif; font-weight: 500; letter-spacing: -0.005em; }
+  .mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; font-feature-settings: "ss02"; }
+  .smcaps { text-transform: uppercase; letter-spacing: 0.18em; font-size: 10px; font-weight: 600; color: var(--muted); }
+
+  /* ───── Layout ───── */
+  .app {
+    display: grid;
+    grid-template-columns: 280px 1fr 380px;
+    grid-template-rows: 56px 1fr;
+    height: 100vh;
+  }
+  header.bar {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 280px 1fr auto;
+    align-items: center;
+    border-bottom: 1px solid var(--rule-strong);
+    background: var(--paper);
+    padding: 0;
+  }
+  .brand {
+    border-right: 1px solid var(--rule-strong);
+    padding: 0 18px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .mark {
+    width: 28px; height: 28px;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    display: grid; place-items: center;
+    font-family: 'Newsreader', serif; font-style: italic; font-weight: 600;
+    color: var(--accent);
+  }
+  .brand .name { font-family: 'Newsreader', serif; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+  .brand .ver { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-left: 2px; }
+
+  .crumbs {
+    display: flex; gap: 14px; align-items: center;
+    padding: 0 22px; height: 100%;
+    border-right: 1px solid var(--rule-strong);
+  }
+  .crumbs .item { font-size: 12px; color: var(--ink-soft); }
+  .crumbs .sep { color: var(--muted); }
+  .crumbs .item.active { color: var(--ink); font-weight: 500; }
+
+  .session {
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 18px; height: 100%;
+  }
+  .session .pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    border: 1px solid var(--rule);
+    padding: 4px 9px;
+    background: var(--paper-2);
+  }
+  .session .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); display: inline-block; margin-right: 6px; vertical-align: 1px; }
+  .session .who {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--ink-soft);
+  }
+  .session .avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--ink); color: var(--paper);
+    display: grid; place-items: center;
+    font-family: 'Newsreader', serif; font-size: 12px; font-weight: 600;
+  }
+
+  /* ───── Left rail : queue + cohorte ───── */
+  aside.queue {
+    border-right: 1px solid var(--rule-strong);
+    overflow-y: auto;
+    background: var(--paper);
+  }
+  .panel-h {
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .panel-h .title { font-family: 'Newsreader', serif; font-size: 15px; font-weight: 600; }
+  .panel-h .count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+
+  .case {
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 10px;
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .case:hover { background: var(--paper-2); }
+  .case.active {
+    background: var(--paper-2);
+    border-left: 3px solid var(--accent);
+    padding-left: 15px;
+  }
+  .case .pid { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .case .dx { font-family: 'Newsreader', serif; font-size: 14px; line-height: 1.25; }
+  .case .meta { grid-column: 1 / -1; display: flex; gap: 10px; font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .case .meta .dot { color: var(--rule); }
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 2px 6px;
+    border: 1px solid currentColor;
+    align-self: start;
+    line-height: 1.2;
+  }
+  .badge.b-run { color: var(--accent); }
+  .badge.b-ok  { color: var(--ok); }
+  .badge.b-rev { color: var(--warn); }
+  .badge.b-q   { color: var(--muted); }
+
+  /* ───── Centre : viewer + slide strip ───── */
+  main.viewer {
+    position: relative;
+    background: #1a1815;
+    overflow: hidden;
+  }
+  .viewer-toolbar {
+    position: absolute; top: 14px; left: 14px; right: 14px;
+    z-index: 10;
+    display: flex; gap: 12px; justify-content: space-between; align-items: flex-start;
+    pointer-events: none;
+  }
+  .toolbar-card {
+    background: rgba(244, 241, 234, 0.96);
+    border: 1px solid var(--rule-strong);
+    pointer-events: auto;
+  }
+  .specimen {
+    padding: 9px 14px;
+    display: flex; gap: 14px; align-items: center;
+  }
+  .specimen .id { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .specimen .title { font-family: 'Newsreader', serif; font-size: 14px; font-weight: 600; }
+  .specimen .stain { font-size: 11px; color: var(--ink-soft); border-left: 1px solid var(--rule); padding-left: 14px; }
+
+  .ctrl-group { display: flex; }
+  .ctrl-group .btn {
+    width: 36px; height: 32px;
+    display: grid; place-items: center;
+    border-right: 1px solid var(--rule);
+    color: var(--ink-soft);
+    cursor: pointer;
+    background: transparent;
+  }
+  .ctrl-group .btn:last-child { border-right: none; }
+  .ctrl-group .btn:hover { background: var(--paper-2); color: var(--ink); }
+
+  .slide-canvas {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+  }
+  .tissue {
+    width: 90%; height: 80%;
+    background:
+      radial-gradient(ellipse 60% 40% at 30% 35%, #d2a8a8 0%, transparent 55%),
+      radial-gradient(ellipse 45% 55% at 70% 60%, #c89595 0%, transparent 50%),
+      radial-gradient(ellipse 30% 30% at 55% 45%, #a86464 0%, transparent 45%),
+      radial-gradient(ellipse 80% 20% at 45% 80%, #b88080 0%, transparent 60%),
+      linear-gradient(135deg, #efe0d6, #e8c9bc 50%, #d8a596);
+    filter: contrast(1.05) saturate(0.9);
+    border: 1px solid #2a2622;
+    position: relative;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+  .tissue::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle at 2px 2px, rgba(80,30,30,0.18) 1px, transparent 1.4px);
+    background-size: 8px 8px;
+    mix-blend-mode: multiply;
+    opacity: 0.55;
+  }
+  .tissue::after {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 25% 30%, rgba(40,15,15,0.25) 0%, transparent 25%),
+      radial-gradient(circle at 70% 65%, rgba(50,20,20,0.3) 0%, transparent 22%);
+    mix-blend-mode: multiply;
+  }
+
+  .roi {
+    position: absolute;
+    border: 1.5px solid;
+    background: transparent;
+    pointer-events: none;
+  }
+  .roi .lbl {
+    position: absolute; top: -22px; left: -1px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 7px;
+    color: var(--paper);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .roi .conf {
+    position: absolute; bottom: -19px; right: -1px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--paper);
+    background: rgba(20, 18, 15, 0.85);
+    padding: 2px 5px;
+  }
+
+  .scale-bar {
+    position: absolute;
+    bottom: 18px; left: 18px;
+    background: rgba(244, 241, 234, 0.92);
+    border: 1px solid var(--rule-strong);
+    padding: 6px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .scale-bar .ruler { width: 64px; height: 3px; background: var(--ink); position: relative; }
+  .scale-bar .ruler::before, .scale-bar .ruler::after {
+    content: ""; position: absolute; top: -3px; width: 1px; height: 9px; background: var(--ink);
+  }
+  .scale-bar .ruler::before { left: 0; }
+  .scale-bar .ruler::after { right: 0; }
+
+  .navigator {
+    position: absolute;
+    bottom: 18px; right: 18px;
+    width: 160px; height: 100px;
+    background: rgba(244, 241, 234, 0.94);
+    border: 1px solid var(--rule-strong);
+    padding: 4px;
+  }
+  .navigator .mini {
+    width: 100%; height: 100%;
+    background:
+      radial-gradient(ellipse 60% 40% at 35% 40%, #d2a8a8, transparent 60%),
+      radial-gradient(ellipse 40% 50% at 70% 65%, #c89595, transparent 55%),
+      #efe0d6;
+    position: relative;
+  }
+  .navigator .frame {
+    position: absolute;
+    border: 1.5px solid var(--accent);
+    width: 38%; height: 42%;
+    top: 28%; left: 28%;
+  }
+
+  /* ───── Slide strip (under viewer) ───── */
+  .strip {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 72px;
+    background: rgba(28, 26, 22, 0.98);
+    border-top: 1px solid #2c2925;
+    display: flex; gap: 0; align-items: stretch;
+    padding: 0;
+    overflow-x: auto;
+    z-index: 8;
+  }
+  .strip-item {
+    width: 96px; min-width: 96px;
+    border-right: 1px solid #2c2925;
+    padding: 6px 8px;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 4px;
+    cursor: pointer;
+  }
+  .strip-item.active { background: #232019; border-top: 2px solid var(--accent); padding-top: 4px; }
+  .strip-item .thumb {
+    background:
+      radial-gradient(ellipse 50% 40% at 40% 50%, #c89595, transparent 60%),
+      #efe0d6;
+    border: 1px solid #1a1815;
+  }
+  .strip-item .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: #b8af9d;
+    display: flex; justify-content: space-between;
+  }
+  .strip-item.active .lbl { color: var(--paper); }
+  .strip-item .stat {
+    width: 5px; height: 5px; border-radius: 50%; display: inline-block;
+  }
+  .stat.s-run { background: var(--accent); }
+  .stat.s-ok  { background: var(--ok); }
+  .stat.s-q   { background: #6c6557; }
+
+  /* ───── Right rail : agents + diagnostic ───── */
+  aside.report {
+    border-left: 1px solid var(--rule-strong);
+    background: var(--paper);
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .tab {
+    flex: 1;
+    padding: 14px 12px;
+    text-align: center;
+    font-family: 'Newsreader', serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    border-right: 1px solid var(--rule);
+    cursor: pointer;
+  }
+  .tab:last-child { border-right: none; }
+  .tab.active { color: var(--ink); background: var(--paper-2); border-bottom: 2px solid var(--accent); padding-bottom: 12px; }
+
+  /* ───── Export bar ───── */
+  .export-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-2);
+    gap: 12px;
+  }
+  .export-meta { display: flex; flex-direction: column; gap: 1px; }
+  .export-meta .smcaps { color: var(--ink); font-size: 9.5px; }
+  .export-meta .mono { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+  .export-actions { display: flex; gap: 0; }
+  .exp-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 9px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    text-decoration: none;
+    border: 1px solid var(--rule-strong);
+    border-right: none;
+    background: var(--paper);
+    transition: background .12s, color .12s;
+  }
+  .exp-btn:last-child { border-right: 1px solid var(--rule-strong); }
+  .exp-btn:hover { background: var(--ink); color: var(--paper); }
+  .exp-btn .ic { width: 12px; height: 12px; }
+
+  .agents { padding: 16px 18px; border-bottom: 1px solid var(--rule); }
+  .section-h {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .agent {
+    display: grid;
+    grid-template-columns: 14px 1fr auto;
+    gap: 10px; align-items: center;
+    padding: 9px 0;
+    border-top: 1px dotted var(--rule);
+  }
+  .agent:first-of-type { border-top: none; }
+  .agent .ind {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--rule);
+  }
+  .agent.s-running .ind { background: var(--running); animation: pulse 1.4s ease-in-out infinite; }
+  .agent.s-done .ind { background: var(--ok); }
+  .agent.s-pending .ind { background: var(--rule); }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(107, 29, 29, 0.45); }
+    50% { box-shadow: 0 0 0 6px rgba(107, 29, 29, 0); }
+  }
+  .agent .name { font-size: 13px; font-weight: 500; }
+  .agent .name .model { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); display: block; margin-top: 1px; }
+  .agent .right { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-soft); text-align: right; }
+
+  /* ───── Diagnostic block ───── */
+  .dx-block { padding: 18px 18px 22px; border-bottom: 1px solid var(--rule); }
+  .dx-block .label { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .dx-block h2 {
+    font-family: 'Newsreader', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    line-height: 1.18;
+    letter-spacing: -0.012em;
+  }
+  .dx-block .who { font-size: 12px; color: var(--ink-soft); margin-bottom: 14px; font-style: italic; }
+
+  .codes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--rule);
+    background: var(--paper-2);
+  }
+  .codes .cell { padding: 10px 12px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .codes .cell:nth-child(even) { border-right: none; }
+  .codes .cell:nth-last-child(-n+2) { border-bottom: none; }
+  .codes .cell .k { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .codes .cell .v { font-family: 'Newsreader', serif; font-size: 14px; font-weight: 500; margin-top: 2px; }
+
+  .conf-row {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+  }
+  .conf-bar {
+    height: 6px;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    position: relative;
+    overflow: hidden;
+  }
+  .conf-bar .fill { height: 100%; background: var(--accent); }
+  .conf-row .num { font-family: 'Newsreader', serif; font-size: 18px; font-weight: 600; color: var(--accent); }
+  .conf-row .num small { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); margin-left: 2px; }
+
+  /* ───── Findings list ───── */
+  .findings { padding: 16px 18px; }
+  .find {
+    padding: 10px 0;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 10px;
+  }
+  .find:first-of-type { border-top: none; }
+  .find .num {
+    font-family: 'Newsreader', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--accent);
+    text-align: right;
+  }
+  .find .body .h {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+  .find .body .b {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .find .body .src {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ───── Disagreement strip ───── */
+  .disagreement {
+    margin: 0 18px 16px;
+    border: 1px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 11px 13px;
+  }
+  .disagreement .hd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .disagreement .body { font-size: 12px; line-height: 1.5; color: var(--ink); }
+
+  /* ───── Footer actions ───── */
+  .actions {
+    margin-top: auto;
+    padding: 14px 18px;
+    border-top: 1px solid var(--rule-strong);
+    display: flex;
+    gap: 8px;
+    background: var(--paper-2);
+  }
+  .btn-primary, .btn-ghost {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--ink);
+  }
+  .btn-primary:hover { background: var(--accent); border-color: var(--accent); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--rule-strong);
+  }
+  .btn-ghost:hover { background: var(--paper); }
+
+  /* SVG icons inline tokens */
+  .ic { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ───── HEADER ───── -->
+  <header class="bar">
+    <div class="brand">
+      <div class="mark">P</div>
+      <div>
+        <div class="name">PathMind <span class="ver mono">v0.2 · clinique</span></div>
+      </div>
+    </div>
+    <div class="crumbs">
+      <span class="item">Service</span>
+      <span class="sep">/</span>
+      <span class="item">Anatomopathologie</span>
+      <span class="sep">/</span>
+      <span class="item">File de lecture</span>
+      <span class="sep">/</span>
+      <span class="item active">Cas DUBOIS-2026-05</span>
+    </div>
+    <div class="session">
+      <span class="pill mono"><span class="dot"></span>Qwen2.5-72B-VL · Meditron-70B</span>
+      <span class="pill mono">MI300X · 192 Go HBM</span>
+      <div class="who">
+        <span>Dr. M. Lacroix · anatomopathologiste</span>
+        <div class="avatar">ML</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ───── LEFT : QUEUE ───── -->
+  <aside class="queue">
+    <div class="panel-h">
+      <span class="title">File de lecture</span>
+      <span class="count mono">14 cas · 3 actifs</span>
+    </div>
+
+    <div class="case active">
+      <div>
+        <div class="pid mono">P-DUBOIS-67 · F · 67 a.</div>
+        <div class="dx serif">Pancréas, tête — biopsie</div>
+      </div>
+      <div class="badge b-run">en cours</div>
+      <div class="meta">
+        <span>12 lames</span>
+        <span class="dot">·</span>
+        <span>HES, MOLE</span>
+        <span class="dot">·</span>
+        <span>04 mai · 14:22</span>
+      </div>
+    </div>
+
+    <div class="case">
+      <div>
+        <div class="pid mono">P-MARCHAND-54 · H · 71 a.</div>
+        <div class="dx serif">Œsophage distal — pinces</div>
+      </div>
+      <div class="badge b-rev">à revoir</div>
+      <div class="meta">
+        <span>4 lames</span>
+        <span class="dot">·</span>
+        <span>discordance grade</span>
+      </div>
+    </div>
+
+    <div class="case">
+      <div>
+        <div class="pid mono">P-EL-AMRANI-39 · F · 52 a.</div>
+        <div class="dx serif">Sein, QSE droit — macrobiopsie</div>
+      </div>
+      <div class="badge b-ok">validé</div>
+      <div class="meta">
+        <span>8 lames</span>
+        <span class="dot">·</span>
+        <span>HER2, Ki-67</span>
+      </div>
+    </div>
+
+    <div class="case">
+      <div>
+        <div class="pid mono">P-NGUYEN-12 · H · 44 a.</div>
+        <div class="dx serif">Côlon sigmoïde — résection</div>
+      </div>
+      <div class="badge b-q">en attente</div>
+      <div class="meta">
+        <span>22 lames</span>
+        <span class="dot">·</span>
+        <span>marges à statuer</span>
+      </div>
+    </div>
+
+    <div class="case">
+      <div>
+        <div class="pid mono">P-ROSSIGNOL-08 · H · 78 a.</div>
+        <div class="dx serif">Prostate — biopsies sextant</div>
+      </div>
+      <div class="badge b-ok">validé</div>
+      <div class="meta">
+        <span>12 lames</span>
+        <span class="dot">·</span>
+        <span>Gleason 4+3</span>
+      </div>
+    </div>
+
+    <div class="case">
+      <div>
+        <div class="pid mono">P-IBRAHIM-77 · F · 29 a.</div>
+        <div class="dx serif">Lymphœdème axillaire — exérèse</div>
+      </div>
+      <div class="badge b-q">en attente</div>
+      <div class="meta">
+        <span>3 lames</span>
+        <span class="dot">·</span>
+        <span>cas rare suspecté</span>
+      </div>
+    </div>
+
+    <div class="panel-h" style="margin-top: 6px;">
+      <span class="title">Cohorte ouverte</span>
+      <span class="count mono">2 protocoles</span>
+    </div>
+
+    <div class="case">
+      <div>
+        <div class="pid mono">PROT · PDAC-2026-Q2</div>
+        <div class="dx serif">Adénocarcinome canalaire pancréatique</div>
+      </div>
+      <div class="badge b-ok">n=46</div>
+      <div class="meta"><span>Pr. Vidal · CHU Lyon</span></div>
+    </div>
+
+    <div class="case">
+      <div>
+        <div class="pid mono">PROT · TNBC-IHC-2026</div>
+        <div class="dx serif">Triple-négatif, recherche corrélats</div>
+      </div>
+      <div class="badge b-ok">n=118</div>
+      <div class="meta"><span>Dr. Aoun · IGR</span></div>
+    </div>
+  </aside>
+
+  <!-- ───── MAIN : VIEWER ───── -->
+  <main class="viewer">
+    <div class="viewer-toolbar">
+      <div class="toolbar-card specimen">
+        <span class="id mono">SP · S-12 / 12</span>
+        <span class="title">DUBOIS-2026-05_S07.svs</span>
+        <span class="stain">HES · 40× · 0,25 µm/px</span>
+      </div>
+      <div class="toolbar-card ctrl-group">
+        <button class="btn" title="Réinitialiser la vue">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7l3-3"/><path d="M21 3v6h-6"/></svg>
+        </button>
+        <button class="btn" title="Zoom arrière">
+          <svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/><path d="M8 11h6"/></svg>
+        </button>
+        <button class="btn" title="Zoom avant">
+          <svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
+        </button>
+        <button class="btn" title="Mesurer">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M3 21l4-4 13-13 1 1-13 13-4 4z"/><path d="M14 6l3 3"/></svg>
+        </button>
+        <button class="btn" title="Annoter">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7H12v-3z"/><path d="M18 5l3 3"/></svg>
+        </button>
+        <button class="btn" title="Comparer A/B">
+          <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="8" height="16"/><rect x="13" y="4" width="8" height="16"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="slide-canvas">
+      <div class="tissue">
+        <!-- ROIs -->
+        <div class="roi" style="top: 18%; left: 22%; width: 22%; height: 18%; border-color: #6b1d1d;">
+          <span class="lbl" style="background: #6b1d1d;">ROI 01 · carcinome</span>
+          <span class="conf">τ 0.94</span>
+        </div>
+        <div class="roi" style="top: 48%; left: 56%; width: 16%; height: 14%; border-color: #8a5a14;">
+          <span class="lbl" style="background: #8a5a14;">ROI 02 · stroma</span>
+          <span class="conf">τ 0.81</span>
+        </div>
+        <div class="roi" style="top: 68%; left: 34%; width: 14%; height: 12%; border-color: #2f5d3a;">
+          <span class="lbl" style="background: #2f5d3a;">ROI 03 · réf. saine</span>
+          <span class="conf">τ 0.42</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="scale-bar">
+      <div class="ruler"></div>
+      <span>200 µm</span>
+    </div>
+
+    <div class="navigator">
+      <div class="mini"><div class="frame"></div></div>
+    </div>
+
+    <!-- Slide strip -->
+    <div class="strip">
+      <div class="strip-item"><div class="thumb"></div><div class="lbl"><span>S-01</span><span class="stat s-ok"></span></div></div>
+      <div class="strip-item"><div class="thumb"></div><div class="lbl"><span>S-02</span><span class="stat s-ok"></span></div></div>
+      <div class="strip-item"><div class="thumb"></div><div class="lbl"><span>S-03</span><span class="stat s-ok"></span></div></div>
+      <div class="strip-item"><div class="thumb"></div><div class="lbl"><span>S-04</span><span class="stat s-ok"></span></div></div>
+      <div class="strip-item"><div class="thumb"></div><div class="lbl"><span>S-05</span><span class="stat s-ok"></span></div></div>
+      <div class="strip-item"><div class="thumb"></div><div class="lbl"><span>S-06</span><span class="stat s-ok"></span></div></div>
+      <div class="strip-item active"><div class="thumb"></div><div class="lbl"><span>S-07</span><span class="stat s-run"></span></div></div>
+      <div class="strip-item"><div class="thumb"></div><div class="lbl"><span>S-08</span><span class="stat s-run"></span></div></div>
+      <div class="strip-item"><div class="thumb"></div><div class="lbl"><span>S-09</span><span class="stat s-q"></span></div></div>
+      <div class="strip-item"><div class="thumb"></div><div class="lbl"><span>S-10</span><span class="stat s-q"></span></div></div>
+      <div class="strip-item"><div class="thumb"></div><div class="lbl"><span>S-11</span><span class="stat s-q"></span></div></div>
+      <div class="strip-item"><div class="thumb"></div><div class="lbl"><span>S-12</span><span class="stat s-q"></span></div></div>
+    </div>
+  </main>
+
+  <!-- ───── RIGHT : AGENTS + REPORT ───── -->
+  <aside class="report">
+
+    <div class="tabs">
+      <div class="tab active">Diagnostic</div>
+      <div class="tab">Débat</div>
+      <div class="tab">Littérature</div>
+    </div>
+
+    <!-- Barre d'export rapport -->
+    <div class="export-bar">
+      <div class="export-meta">
+        <span class="smcaps">Rapport CAP</span>
+        <span class="mono">v1.4 · 12 lames · 4,2 Mo</span>
+      </div>
+      <div class="export-actions">
+        <a class="exp-btn" href="#" download="DUBOIS-2026-05_rapport.pdf" title="Télécharger PDF complet">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+          <span>PDF</span>
+        </a>
+        <a class="exp-btn" href="#" download="DUBOIS-2026-05_rapport.docx" title="Télécharger DOCX">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+          <span>DOCX</span>
+        </a>
+        <a class="exp-btn" href="#" download="DUBOIS-2026-05_donnees.json" title="Données structurées (FHIR + JSON)">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M8 4h8M8 20h8"/><path d="M10 4c-3 5-3 11 0 16M14 4c3 5 3 11 0 16"/></svg>
+          <span>JSON</span>
+        </a>
+        <a class="exp-btn" href="#" title="Envoyer au DPI / HL7">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+          <span>DPI</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Agents -->
+    <div class="agents">
+      <div class="section-h">
+        <span class="smcaps">Pipeline · LangGraph</span>
+        <span class="mono" style="font-size: 11px; color: var(--muted);">06:42 / ~08:30</span>
+      </div>
+
+      <div class="agent s-done">
+        <span class="ind"></span>
+        <div class="name">Tile-Triage<span class="model">tissue mask · Otsu · 12 lames</span></div>
+        <div class="right">12/12 · 32 ROI</div>
+      </div>
+      <div class="agent s-done">
+        <span class="ind"></span>
+        <div class="name">Histo-A · lecture primaire<span class="model">Qwen2.5-72B-VL · 4 patches/lame</span></div>
+        <div class="right">τ 0.88</div>
+      </div>
+      <div class="agent s-running">
+        <span class="ind"></span>
+        <div class="name">Histo-B · lecture indépendante<span class="model">Meditron-70B · texte</span></div>
+        <div class="right">7/12</div>
+      </div>
+      <div class="agent s-pending">
+        <span class="ind"></span>
+        <div class="name">Cross-slide · agrégation<span class="model">map-reduce · détection désaccords</span></div>
+        <div class="right">—</div>
+      </div>
+      <div class="agent s-pending">
+        <span class="ind"></span>
+        <div class="name">Literature-Hunter<span class="model">Qdrant · TCGA + PubMed (12k)</span></div>
+        <div class="right">—</div>
+      </div>
+      <div class="agent s-pending">
+        <span class="ind"></span>
+        <div class="name">Chief · arbitrage<span class="model">débat structuré + CAP-report</span></div>
+        <div class="right">—</div>
+      </div>
+    </div>
+
+    <!-- Désaccord détecté -->
+    <div class="disagreement">
+      <div class="hd">Désaccord en cours d'arbitrage</div>
+      <div class="body">
+        Histo-A propose <strong>SBR III, marge antérieure R1 (0,5 mm)</strong>.
+        Histo-B retient <strong>grade II avec foyers III, marge proche R0 (1 mm)</strong>.
+        Coupes en série recommandées sur S-08 et S-09.
+      </div>
+    </div>
+
+    <!-- Diagnostic -->
+    <div class="dx-block">
+      <div class="label">Diagnostic primaire (préliminaire)</div>
+      <h2 class="serif">Adénocarcinome acineux du pancréas, grade II–III (OMS 2022)</h2>
+      <div class="who">Patient · DUBOIS, Hélène · 67 ans · biopsie tête de pancréas, 12 lames</div>
+
+      <div class="codes">
+        <div class="cell">
+          <div class="k">ICD-O-3</div>
+          <div class="v">8550/3</div>
+        </div>
+        <div class="cell">
+          <div class="k">Stade pTNM</div>
+          <div class="v">pT2 pNx M0</div>
+        </div>
+        <div class="cell">
+          <div class="k">Marges</div>
+          <div class="v">R1 ant. · 0,5 mm</div>
+        </div>
+        <div class="cell">
+          <div class="k">Engainement périnerveux</div>
+          <div class="v">présent · focal</div>
+        </div>
+      </div>
+
+      <div class="conf-row">
+        <div>
+          <div class="smcaps" style="margin-bottom: 6px;">Confiance multi-agents</div>
+          <div class="conf-bar"><div class="fill" style="width: 91%;"></div></div>
+        </div>
+        <div class="num">0,91<small>/1</small></div>
+      </div>
+    </div>
+
+    <!-- Findings -->
+    <div class="findings">
+      <div class="section-h"><span class="smcaps">Constatations clés</span></div>
+
+      <div class="find">
+        <div class="num">i.</div>
+        <div class="body">
+          <div class="h">Architecture glandulaire infiltrante avec nécrose centrale ~ 15 %</div>
+          <div class="b">Pléomorphisme nucléaire 3, nucléoles proéminents, chromatine grossière. 14 mitoses / 10 CFG.</div>
+          <div class="src">S-04, S-07, S-09 · ROI 01, ROI 04 · histo-A + histo-B concordants</div>
+        </div>
+      </div>
+
+      <div class="find">
+        <div class="num">ii.</div>
+        <div class="body">
+          <div class="h">Invasion lymphovasculaire et engainement périnerveux focaux</div>
+          <div class="b">Documentés sur S-04 et S-09 (LVI), S-01 / S-05 / S-08 (EPN). Cofacteur HR 2,3 récidive locale (PMID 33112045).</div>
+          <div class="src">3 patches concordants · Q2.5-72B-VL, τ 0.92</div>
+        </div>
+      </div>
+
+      <div class="find">
+        <div class="num">iii.</div>
+        <div class="body">
+          <div class="h">Réaction stromale desmoplasique marquée</div>
+          <div class="b">Compatible avec variant acineux. Diagnostic différentiel à exclure : pancréatite auto-immune IgG4 (3 %), carcinome neuroendocrine G2 (6 %).</div>
+          <div class="src">Recommandation IHC : synaptophysine, chromogranine, IgG4, Ki-67</div>
+        </div>
+      </div>
+
+      <div class="find">
+        <div class="num">iv.</div>
+        <div class="body">
+          <div class="h">847 cas similaires TCGA · OS 5 ans 22–28 %</div>
+          <div class="b">Cohorte appariée par stade et engainement périnerveux. Recommandation MDT mandatoire ; reprise chirurgicale R0 si faisable + adjuvant FOLFIRINOX.</div>
+          <div class="src">Literature-Hunter · 2 papers HR > 2 · niveau preuve B</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-ghost">Différer · cas suivant</button>
+      <button class="btn-primary">Valider et signer · CAP</button>
+    </div>
+  </aside>
+
+</div>
+</body>
+</html>
