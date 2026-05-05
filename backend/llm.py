@@ -8,6 +8,12 @@ LLM_BACKEND = os.getenv("LLM_BACKEND", "anthropic").lower()  # "anthropic" or "v
 MODEL = os.getenv("LLM_MODEL", "claude-sonnet-4-6")
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "")
 
+MODEL_MAP = {
+    "qwen72b":     os.getenv("VLLM_MODEL_QWEN72B",    "Qwen/Qwen2.5-72B-Instruct"),
+    "meditron70b": os.getenv("VLLM_MODEL_MEDITRON",   "epfl-llm/meditron-70b"),
+    "default":     os.getenv("LLM_MODEL",              "claude-sonnet-4-6"),
+}
+
 _anthropic_client = None
 _openai_client = None
 
@@ -34,6 +40,9 @@ def _get_openai():
 _MOCK_RESPONSES = {
     "tile_triage": '{"slide_id": "slide_0", "quality_ok": true, "quality_issues": [], "rois": [{"roi_id": "roi_001", "priority": 0.94, "x": 12500, "y": 8300, "width": 2048, "height": 2048, "reason": "High cellular density, suspected invasive carcinoma at glandular interface", "tissue_type": "tumor"}, {"roi_id": "roi_002", "priority": 0.81, "x": 14200, "y": 9100, "width": 2048, "height": 2048, "reason": "Desmoplastic stromal reaction with perineural invasion", "tissue_type": "stroma"}, {"roi_id": "roi_003", "priority": 0.42, "x": 4500, "y": 2200, "width": 2048, "height": 2048, "reason": "Normal pancreatic parenchyma reference", "tissue_type": "normal"}], "excluded_regions": [], "thinking": "Triage prioritized regions with abnormal cellular density and architectural distortion."}',
     "histopathologist": '{"slide_id": "slide_0", "roi_id": "roi_001", "tissue_types": ["invasive carcinoma", "desmoplastic stroma", "lymphocytic infiltrate"], "dominant_pattern": "infiltrating ductal carcinoma, no special type", "nuclear_pleomorphism": 3, "nucleoli": "prominent, multiple", "chromatin": "coarse, irregular", "mitotic_count_per_10hpf": 14, "necrosis_percent": 15, "lymphovascular_invasion": "present", "perineural_invasion": "present", "stromal_reaction": "desmoplastic", "sbr_grade": "III", "margin_status": "involved", "confidence": 0.88, "key_findings": ["High-grade nuclear features", "Extensive lymphovascular invasion", "Tumor necrosis ~15%"], "limitations": ["Edge of slide partially out of focus"], "thinking": "Pleomorphism 3, mitoses 14/10HPF, necrosis 15% — SBR grade III."}',
+    "histopathologist_a": '{"slide_id": "slide_0", "roi_id": "roi_001", "tissue_types": ["invasive carcinoma", "desmoplastic stroma", "lymphocytic infiltrate"], "dominant_pattern": "infiltrating ductal carcinoma, no special type", "nuclear_pleomorphism": 3, "nucleoli": "prominent, multiple", "chromatin": "coarse, irregular", "mitotic_count_per_10hpf": 14, "necrosis_percent": 15, "lymphovascular_invasion": "present", "perineural_invasion": "present", "stromal_reaction": "desmoplastic", "sbr_grade": "III", "margin_status": "involved", "confidence": 0.88, "key_findings": ["High-grade nuclear features", "Extensive lymphovascular invasion", "Tumor necrosis ~15%"], "limitations": ["Edge of slide partially out of focus"], "thinking": "Pleomorphism 3, mitoses 14/10HPF, necrosis 15% — SBR grade III."}',
+    "histopathologist_b": '{"slide_id": "slide_0", "roi_id": "roi_001", "dominant_pattern": "infiltrating ductal carcinoma, acinar variant", "nuclear_pleomorphism": 2, "mitotic_count_per_10hpf": 11, "necrosis_percent": 10, "lymphovascular_invasion": "present", "perineural_invasion": "focal", "sbr_grade": "II", "margin_status": "close (1mm)", "confidence": 0.84, "key_findings": ["Acinar variant pattern", "Lower mitotic count than field A", "Margin close but not involved"], "thinking": "Second read: acinar variant, grade II. Margin assessment differs — 1mm vs involved."}',
+    "chief": '{"debate_summary": "Histo-A: grade III, R1 margin. Histo-B: grade II, R0 close margin. Disagreement on margin status and grade. After debate: consensus grade II-III, margin requires step-section. Primary diagnosis confirmed: pancreatic acinar adenocarcinoma.", "primary_diagnosis": "Pancreatic acinar adenocarcinoma, grade II-III (WHO 2022)", "icd_o_code": "8550/3", "pt_stage": "pT2", "pn_stage": "pNx", "margin_status": "R1 anterior 0.5mm (step-section recommended)", "confidence": 0.92, "biomarkers": ["Synaptophysin", "Chromogranin", "IgG4", "Ki-67", "CK7", "CK19"], "similar_cases": 847, "recommendations": ["R0 reresection if feasible", "FOLFIRINOX adjuvant", "MDT discussion mandatory"]}',
     "cross_slide_aggregator": '{"patient_id": "P-DUBOIS-67", "total_slides_analyzed": 12, "slides_with_tumor": [0, 1, 2, 3, 4, 5, 8, 9], "slides_without_tumor": [6, 7, 10, 11], "tumor_map": {"distribution": "multifocal", "estimated_size_mm": 32, "location_description": "head of pancreas, two main foci"}, "consolidated_grade": "II-III", "grade_heterogeneity": true, "dominant_pattern": "infiltrating ductal carcinoma", "margin_status": {"anterior": "involved", "posterior": "clear", "medial": "clear", "lateral": "clear"}, "key_global_features": ["Multifocal tumor distribution", "Variable grade across foci", "Perineural invasion in 3 slides", "Vascular invasion in 2 slides"], "inconsistencies": ["Slide 8 grade II vs adjacent slide 9 grade III"], "suggested_biomarkers": ["CK7", "CK19", "MUC1", "Ki-67"], "confidence": 0.89, "thinking": "Coherent multifocal IDC pattern, anterior margin positive."}',
     "literature_hunter": '{"similar_tcga_cases": [{"case_id": "TCGA-PA-A5YG", "similarity_score": 0.91, "why_similar": "Same multifocal pattern with perineural invasion", "known_diagnosis": "Pancreatic acinar adenocarcinoma grade II", "five_year_os_percent": 28}, {"case_id": "TCGA-IB-7886", "similarity_score": 0.87, "why_similar": "Similar margin involvement and stromal reaction", "known_diagnosis": "PDAC grade II-III", "five_year_os_percent": 22}], "key_papers": [{"pmid": "34521876", "title": "Acinar adenocarcinoma prognosis: 10-year follow-up", "relevance": "Direct match histology + grade", "clinical_implication": "Adjuvant chemo + R0 reresection if feasible"}, {"pmid": "33112045", "title": "Perineural invasion as prognostic marker", "relevance": "Confirms HR 2.3 for local recurrence", "clinical_implication": "Aggressive local control needed"}], "recommended_biomarkers": [{"marker": "Synaptophysin", "rationale": "Exclude neuroendocrine differential"}, {"marker": "IgG4", "rationale": "Exclude autoimmune pancreatitis"}, {"marker": "Ki-67", "rationale": "Proliferation index"}], "population_prognosis": "5-year OS 22-28% for grade II-III pancreatic adenocarcinoma with perineural invasion", "rare_subtype_flag": false, "confidence": 0.85, "thinking": "Match against TCGA pancreas cases. Perineural invasion confirms poor prognosis."}',
     "differential_diagnostician": '{"primary_diagnosis": {"diagnosis": "Pancreatic acinar adenocarcinoma, grade II (WHO 2022)", "icd_o_code": "8550/3", "confidence": 0.91, "sbr_grade": "II", "pt_stage": "pT2", "pn_stage": "pNx", "margin": "R1 anterior 0.5mm", "supporting_evidence": ["Glandular architecture with central necrosis", "14 mitoses/10HPF", "Perineural invasion focal", "Desmoplastic stroma"]}, "differentials": [{"diagnosis": "Neuroendocrine carcinoma G2", "probability": 0.06, "rationale": "Focal trabecular pattern - exclude with synaptophysin/chromogranin IHC", "discriminating_feature": "Synaptophysin negative would exclude"}, {"diagnosis": "IgG4-related sclerosing pancreatitis", "probability": 0.03, "rationale": "Dense stroma but no IgG4+ plasma cells", "discriminating_feature": "IgG4 stain negative"}], "next_steps": ["IHC: synaptophysin, chromogranin, IgG4, Ki-67", "Step-section anterior margin", "MDT discussion"], "confidence": 0.91, "thinking": "Glandular pattern + grade II + perineural invasion = acinar PDAC. NEC excluded if synaptophysin neg."}',
@@ -46,6 +55,7 @@ async def chat(
     messages: list[dict],
     system: str = "",
     agent_name: str = "",
+    model_key: str = "default",
     max_tokens: int = 2000,
     cache_system: bool = True,
 ) -> str:
@@ -57,7 +67,7 @@ async def chat(
 
     if LLM_BACKEND == "anthropic":
         return await _chat_anthropic(messages, system, max_tokens, cache_system)
-    return await _chat_openai(messages, system, max_tokens)
+    return await _chat_openai(messages, system, max_tokens, model_key)
 
 
 async def _chat_anthropic(messages, system, max_tokens, cache_system):
@@ -79,15 +89,16 @@ async def _chat_anthropic(messages, system, max_tokens, cache_system):
         return f"[LLM error: {e}]"
 
 
-async def _chat_openai(messages, system, max_tokens):
+async def _chat_openai(messages, system, max_tokens, model_key: str = "default"):
     client = _get_openai()
+    model_name = MODEL_MAP.get(model_key, MODEL_MAP["default"])
     full = []
     if system:
         full.append({"role": "system", "content": system})
     full.extend(messages)
     try:
         resp = await client.chat.completions.create(
-            model=MODEL,
+            model=model_name,
             max_tokens=max_tokens,
             messages=full,
         )
