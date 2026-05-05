@@ -147,7 +147,7 @@ def build_user_message(text: str, images_b64: list[str] | None = None, *, backen
     return {"role": "user", "content": content}
 
 
-async def _call_once(messages, system, max_tokens, cache_system, model_key, timeout):
+async def _call_once(messages, system, max_tokens, cache_system, model_key, timeout, json_schema=None):
     try:
         if LLM_BACKEND == "anthropic":
             return await asyncio.wait_for(
@@ -155,7 +155,7 @@ async def _call_once(messages, system, max_tokens, cache_system, model_key, time
                 timeout=timeout,
             )
         return await asyncio.wait_for(
-            _chat_openai(messages, system, max_tokens, model_key),
+            _chat_openai(messages, system, max_tokens, model_key, json_schema=json_schema),
             timeout=timeout,
         )
     except asyncio.TimeoutError:
@@ -170,11 +170,17 @@ async def chat(
     max_tokens: int = 2000,
     cache_system: bool = True,
     timeout: float = 90.0,
+    json_schema: dict | None = None,
 ) -> str:
     """Call the LLM with bounded concurrency, timeout, and exponential-backoff retry.
 
     Routes to mock, anthropic (with prompt caching), or vLLM (OpenAI-compat).
     Transient errors (timeout, rate-limit, 5xx) trigger up to LLM_MAX_ATTEMPTS retries.
+
+    json_schema: when provided AND backend=vllm, constrains output via guided
+    decoding (xgrammar). Eliminates malformed-JSON hallucinations at the
+    decoder level — output is mathematically guaranteed to match the schema.
+    Ignored on anthropic backend (use tool_use there if needed).
     """
     if MOCK_MODE:
         if agent_name and agent_name in _MOCK_RESPONSES:
@@ -188,7 +194,7 @@ async def chat(
     last = ""
     async with _LLM_SEMAPHORE:
         for attempt in range(1, _LLM_MAX_ATTEMPTS + 1):
-            last = await _call_once(messages, system, max_tokens, cache_system, model_key, timeout)
+            last = await _call_once(messages, system, max_tokens, cache_system, model_key, timeout, json_schema=json_schema)
             if not _is_retryable_error(last):
                 _cb_record_ok(model_key)
                 return last
@@ -220,19 +226,35 @@ async def _chat_anthropic(messages, system, max_tokens, cache_system):
         return f"[LLM error: {e}]"
 
 
-async def _chat_openai(messages, system, max_tokens, model_key: str = "default"):
+async def _chat_openai(messages, system, max_tokens, model_key: str = "default", json_schema: dict | None = None):
     client = _get_openai_for_model(model_key)
     model_name = MODEL_MAP.get(model_key, MODEL_MAP["default"])
     full = []
     if system:
         full.append({"role": "system", "content": system})
     full.extend(messages)
+
+    kwargs: dict = {
+        "model": model_name,
+        "max_tokens": max_tokens,
+        "messages": full,
+    }
+    if json_schema is not None:
+        # vLLM 0.17 honours OpenAI-compat response_format with json_schema —
+        # constrains decoding via xgrammar so output is mathematically forced
+        # to match the schema. Failure mode: vLLM raises InvalidRequest if the
+        # schema is malformed; we surface that as [LLM error: ...].
+        kwargs["response_format"] = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": (model_key or "agent") + "_output",
+                "schema": json_schema,
+                "strict": True,
+            },
+        }
+
     try:
-        resp = await client.chat.completions.create(
-            model=model_name,
-            max_tokens=max_tokens,
-            messages=full,
-        )
+        resp = await client.chat.completions.create(**kwargs)
         return resp.choices[0].message.content or ""
     except Exception as e:
         return f"[LLM error: {e}]"

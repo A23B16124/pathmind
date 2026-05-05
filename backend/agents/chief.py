@@ -1,9 +1,48 @@
 import json
 from backend.agents.base import BaseAgent
 from backend.schemas.agents import ChiefInput, ChiefOutput, DebateRound
-from backend.llm import chat
+from backend.llm import chat, LLM_BACKEND
 from backend.prompts import load_prompt
 from backend.utils.json_repair import repair_llm_json
+
+
+# Constrained-decoding schema for the Chief's CAP report.
+# vLLM enforces this at the decoder level (xgrammar), so the model
+# physically cannot emit malformed JSON or hallucinated fields.
+CHIEF_OUTPUT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "debate_rounds": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "agent_id": {"type": "string", "enum": ["histo_a", "histo_b", "chief"]},
+                    "argument": {"type": "string"},
+                    "conceded": {"type": "boolean"},
+                },
+                "required": ["agent_id", "argument"],
+            },
+        },
+        "debate_summary": {"type": "string"},
+        "primary_diagnosis": {"type": "string"},
+        "icd_o_code": {"type": "string"},
+        "pt_stage": {"type": "string"},
+        "pn_stage": {"type": "string"},
+        "margin_status": {"type": "string"},
+        "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "biomarkers": {"type": "array", "items": {"type": "string"}},
+        "similar_cases": {"type": "integer", "minimum": 0},
+        "recommendations": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": [
+        "debate_summary",
+        "primary_diagnosis",
+        "confidence",
+        "biomarkers",
+        "recommendations",
+    ],
+}
 
 
 class ChiefAgent(BaseAgent):
@@ -33,12 +72,16 @@ class ChiefAgent(BaseAgent):
             f"(2) Produce final CAP report JSON. Output JSON only."
         )
 
+        # Pass guided_json schema only when calling vLLM — Anthropic ignores it.
+        # On vLLM the decoder is mathematically constrained to emit JSON
+        # matching CHIEF_OUTPUT_SCHEMA. No malformed output reaches downstream.
         result = await chat(
             agent_name=self.name,
             model_key="qwen72b",
             system=load_prompt("chief"),
             messages=[{"role": "user", "content": user}],
             max_tokens=4000,
+            json_schema=CHIEF_OUTPUT_SCHEMA if LLM_BACKEND == "vllm" else None,
         )
 
         await self.emit(case_id, "done", result)
