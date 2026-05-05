@@ -119,10 +119,10 @@ class ChiefAgent(BaseAgent):
 
         return ChiefOutput(
             debate_rounds=rounds,
-            debate_summary=data.get("debate_summary", ""),
-            diagnosis=data.get("primary_diagnosis", ""),
-            biomarkers=data.get("biomarkers", []),
-            confidence=0.0 if parse_failed else float(data.get("confidence", 0.92)),
-            cap_report=data,
+            debate_summary=data.get("debate_summary") or "",
+            diagnosis=data.get("primary_diagnosis") or "",
+            biomarkers=data.get("biomarkers") or [],
+            confidence=0.0 if parse_failed else float(data.get("confidence") or 0.92),
+            cap_report=data or {},
             report_html=report_html,
         )
