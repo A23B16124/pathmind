@@ -18,9 +18,11 @@ from PIL import Image
 from backend.ws_manager import manager
 from backend.graph import run_pipeline
 from backend.report_export import render_pdf, render_docx
+from backend.api.slides import router as slides_router
 
 app = FastAPI(title="PathMind API", version="0.2.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.include_router(slides_router)
 
 _STARTUP_TIME = time.time()
 

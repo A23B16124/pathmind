@@ -209,18 +209,23 @@ export default function Home() {
             />
           ) : (
             <VolumeViewer
-              slides={slides.map((s, i) => ({
-                id: s.id,
-                index: i,
-                name: s.name,
-                rois: FALLBACK_OVERLAYS.slice(0, 4).map((r) => ({
-                  x: r.x,
-                  y: r.y,
-                  w: r.w,
-                  h: r.h,
-                  tissue: r.tissue ?? 0.7,
-                })),
-              }))}
+              caseId={activeCase?.case_id}
+              slides={
+                activeCase
+                  ? undefined
+                  : slides.map((s, i) => ({
+                      id: s.id,
+                      index: i,
+                      name: s.name,
+                      rois: FALLBACK_OVERLAYS.slice(0, 4).map((r) => ({
+                        x: r.x,
+                        y: r.y,
+                        w: r.w,
+                        h: r.h,
+                        tissue: r.tissue ?? 0.7,
+                      })),
+                    }))
+              }
               activeSlideIndex={activeVolumeSlide}
               onSlideClick={(i) => setActiveVolumeSlide(i)}
             />

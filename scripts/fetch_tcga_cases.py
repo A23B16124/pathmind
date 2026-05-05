@@ -83,13 +83,53 @@ def find_diagnostic_slide(project_id: str, primary_diagnosis_filter: str | None 
     return hits[0] if hits else None
 
 
-def to_demo_case(file_hit: dict, *, label_fr: str, context_fr: str) -> dict:
-    """Project a GDC file payload onto the DemoCase shape used by the frontend."""
+def find_all_case_slides(case_uuid: str, max_slides: int = 8) -> list[dict]:
+    """Return every open-access SVS file attached to a case_uuid.
+
+    Used by the Volume 3D viewer to surface diagnostic + frozen + IHC slides
+    when a case has more than one. Falls back gracefully when the case has
+    a single slide.
+    """
+    payload = {
+        "filters": {
+            "op": "and",
+            "content": [
+                {"op": "in", "content": {"field": "cases.case_id",   "value": [case_uuid]}},
+                {"op": "in", "content": {"field": "data_format",     "value": ["SVS"]}},
+                {"op": "in", "content": {"field": "access",          "value": ["open"]}},
+            ],
+        },
+        "fields": "file_id,file_name,file_size,md5sum,experimental_strategy",
+        "format": "JSON",
+        "size": str(max_slides),
+        "sort": "file_size:desc",
+    }
+    resp = gdc_post(GDC_FILES, payload)
+    return resp.get("data", {}).get("hits", [])
+
+
+def to_demo_case(file_hit: dict, *, label_fr: str, context_fr: str, extra_slides: list[dict] | None = None) -> dict:
+    """Project a GDC file payload onto the DemoCase shape used by the frontend.
+
+    `extra_slides` (optional) lets callers attach additional slide files that
+    belong to the same case for multi-slide visualisation (Volume 3D).
+    """
     case = (file_hit.get("cases") or [{}])[0]
     demo = case.get("demographic") or {}
     diag = (case.get("diagnoses") or [{}])[0]
     yob  = demo.get("year_of_birth")
     age  = (2026 - int(yob)) if yob else 0
+
+    primary = {
+        "file_id":   file_hit.get("file_id"),
+        "file_name": file_hit.get("file_name"),
+        "file_size": file_hit.get("file_size"),
+    }
+    all_slides = [primary] + [
+        {"file_id": s["file_id"], "file_name": s["file_name"], "file_size": s.get("file_size")}
+        for s in (extra_slides or [])
+        if s.get("file_id") != primary["file_id"]
+    ]
 
     return {
         "case_id":           f"tcga-{case.get('submitter_id', case.get('case_id', 'unknown'))}",
@@ -97,8 +137,9 @@ def to_demo_case(file_hit: dict, *, label_fr: str, context_fr: str) -> dict:
         "patient_label":     label_fr,
         "age":               age,
         "clinical_context":  context_fr,
-        "slide_paths":       [f"tcga/{file_hit.get('file_name')}"],
-        "slide_names":       [file_hit.get("file_name")],
+        "slide_paths":       [f"tcga/{s['file_name']}" for s in all_slides],
+        "slide_names":       [s["file_name"] for s in all_slides],
+        "slide_files":       all_slides,
         # Provenance / metadata — used by the report and downloader
         "tcga": {
             "file_id":            file_hit.get("file_id"),
@@ -137,7 +178,9 @@ def download_slide(file_id: str, dest_path: Path) -> None:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--download", action="store_true", help="also wget the slides")
+    ap.add_argument("--download",   action="store_true", help="also wget the slides")
+    ap.add_argument("--max-slides", type=int, default=6,
+                    help="max number of slides to attach per case (default 6, used for Volume 3D)")
     args = ap.parse_args()
 
     DEMO_DIR.mkdir(parents=True, exist_ok=True)
@@ -164,18 +207,29 @@ def main():
         if not hit:
             print(f"  ✗ no diagnostic slide found for {t['project_id']}")
             continue
-        case = to_demo_case(hit, label_fr=t["label_fr"], context_fr=t["context_fr"])
+        case_uuid = (hit.get("cases") or [{}])[0].get("case_id")
+        extra: list[dict] = []
+        if case_uuid and args.max_slides > 1:
+            try:
+                extra = find_all_case_slides(case_uuid, max_slides=args.max_slides)
+                print(f"    found {len(extra)} slide(s) total for case {case_uuid}")
+            except Exception as e:
+                print(f"    ⚠ multi-slide lookup failed: {e}")
+
+        case = to_demo_case(hit, label_fr=t["label_fr"], context_fr=t["context_fr"], extra_slides=extra)
         out_cases.append(case)
         print(f"  ✓ {case['tcga']['submitter_id']} — {case['tcga']['primary_diagnosis']!r}, stage={case['tcga']['stage']!r}, grade={case['tcga']['tumor_grade']!r}")
-        print(f"    slide: {case['slide_names'][0]}  ({(case['tcga']['file_size_bytes'] or 0) / 1024**2:.1f} MB)")
+        for sn in case["slide_names"]:
+            print(f"    · {sn}")
 
         if args.download:
-            print(f"  Downloading slide…")
-            dest = SLIDES_DIR / case["slide_names"][0]
-            try:
-                download_slide(case["tcga"]["file_id"], dest)
-            except Exception as e:
-                print(f"  ✗ download failed: {e}")
+            print(f"  Downloading {len(case['slide_files'])} slide(s)…")
+            for s in case["slide_files"]:
+                dest = SLIDES_DIR / s["file_name"]
+                try:
+                    download_slide(s["file_id"], dest)
+                except Exception as e:
+                    print(f"  ✗ download failed for {s['file_name']}: {e}")
 
     out = DEMO_DIR / "tcga_demo_cases.json"
     out.write_text(json.dumps(out_cases, indent=2, ensure_ascii=False), encoding="utf-8")

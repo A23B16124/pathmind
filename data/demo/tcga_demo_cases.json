@@ -6,10 +6,24 @@
     "age": 0,
     "clinical_context": "Macrobiopsie mammaire — recherche carcinome canalaire infiltrant. Statut HER2 et Ki-67 à confirmer en IHC.",
     "slide_paths": [
-      "tcga/TCGA-OL-A66K-01Z-00-DX1.C1DC85F1-4FAE-4411-9886-11DCB5E70CC3.svs"
+      "tcga/TCGA-OL-A66K-01Z-00-DX1.C1DC85F1-4FAE-4411-9886-11DCB5E70CC3.svs",
+      "tcga/TCGA-OL-A66K-01A-01-TS1.B088994F-5660-4401-B5AD-A6C8493172BC.svs"
     ],
     "slide_names": [
-      "TCGA-OL-A66K-01Z-00-DX1.C1DC85F1-4FAE-4411-9886-11DCB5E70CC3.svs"
+      "TCGA-OL-A66K-01Z-00-DX1.C1DC85F1-4FAE-4411-9886-11DCB5E70CC3.svs",
+      "TCGA-OL-A66K-01A-01-TS1.B088994F-5660-4401-B5AD-A6C8493172BC.svs"
+    ],
+    "slide_files": [
+      {
+        "file_id": "07e24277-17a0-4442-9d56-b235c93e4142",
+        "file_name": "TCGA-OL-A66K-01Z-00-DX1.C1DC85F1-4FAE-4411-9886-11DCB5E70CC3.svs",
+        "file_size": 3401266790
+      },
+      {
+        "file_id": "46f72680-faff-4de6-ab6c-470ea841eed9",
+        "file_name": "TCGA-OL-A66K-01A-01-TS1.B088994F-5660-4401-B5AD-A6C8493172BC.svs",
+        "file_size": 484206283
+      }
     ],
     "tcga": {
       "file_id": "07e24277-17a0-4442-9d56-b235c93e4142",
@@ -39,10 +53,31 @@
     "age": 0,
     "clinical_context": "Biopsie tête de pancréas — adénocarcinome suspecté. Évaluation marges, engainement périnerveux, invasion lymphovasculaire.",
     "slide_paths": [
-      "tcga/TCGA-2L-AAQJ-01Z-00-DX1.91D3718F-DF73-48BA-BCB8-A00A000043F7.svs"
+      "tcga/TCGA-2L-AAQJ-01Z-00-DX1.91D3718F-DF73-48BA-BCB8-A00A000043F7.svs",
+      "tcga/TCGA-2L-AAQJ-01A-01-TS1.E8314D28-E902-4A62-AAEB-E0A316617BAB.svs",
+      "tcga/TCGA-2L-AAQJ-11A-01-TS1.27AB61A2-4F5B-4B8E-AC5D-AE1D0E5C7C7A.svs"
     ],
     "slide_names": [
-      "TCGA-2L-AAQJ-01Z-00-DX1.91D3718F-DF73-48BA-BCB8-A00A000043F7.svs"
+      "TCGA-2L-AAQJ-01Z-00-DX1.91D3718F-DF73-48BA-BCB8-A00A000043F7.svs",
+      "TCGA-2L-AAQJ-01A-01-TS1.E8314D28-E902-4A62-AAEB-E0A316617BAB.svs",
+      "TCGA-2L-AAQJ-11A-01-TS1.27AB61A2-4F5B-4B8E-AC5D-AE1D0E5C7C7A.svs"
+    ],
+    "slide_files": [
+      {
+        "file_id": "e45d6d7b-9367-434f-98d8-51d9110acfe1",
+        "file_name": "TCGA-2L-AAQJ-01Z-00-DX1.91D3718F-DF73-48BA-BCB8-A00A000043F7.svs",
+        "file_size": 3385737162
+      },
+      {
+        "file_id": "cc78b6cf-eba6-491a-a391-06aaf1d9e9e0",
+        "file_name": "TCGA-2L-AAQJ-01A-01-TS1.E8314D28-E902-4A62-AAEB-E0A316617BAB.svs",
+        "file_size": 133490763
+      },
+      {
+        "file_id": "41b38911-79f0-454f-beb2-996ea5eaa9a9",
+        "file_name": "TCGA-2L-AAQJ-11A-01-TS1.27AB61A2-4F5B-4B8E-AC5D-AE1D0E5C7C7A.svs",
+        "file_size": 34203929
+      }
     ],
     "tcga": {
       "file_id": "e45d6d7b-9367-434f-98d8-51d9110acfe1",
