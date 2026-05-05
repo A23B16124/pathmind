@@ -6,7 +6,13 @@ load_dotenv()
 MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() in ("true", "1", "yes")
 LLM_BACKEND = os.getenv("LLM_BACKEND", "anthropic").lower()  # "anthropic" or "vllm"
 MODEL = os.getenv("LLM_MODEL", "claude-sonnet-4-6")
-LLM_BASE_URL = os.getenv("LLM_BASE_URL", "")
+LLM_BASE_URL = os.getenv("LLM_BASE_URL", "http://localhost:8001/v1")
+
+VLLM_BASE_URL_MAP = {
+    "qwen72b":     os.getenv("VLLM_BASE_URL_QWEN72B",    "http://localhost:8001/v1"),
+    "meditron70b": os.getenv("VLLM_BASE_URL_MEDITRON70B", "http://localhost:8002/v1"),
+    "default":     LLM_BASE_URL,
+}
 
 MODEL_MAP = {
     "qwen72b":     os.getenv("VLLM_MODEL_QWEN72B",    "Qwen/Qwen2.5-72B-Instruct"),
@@ -15,7 +21,7 @@ MODEL_MAP = {
 }
 
 _anthropic_client = None
-_openai_client = None
+_openai_clients: dict = {}
 
 
 def _get_anthropic():
@@ -26,15 +32,15 @@ def _get_anthropic():
     return _anthropic_client
 
 
-def _get_openai():
-    global _openai_client
-    if _openai_client is None:
+def _get_openai_for_model(model_key: str):
+    if model_key not in _openai_clients:
         from openai import AsyncOpenAI
-        _openai_client = AsyncOpenAI(
+        base_url = VLLM_BASE_URL_MAP.get(model_key, VLLM_BASE_URL_MAP["default"])
+        _openai_clients[model_key] = AsyncOpenAI(
             api_key=os.getenv("VLLM_API_KEY", "EMPTY"),
-            base_url=LLM_BASE_URL or "http://localhost:8000/v1",
+            base_url=base_url,
         )
-    return _openai_client
+    return _openai_clients[model_key]
 
 
 _MOCK_RESPONSES = {
@@ -90,7 +96,7 @@ async def _chat_anthropic(messages, system, max_tokens, cache_system):
 
 
 async def _chat_openai(messages, system, max_tokens, model_key: str = "default"):
-    client = _get_openai()
+    client = _get_openai_for_model(model_key)
     model_name = MODEL_MAP.get(model_key, MODEL_MAP["default"])
     full = []
     if system:

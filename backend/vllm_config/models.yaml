@@ -1,0 +1,39 @@
+# AMD MI300X — 192GB HBM3 — concurrent multi-model serving for PathMind
+# Total VRAM budget: ~190GB usable
+#
+# This file is documentation + reference for the start_vllm.sh launcher.
+# It is NOT consumed by code — it lists the models the launcher script starts.
+
+models:
+  - id: qwen72b
+    name: Qwen/Qwen2.5-72B-Instruct
+    served_name: qwen72b
+    vram_gb: 144
+    dtype: bfloat16
+    port: 8001
+    gpu_memory_utilization: 0.55
+    max_model_len: 8192
+    tensor_parallel_size: 1
+    use_cases:
+      - histopathologist_a
+      - cross_slide_aggregator
+      - literature_hunter
+      - chief
+
+  - id: meditron70b
+    name: epfl-llm/meditron-70b
+    served_name: meditron70b
+    vram_gb: 140
+    dtype: bfloat16
+    port: 8002
+    gpu_memory_utilization: 0.40
+    max_model_len: 4096
+    tensor_parallel_size: 1
+    use_cases:
+      - histopathologist_b
+
+# Notes:
+# - Qwen 72B + Meditron 70B together need ~284GB at full util. MI300X has 192GB unified HBM3.
+# - We constrain gpu_memory_utilization (0.55 + 0.40 = 0.95 of 192GB ≈ 182GB) so both
+#   models fit. KV cache lives in the leftover headroom per-instance.
+# - If OOM on startup, drop both to 0.50 / 0.35 OR set max_model_len=4096 on Qwen.
