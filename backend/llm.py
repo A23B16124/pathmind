@@ -1,8 +1,34 @@
+import asyncio
 import base64
 import os
+import random
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Bound LLM concurrency. Without this, asyncio.gather over many slides can
+# fan out hundreds of in-flight requests, OOM-ing client buffers and the
+# vLLM scheduler. 8 is a reasonable default for a single MI300X.
+_LLM_CONCURRENCY = int(os.getenv("LLM_MAX_CONCURRENCY", "8"))
+_LLM_SEMAPHORE = asyncio.Semaphore(_LLM_CONCURRENCY)
+
+# Retry policy: 3 attempts with exponential backoff. Treats transient
+# transport errors as retryable (rate-limit, 5xx, network).
+_LLM_MAX_ATTEMPTS = int(os.getenv("LLM_MAX_ATTEMPTS", "3"))
+_LLM_BACKOFF_BASE = 1.0   # seconds
+_LLM_BACKOFF_MAX = 8.0
+
+
+def _is_retryable_error(s: str) -> bool:
+    """An LLM 'error string' (returned in-band) is retryable iff it looks transient."""
+    if not s.startswith("[LLM"):
+        return False
+    lower = s.lower()
+    return any(t in lower for t in (
+        "timeout", "rate limit", "rate_limit", "429",
+        "503", "502", "500", "connection", "network",
+        "temporar", "overloaded",
+    ))
 
 MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() in ("true", "1", "yes")
 LLM_BACKEND = os.getenv("LLM_BACKEND", "anthropic").lower()  # "anthropic" or "vllm"
@@ -93,6 +119,21 @@ def build_user_message(text: str, images_b64: list[str] | None = None, *, backen
     return {"role": "user", "content": content}
 
 
+async def _call_once(messages, system, max_tokens, cache_system, model_key, timeout):
+    try:
+        if LLM_BACKEND == "anthropic":
+            return await asyncio.wait_for(
+                _chat_anthropic(messages, system, max_tokens, cache_system),
+                timeout=timeout,
+            )
+        return await asyncio.wait_for(
+            _chat_openai(messages, system, max_tokens, model_key),
+            timeout=timeout,
+        )
+    except asyncio.TimeoutError:
+        return f"[LLM timeout after {timeout}s]"
+
+
 async def chat(
     messages: list[dict],
     system: str = "",
@@ -102,25 +143,28 @@ async def chat(
     cache_system: bool = True,
     timeout: float = 90.0,
 ) -> str:
-    """Call the LLM. Routes to mock, anthropic (with caching), or vLLM (OpenAI-compat)."""
+    """Call the LLM with bounded concurrency, timeout, and exponential-backoff retry.
+
+    Routes to mock, anthropic (with prompt caching), or vLLM (OpenAI-compat).
+    Transient errors (timeout, rate-limit, 5xx) trigger up to LLM_MAX_ATTEMPTS retries.
+    """
     if MOCK_MODE:
         if agent_name and agent_name in _MOCK_RESPONSES:
             return _MOCK_RESPONSES[agent_name]
         return _MOCK_RESPONSES["report_writer"]
 
-    import asyncio as _asyncio
-    try:
-        if LLM_BACKEND == "anthropic":
-            return await _asyncio.wait_for(
-                _chat_anthropic(messages, system, max_tokens, cache_system),
-                timeout=timeout,
-            )
-        return await _asyncio.wait_for(
-            _chat_openai(messages, system, max_tokens, model_key),
-            timeout=timeout,
-        )
-    except _asyncio.TimeoutError:
-        return f"[LLM timeout after {timeout}s]"
+    last = ""
+    async with _LLM_SEMAPHORE:
+        for attempt in range(1, _LLM_MAX_ATTEMPTS + 1):
+            last = await _call_once(messages, system, max_tokens, cache_system, model_key, timeout)
+            if not _is_retryable_error(last):
+                return last
+            if attempt == _LLM_MAX_ATTEMPTS:
+                break
+            backoff = min(_LLM_BACKOFF_BASE * (2 ** (attempt - 1)), _LLM_BACKOFF_MAX)
+            jitter = random.uniform(0, 0.3 * backoff)
+            await asyncio.sleep(backoff + jitter)
+    return last
 
 
 async def _chat_anthropic(messages, system, max_tokens, cache_system):
