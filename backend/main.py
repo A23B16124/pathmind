@@ -10,19 +10,7 @@ import time
 import httpx
 
 from backend.ws_manager import manager
-from backend.schemas.agents import (
-    TileTriageInput,
-    HistopathologistInput,
-    CrossSlideInput,
-    LiteratureHunterInput,
-    ChiefInput,
-)
-from backend.agents.tile_triage import TileTriageAgent
-from backend.agents.histopathologist_a import HistopathologistAAgent
-from backend.agents.histopathologist_b import HistopathologistBAgent
-from backend.agents.cross_slide import CrossSlideAgent
-from backend.agents.literature_hunter import LiteratureHunterAgent
-from backend.agents.chief import ChiefAgent
+from backend.graph import run_pipeline
 
 app = FastAPI(title="PathMind API", version="0.2.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -123,59 +111,14 @@ async def _run_pipeline(req: AnalyzeRequest):
     try:
         await manager.broadcast(
             case_id,
-            {"agent": "pipeline", "status": "started", "content": f"{len(req.slide_paths)} slides — dual-read pipeline"},
+            {"agent": "pipeline", "status": "started", "content": f"{len(req.slide_paths)} slides — LangGraph dual-read pipeline"},
         )
 
-        # 1. Tile Triage (parallel per slide)
-        triage_results = await asyncio.gather(*[
-            TileTriageAgent().run(case_id, TileTriageInput(slide_path=p, slide_index=i))
-            for i, p in enumerate(req.slide_paths)
-        ])
-
-        # 2+3. Histo-A (Qwen72B) + Histo-B (Meditron70B) — parallel for every slide
-        histo_inputs = [
-            HistopathologistInput(
-                slide_index=t.slide_index,
-                slide_path=req.slide_paths[t.slide_index],
-                regions_of_interest=t.regions_of_interest,
-            )
-            for t in triage_results
-        ]
-
-        results_a, results_b = await asyncio.gather(
-            asyncio.gather(*[HistopathologistAAgent().run(case_id, inp) for inp in histo_inputs]),
-            asyncio.gather(*[HistopathologistBAgent().run(case_id, inp) for inp in histo_inputs]),
-        )
-
-        # 4. Cross-Slide Aggregator (consumes both reads, identifies disagreements)
-        cross = await CrossSlideAgent().run(
-            case_id,
-            CrossSlideInput(
-                slides_a=list(results_a),
-                slides_b=list(results_b),
-                patient_id=req.patient_id,
-            ),
-        )
-
-        # 5. Literature Hunter
-        hypothesis = cross.dominant_pattern or cross.synthesis_a or "indeterminate pathology"
-        lit = await LiteratureHunterAgent().run(
-            case_id,
-            LiteratureHunterInput(
-                hypothesis=hypothesis,
-                keywords=[cross.dominant_pattern] if cross.dominant_pattern else [],
-            ),
-        )
-
-        # 6. Chief — debate + arbitration + CAP report
-        report = await ChiefAgent().run(
-            case_id,
-            ChiefInput(
-                patient_id=req.patient_id,
-                cross_slide=cross,
-                literature=lit,
-                clinical_data=req.clinical_data or {},
-            ),
+        report = await run_pipeline(
+            case_id=case_id,
+            patient_id=req.patient_id,
+            slide_paths=req.slide_paths,
+            clinical_data=req.clinical_data,
         )
 
         report_dict = {
