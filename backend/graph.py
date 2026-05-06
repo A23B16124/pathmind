@@ -251,4 +251,12 @@ async def run_pipeline(
         histo_a=final_state["histo_a_results"] or [],
         histo_b=final_state["histo_b_results"] or [],
     )
-    return final_state["report"], final_state["literature"], warnings
+    extras = {
+        "triage_results": [t.model_dump() for t in (final_state["triage_results"] or [])],
+        "histo_a_results": [r.model_dump() for r in (final_state["histo_a_results"] or [])],
+        "histo_b_results": [r.model_dump() for r in (final_state["histo_b_results"] or [])],
+        "cross_slide": final_state["cross_slide"].model_dump() if final_state["cross_slide"] else None,
+        "clinical_data": clinical_data or {},
+        "slide_paths": slide_paths,
+    }
+    return final_state["report"], final_state["literature"], warnings, extras

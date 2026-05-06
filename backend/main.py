@@ -281,12 +281,16 @@ async def _run_pipeline(req: AnalyzeRequest):
                  "content": f"{len(req.slide_paths)} slides — LangGraph dual-read pipeline"},
             )
 
-            report, literature, warnings = await run_pipeline(
+            report, literature, warnings, extras = await run_pipeline(
                 case_id=case_id,
                 patient_id=req.patient_id,
                 slide_paths=req.slide_paths,
                 clinical_data=req.clinical_data,
             )
+
+            kf = literature.key_findings or ""
+            if kf.strip().lower().startswith("[llm"):
+                kf = ""
 
             report_dict = {
                 "diagnosis": report.diagnosis,
@@ -295,13 +299,22 @@ async def _run_pipeline(req: AnalyzeRequest):
                 "confidence": report.confidence,
                 "cap_report": report.cap_report,
                 "report_html": report.report_html,
+                "debate_rounds": [d.model_dump() for d in report.debate_rounds],
                 "literature": {
-                    "key_findings": literature.key_findings,
+                    "key_findings": kf,
                     "similar_cases": literature.similar_cases,
                     "used_papers":      [p.model_dump() for p in literature.used_papers],
                     "suggested_papers": [p.model_dump() for p in literature.suggested_papers],
                 },
                 "warnings": warnings,
+                "histo_a_results": extras["histo_a_results"],
+                "histo_b_results": extras["histo_b_results"],
+                "cross_slide":     extras["cross_slide"],
+                "triage_results":  extras["triage_results"],
+                "clinical_data":   extras["clinical_data"],
+                "slide_paths":     extras["slide_paths"],
+                "patient_id":      req.patient_id,
+                "case_id":         case_id,
             }
 
             # Snapshot the report to disk so the next demo run for this
