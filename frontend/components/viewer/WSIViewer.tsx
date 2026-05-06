@@ -334,15 +334,19 @@ interface WSIViewerProps {
   overlays?: Overlay[]
 }
 
-const PLACEHOLDER_TILE_SOURCE = 'https://openseadragon.github.io/example-images/highsmith/highsmith.dzi'
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || ''
+// Local placeholder served by the backend (synthetic CMU-1 H&E texture).
+// Avoids external DNS dependency that breaks behind corporate proxies / strict DNS.
+const PLACEHOLDER_TILE_SOURCE = API_BASE
+  ? { type: 'image', url: `${API_BASE}/api/slide/CMU-1-Small-Region/thumbnail?size=1024`, crossOriginPolicy: 'Anonymous' }
+  : null
 
 // Build a single-image tileSource from a backend thumbnail. OpenSeadragon
 // can pan/zoom a flat JPEG via the simpleImage type — good enough for the
 // demo until we expose a real DZI/IIIF tile server backed by OpenSlide.
 function buildTileSource(slideId: string, slidePath?: string): unknown {
   const isDemoLabel = !slideId || slideId === 'Aucune lame' || slideId === 'Pas de lame chargée'
-  if (isDemoLabel || !API_BASE) return PLACEHOLDER_TILE_SOURCE
+  if (isDemoLabel || !API_BASE) return PLACEHOLDER_TILE_SOURCE as unknown
   // Prefer the full path stem (matches the on-disk WSI / demo JSON entry) so
   // the backend serves the real OpenSlide thumbnail. Falls back to slideId.
   const raw = slidePath ? slidePath.split('/').pop() ?? slidePath : slideId
