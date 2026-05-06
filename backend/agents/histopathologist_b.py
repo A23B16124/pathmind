@@ -1,31 +1,21 @@
 """
-Histopathologist-B — independent second read.
+Histopathologist-B — independent second read via Claude (Anthropic).
 
-Meditron-70B is text-only (no vision capability). To still benefit from real
-pixels rather than coordinate text, we attach patches when the active backend
-supports vision (Anthropic dev / vLLM with a VL model). When the configured
-backend is Meditron text-only, we serialize ROI tissue stats as text.
+Histo-A runs on Qwen2.5-VL-72B (local vLLM on MI300X). Histo-B always calls
+Claude, so the two reads come from genuinely different model families with
+different training corpora — a real second opinion, not a prompt variation.
 """
 
 from __future__ import annotations
 
 import asyncio
 import json
-import os
 
 from backend.agents.base import BaseAgent
 from backend.schemas.agents import HistopathologistInput, HistopathologistOutput
-from backend.llm import chat, build_user_message, LLM_BACKEND
+from backend.llm import chat, build_user_message
 from backend.agents.histopathologist_a import _extract_patches, MAX_PATCHES_PER_SLIDE
 from backend.prompts import load_prompt
-
-
-def _backend_supports_vision() -> bool:
-    """Anthropic Claude is multimodal; vLLM only when configured to a VL model."""
-    if LLM_BACKEND == "anthropic":
-        return True
-    vllm_model = os.getenv("VLLM_MODEL_MEDITRON", "")
-    return "vl" in vllm_model.lower() or "vision" in vllm_model.lower()
 
 
 class HistopathologistBAgent(BaseAgent):
@@ -34,15 +24,13 @@ class HistopathologistBAgent(BaseAgent):
     async def run(self, case_id: str, input_data: HistopathologistInput) -> HistopathologistOutput:
         await self.emit(
             case_id, "running",
-            f"Histo-B (Meditron 70B) second read slide {input_data.slide_index}",
+            f"Histo-B (Claude) second read slide {input_data.slide_index}",
             {"slide": input_data.slide_index},
         )
 
-        patches: list[str] = []
-        if _backend_supports_vision():
-            patches = await asyncio.to_thread(
-                _extract_patches, input_data.slide_path, input_data.regions_of_interest,
-            )
+        patches: list[str] = await asyncio.to_thread(
+            _extract_patches, input_data.slide_path, input_data.regions_of_interest,
+        )
 
         roi_summary = [
             {"id": r.get("roi_id"), "tissue": round(r.get("tissue_fraction", 0), 2),
@@ -64,11 +52,11 @@ class HistopathologistBAgent(BaseAgent):
             f"Output JSON only."
         )
 
-        user_msg = build_user_message(text, images_b64=patches)
+        user_msg = build_user_message(text, images_b64=patches, backend="anthropic")
 
         result = await chat(
             agent_name=self.name,
-            model_key="meditron70b",
+            model_key="claude",
             system=load_prompt("histopathologist_b"),
             messages=[user_msg],
             max_tokens=2500,

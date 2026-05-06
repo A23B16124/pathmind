@@ -149,7 +149,8 @@ def build_user_message(text: str, images_b64: list[str] | None = None, *, backen
 
 async def _call_once(messages, system, max_tokens, cache_system, model_key, timeout, json_schema=None):
     try:
-        if LLM_BACKEND == "anthropic":
+        force_anthropic = model_key in ("claude", "anthropic")
+        if LLM_BACKEND == "anthropic" or force_anthropic:
             return await asyncio.wait_for(
                 _chat_anthropic(messages, system, max_tokens, cache_system),
                 timeout=timeout,
