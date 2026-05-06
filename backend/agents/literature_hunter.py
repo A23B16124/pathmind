@@ -65,7 +65,7 @@ class LiteratureHunterAgent(BaseAgent):
     async def run(self, case_id: str, input_data: LiteratureHunterInput) -> LiteratureHunterOutput:
         await self.emit(case_id, "running", f"Literature search: {input_data.hypothesis[:80]}")
 
-        query = " ".join([input_data.hypothesis, *input_data.keywords])[:500]
+        query = " ".join([input_data.clinical_context, input_data.hypothesis, *input_data.keywords])[:500]
         pubmed_hits = search_literature(query, limit=8, source_filter="pubmed")
         tcga_hits = search_literature(query, limit=4, source_filter="tcga_case")
 
@@ -87,7 +87,12 @@ class LiteratureHunterAgent(BaseAgent):
             f"=== TCGA SIMILAR CASES ({len(tcga_hits)}) ===\n{format_for_prompt(tcga_hits)}"
         )
 
+        clinical_block = (
+            f"Clinical context: {input_data.clinical_context}\n"
+            if input_data.clinical_context else ""
+        )
         user = (
+            f"{clinical_block}"
             f"Working hypothesis: {input_data.hypothesis}\n"
             f"Keywords: {', '.join(input_data.keywords)}\n\n"
             f"Retrieved literature (semantic search over indexed PubMed abstracts + TCGA seed cases):\n\n"

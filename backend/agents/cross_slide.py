@@ -99,7 +99,12 @@ class CrossSlideAgent(BaseAgent):
         self, case_id: str, inp: CrossSlideInput, *, emit_done: bool,
     ) -> CrossSlideOutput:
         n = len(inp.slides_a)
+        clinical_block = (
+            f"=== CLINICAL CONTEXT (anchor your synthesis to this) ===\n{inp.clinical_context}\n\n"
+            if inp.clinical_context else ""
+        )
         user = (
+            f"{clinical_block}"
             f"Patient: {inp.patient_id}\n"
             f"Slides analyzed: {n} (each read independently by Histo-A and Histo-B)\n\n"
             f"=== HISTO-A READINGS (Qwen2.5-72B) ===\n{_format_findings(inp.slides_a)}\n\n"

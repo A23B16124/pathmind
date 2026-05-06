@@ -50,11 +50,17 @@ class HistopathologistBAgent(BaseAgent):
             for r in input_data.regions_of_interest[:MAX_PATCHES_PER_SLIDE]
         ]
 
+        clinical_block = (
+            f"=== CLINICAL CONTEXT (anchor your analysis to this) ===\n{input_data.clinical_context}\n\n"
+            if input_data.clinical_context else ""
+        )
         text = (
+            f"{clinical_block}"
             f"Slide index: {input_data.slide_index}\n"
             f"ROIs (level-0 px): {json.dumps(roi_summary)}\n"
             f"Image patches attached: {len(patches)}\n\n"
-            f"Provide your independent second-read analysis — challenge the dominant pattern. "
+            f"Provide your independent second-read analysis IN LIGHT OF THE CLINICAL CONTEXT — "
+            f"challenge the dominant pattern but stay consistent with the indicated organ/site. "
             f"Output JSON only."
         )
 

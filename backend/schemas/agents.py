@@ -30,6 +30,7 @@ class HistopathologistInput(_StrictModel):
     slide_index: int
     slide_path: str
     regions_of_interest: list[dict] = Field(default_factory=list)
+    clinical_context: str = ""
 
 
 class HistopathologistOutput(_StrictModel):
@@ -48,6 +49,7 @@ class CrossSlideInput(_StrictModel):
     slides_a: list[HistopathologistOutput]   # Histo-A results
     slides_b: list[HistopathologistOutput]   # Histo-B results
     patient_id: str
+    clinical_context: str = ""
 
 
 class CrossSlideOutput(_StrictModel):
@@ -62,6 +64,7 @@ class CrossSlideOutput(_StrictModel):
 class LiteratureHunterInput(_StrictModel):
     hypothesis: str
     keywords: list[str] = Field(default_factory=list)
+    clinical_context: str = ""
 
 
 class LiteraturePaper(_StrictModel):

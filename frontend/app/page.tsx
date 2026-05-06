@@ -5,7 +5,7 @@ import dynamicImport from "next/dynamic"
 import { Slide, AgentState, WSEvent, Report, DemoCase, ROIOverlay } from "@/lib/types"
 import { SlideUpload } from "@/components/upload/SlideUpload"
 import { ClinicalPanel } from "@/components/clinical/ClinicalPanel"
-import { connectStream, startAnalysis } from "@/lib/ws"
+import { connectStream, startAnalysis, fetchCachedReport, replayFromCache } from "@/lib/ws"
 import { DEMO_CASES, demoSlides } from "@/lib/demo"
 
 const WSIViewer = dynamicImport(
@@ -81,6 +81,15 @@ export default function Home() {
     const caseId = activeCase?.case_id ?? `case-${Date.now()}`
     const patientId = activeCase?.patient_id ?? "anonymous"
     const slidePaths = slides.map((s) => s.path ?? s.name)
+
+    // Cache hit → instant replay of the pre-computed report (3s synthetic stream).
+    // Cache miss → live pipeline (5–10 min) with WS stream.
+    const cached = await fetchCachedReport(caseId)
+    if (cached) {
+      stopRef.current?.()
+      stopRef.current = replayFromCache(cached, onEvent)
+      return
+    }
 
     try {
       await startAnalysis({

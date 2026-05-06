@@ -97,6 +97,55 @@ export async function startAnalysis(req: AnalyzeRequest): Promise<void> {
   if (!res.ok) throw new Error(`analyze failed: ${res.status}`)
 }
 
+export async function fetchCachedReport(caseId: string): Promise<Report | null> {
+  if (!API_URL) return null
+  try {
+    const res = await fetch(`${API_URL}/api/case/${encodeURIComponent(caseId)}/report`)
+    if (!res.ok) return null
+    const payload = await res.json()
+    // Server returns {case_id, saved_at, report: {...}} — unwrap it.
+    const report = (payload && payload.report) ? payload.report : payload
+    return report as Report
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Replay a cached report as a synthetic WS stream — agents flash through in
+ * ~3 seconds so the user still sees the multi-agent debate UI without waiting
+ * 5–10 minutes for the live pipeline.
+ */
+export function replayFromCache(report: Report, onEvent: (event: WSEvent) => void): () => void {
+  const agents: AgentName[] = [
+    'tile-triage',
+    'histopathologist-a',
+    'histopathologist-b',
+    'cross-slide-aggregator',
+    'literature-hunter',
+    'chief',
+  ]
+  const timers: ReturnType<typeof setTimeout>[] = []
+  const STEP = 380
+  agents.forEach((a, i) => {
+    timers.push(setTimeout(() => onEvent({ type: 'agent_start', agent: a }), i * STEP))
+    timers.push(setTimeout(
+      () => onEvent({ type: 'agent_done', agent: a, confidence: 0.85 + (i % 3) * 0.04 }),
+      i * STEP + STEP - 80,
+    ))
+  })
+  timers.push(setTimeout(() => {
+    onEvent({
+      type: 'analysis_complete',
+      agent: 'pipeline',
+      confidence: report.confidence,
+      report,
+    })
+  }, agents.length * STEP + 200))
+
+  return () => timers.forEach(clearTimeout)
+}
+
 export function connectStream(caseId: string, onEvent: (event: WSEvent) => void): () => void {
   if (!WS_URL) {
     console.warn('NEXT_PUBLIC_WS_URL not set, falling back to mock')

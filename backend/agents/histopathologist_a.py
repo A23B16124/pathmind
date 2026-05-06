@@ -84,11 +84,19 @@ class HistopathologistAAgent(BaseAgent):
             for r in input_data.regions_of_interest[:MAX_PATCHES_PER_SLIDE]
         ]
 
+        clinical_block = (
+            f"=== CLINICAL CONTEXT (anchor your analysis to this) ===\n{input_data.clinical_context}\n\n"
+            if input_data.clinical_context else ""
+        )
         text = (
+            f"{clinical_block}"
             f"Slide index: {input_data.slide_index}\n"
             f"ROIs (level-0 px): {json.dumps(roi_summary)}\n"
             f"Image patches attached: {len(patches)}\n\n"
-            f"Examine each patch and produce full histopathological analysis. Output JSON only."
+            f"Examine each patch IN LIGHT OF THE CLINICAL CONTEXT ABOVE and produce full "
+            f"histopathological analysis (organ-appropriate diagnoses, differential, grading). "
+            f"Do NOT diagnose pathologies inconsistent with the indicated organ/site. "
+            f"Output JSON only."
         )
 
         user_msg = build_user_message(text, images_b64=patches)

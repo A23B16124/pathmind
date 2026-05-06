@@ -89,16 +89,32 @@ async def node_tile_triage(state: PipelineState) -> dict:
     return {"triage_results": list(results)}
 
 
+def _format_clinical(clinical_data: dict) -> str:
+    """Flatten clinical_data dict into a single human-readable line for prompt injection."""
+    if not clinical_data:
+        return ""
+    parts = []
+    if (age := clinical_data.get("age")):
+        parts.append(f"Age: {age}")
+    if (ctx := clinical_data.get("context")):
+        parts.append(str(ctx))
+    if not parts:
+        parts = [f"{k}: {v}" for k, v in clinical_data.items() if v]
+    return " | ".join(parts)
+
+
 async def node_histo_parallel(state: PipelineState) -> dict:
     # Task 10: skip slides that failed triage (not found / corrupt)
     good = [t for t in state["triage_results"] if not t.parse_failed]
     failed = [t for t in state["triage_results"] if t.parse_failed]
+    clinical_ctx = _format_clinical(state["clinical_data"])
 
     histo_inputs = [
         HistopathologistInput(
             slide_index=t.slide_index,
             slide_path=state["slide_paths"][t.slide_index],
             regions_of_interest=t.regions_of_interest,
+            clinical_context=clinical_ctx,
         )
         for t in good
     ]
@@ -140,6 +156,7 @@ async def node_cross_slide(state: PipelineState) -> dict:
             slides_a=state["histo_a_results"],
             slides_b=state["histo_b_results"],
             patient_id=state["patient_id"],
+            clinical_context=_format_clinical(state["clinical_data"]),
         ),
     )
     return {"cross_slide": cross}
@@ -153,6 +170,7 @@ async def node_literature(state: PipelineState) -> dict:
         LiteratureHunterInput(
             hypothesis=hypothesis,
             keywords=[cross.dominant_pattern] if cross.dominant_pattern else [],
+            clinical_context=_format_clinical(state["clinical_data"]),
         ),
     )
     return {"literature": lit}
