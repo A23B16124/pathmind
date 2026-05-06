@@ -149,7 +149,7 @@ class CrossSlideAgent(BaseAgent):
             dominant_pattern=_as_str(data.get("dominant_pattern")),
             affected_slides=data.get("affected_slides") or [],
             disagreements=[_as_str(d) for d in (data.get("disagreements") or [])],
-            confidence=_aggregate_confidence(input_data.slides_a, input_data.slides_b),
+            confidence=_aggregate_confidence(inp.slides_a, inp.slides_b),
         )
 
     async def _reduce_partials(
