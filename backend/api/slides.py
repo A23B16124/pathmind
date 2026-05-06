@@ -186,6 +186,21 @@ def _find_slide_wsi(slide_id: str) -> Optional[Path]:
         prefix_pool = [p for p in free_pool if p.stem.startswith(prefix)] if prefix else []
         if len(prefix_pool) >= n_slides:
             return prefix_pool[matched_index]
+
+        # Global-index distribution: walk all cases in JSON order, give each
+        # missing-file slide a unique slot in free_pool. Guarantees no two
+        # slides of any case share a fallback file as long as
+        # (count of missing slides) <= len(free_pool).
+        target_case_id = matched_case.get("case_id")
+        global_idx = 0
+        for c in _load_demo_cases():
+            for i, sp in enumerate(c.get("slide_paths", [])):
+                if _resolve_path(sp) is not None:
+                    continue
+                if c.get("case_id") == target_case_id and i == matched_index:
+                    return free_pool[global_idx % len(free_pool)]
+                global_idx += 1
+        # Should not reach here, but fallback to offset distribution
         case_id = matched_case.get("case_id", "")
         offset = int(hashlib.md5(case_id.encode("utf-8")).hexdigest()[:4], 16) % len(free_pool)
         return free_pool[(offset + matched_index) % len(free_pool)]
