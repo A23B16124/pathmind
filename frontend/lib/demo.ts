@@ -33,7 +33,7 @@ export const DEMO_DUBOIS: DemoCase = {
 }
 
 export const DEMO_TCGA_BRCA: DemoCase = {
-  case_id: 'tcga-OL-A66K',
+  case_id: 'tcga-TCGA-OL-A66K',
   patient_id: 'TCGA-OL-A66K',
   patient_label: 'Patiente TCGA-OL-A66K · sein',
   age: 0,
@@ -52,7 +52,7 @@ export const DEMO_TCGA_BRCA: DemoCase = {
 }
 
 export const DEMO_TCGA_PAAD: DemoCase = {
-  case_id: 'tcga-2L-AAQJ',
+  case_id: 'tcga-TCGA-2L-AAQJ',
   patient_id: 'TCGA-2L-AAQJ',
   patient_label: 'Patient TCGA-2L-AAQJ · pancréas',
   age: 0,
