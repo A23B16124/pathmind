@@ -1,5 +1,22 @@
 [
   {
+    "case_id": "dubois-2026-05",
+    "patient_id": "P-DUBOIS-67",
+    "patient_label": "M. Dubois, 67 ans",
+    "age": 67,
+    "clinical_context": "Homme 67 ans, douleurs épigastriques persistantes, perte de poids 8 kg en 3 mois. Echographie: masse pancréatique 32 mm tête du pancréas. Biopsie 12 lames.",
+    "slide_paths": [
+      "CMU-1-Small-Region.svs",
+      "JP2K-33003-1.svs",
+      "CMU-1-JP2K-33005.svs"
+    ],
+    "slide_names": [
+      "Dubois-tete-pancreas-01.svs",
+      "Dubois-tete-pancreas-02.svs",
+      "Dubois-tete-pancreas-03.svs"
+    ]
+  },
+  {
     "case_id": "tcga-TCGA-OL-A66K",
     "patient_id": "TCGA-OL-A66K",
     "patient_label": "Patiente BRCA · TCGA",
