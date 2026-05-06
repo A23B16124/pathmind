@@ -109,10 +109,16 @@ async def node_histo_parallel(state: PipelineState) -> dict:
     failed = [t for t in state["triage_results"] if t.parse_failed]
     clinical_ctx = _format_clinical(state["clinical_data"])
 
+    # Use the RESOLVED slide_path from tile_triage (t.slide_path) rather than
+    # state["slide_paths"][i] — the latter may be a phantom TCGA path that
+    # doesn't exist on disk.  tile_triage runs _find_slide_wsi() to fall back
+    # to a real file when the requested path is missing, and stores the result
+    # in t.slide_path.  Histo-A/B must read patches from THAT file, otherwise
+    # they get zero patches and start hallucinating from clinical context.
     histo_inputs = [
         HistopathologistInput(
             slide_index=t.slide_index,
-            slide_path=state["slide_paths"][t.slide_index],
+            slide_path=t.slide_path or state["slide_paths"][t.slide_index],
             regions_of_interest=t.regions_of_interest,
             clinical_context=clinical_ctx,
         )

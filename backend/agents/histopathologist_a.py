@@ -21,6 +21,26 @@ from backend.wsi.loader import read_region_jpeg, WSILoadError
 
 MAX_PATCHES_PER_SLIDE = 4
 PATCH_PIXEL_SIZE = 1024
+
+
+def _parse_confidence(raw: str) -> float | None:
+    """Extract the LLM's self-reported confidence from a JSON-ish response."""
+    if not raw:
+        return None
+    s = raw.strip()
+    if s.startswith("```"):
+        s = s.split("```", 2)[-1]
+        if s.lstrip().startswith("json"):
+            s = s.lstrip()[4:]
+        s = s.rsplit("```", 1)[0]
+    try:
+        d = json.loads(s)
+        c = d.get("confidence")
+        if isinstance(c, (int, float)):
+            return max(0.0, min(1.0, float(c)))
+    except Exception:
+        pass
+    return None
 # Task 3: hard limits to stay within LLM context
 MAX_PATCH_BYTES = 1 * 1024 * 1024   # 1 MB
 MAX_PATCH_SIDE = 2048                # px
@@ -114,7 +134,14 @@ class HistopathologistAAgent(BaseAgent):
             result if not result.startswith("[LLM") else f"Histo-A error: {result}",
             {"slide": input_data.slide_index, "patches_seen": len(patches)},
         )
-        confidence = 0.0 if result.startswith("[LLM") else 0.88
+        # Use the model's own confidence when parseable.  If patches=0, the
+        # agent literally has no visual data — clamp the ceiling so we don't
+        # propagate fake high confidence into the chief debate.
+        confidence = _parse_confidence(result)
+        if confidence is None:
+            confidence = 0.0 if result.startswith("[LLM") else 0.5
+        if not patches:
+            confidence = min(confidence, 0.2)
         return HistopathologistOutput(
             slide_index=input_data.slide_index,
             agent_id="histo_a",

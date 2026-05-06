@@ -14,7 +14,7 @@ import json
 from backend.agents.base import BaseAgent
 from backend.schemas.agents import HistopathologistInput, HistopathologistOutput
 from backend.llm import chat, build_user_message
-from backend.agents.histopathologist_a import _extract_patches, MAX_PATCHES_PER_SLIDE
+from backend.agents.histopathologist_a import _extract_patches, MAX_PATCHES_PER_SLIDE, _parse_confidence
 from backend.prompts import load_prompt
 
 
@@ -68,7 +68,13 @@ class HistopathologistBAgent(BaseAgent):
             result if not result.startswith("[LLM") else f"Histo-B error: {result}",
             {"slide": input_data.slide_index, "patches_seen": len(patches)},
         )
-        confidence = 0.0 if result.startswith("[LLM") else 0.84
+        # Histo-B is text-only (Groq Llama, no vision).  Confidence ceiling
+        # depends on whether triage actually found any ROIs to describe.
+        confidence = _parse_confidence(result)
+        if confidence is None:
+            confidence = 0.0 if result.startswith("[LLM") else 0.5
+        if not input_data.regions_of_interest:
+            confidence = min(confidence, 0.2)
         return HistopathologistOutput(
             slide_index=input_data.slide_index,
             agent_id="histo_b",
