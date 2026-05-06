@@ -130,8 +130,8 @@ Optimizations if too slow:
 
 Update `frontend/.env.production`:
 ```
-NEXT_PUBLIC_API_URL=https://api.pathmind.aegisprops.com
-NEXT_PUBLIC_WS_URL=wss://api.pathmind.aegisprops.com
+NEXT_PUBLIC_API_URL=https://165-245-134-97.nip.io
+NEXT_PUBLIC_WS_URL=wss://165-245-134-97.nip.io/ws/demo-case
 ```
 
 Reverse proxy via existing nginx → MI300X box (or tunnel via Cloudflare).
@@ -141,7 +141,7 @@ Rebuild + redeploy:
 cd frontend && npm run build && pm2 restart pathmind-front
 ```
 
-**Validation:** open https://pathmind.aegisprops.com, run demo, watch real LLM tokens stream.
+**Validation:** open https://165-245-134-97.nip.io, run demo, watch real LLM tokens stream.
 
 ---
 

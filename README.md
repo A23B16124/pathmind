@@ -12,7 +12,7 @@ Pathology second-opinion turnaround averages 8 to 12 days in most health systems
 
 ## Demo
 
-Live: https://pathmind.aegisprops.com
+Live: https://165-245-134-97.nip.io
 
 ![demo](docs/demo.gif)
 
