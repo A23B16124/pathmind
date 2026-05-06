@@ -1,9 +1,9 @@
 """
-Histopathologist-B — independent second read via Claude (Anthropic).
+Histopathologist-B — independent second read via Groq (Llama 3.3 70B).
 
-Histo-A runs on Qwen2.5-VL-72B (local vLLM on MI300X). Histo-B always calls
-Claude, so the two reads come from genuinely different model families with
-different training corpora — a real second opinion, not a prompt variation.
+Histo-A runs on Qwen2.5-VL-72B (local vLLM on MI300X). Histo-B calls
+Groq Llama 3.3 70B — a genuinely different model family (Meta vs Alibaba),
+different training corpus, different architecture. Real second opinion.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ class HistopathologistBAgent(BaseAgent):
     async def run(self, case_id: str, input_data: HistopathologistInput) -> HistopathologistOutput:
         await self.emit(
             case_id, "running",
-            f"Histo-B (Claude) second read slide {input_data.slide_index}",
+            f"Histo-B (Groq Llama-3.3-70B) second read slide {input_data.slide_index}",
             {"slide": input_data.slide_index},
         )
 
@@ -52,11 +52,12 @@ class HistopathologistBAgent(BaseAgent):
             f"Output JSON only."
         )
 
-        user_msg = build_user_message(text, images_b64=patches, backend="anthropic")
+        # Groq doesn't support vision — send text-only (no image patches for Histo-B)
+        user_msg = build_user_message(text, images_b64=None, backend="openai")
 
         result = await chat(
             agent_name=self.name,
-            model_key="claude",
+            model_key="groq",
             system=load_prompt("histopathologist_b"),
             messages=[user_msg],
             max_tokens=2500,
@@ -71,7 +72,7 @@ class HistopathologistBAgent(BaseAgent):
         return HistopathologistOutput(
             slide_index=input_data.slide_index,
             agent_id="histo_b",
-            model_used="meditron70b",
+            model_used="llama-3.3-70b-versatile",
             findings=result,
             confidence=confidence,
             raw_json=result,

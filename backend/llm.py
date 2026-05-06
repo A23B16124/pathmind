@@ -66,14 +66,18 @@ LLM_BASE_URL = os.getenv("LLM_BASE_URL", "http://localhost:8001/v1")
 VLLM_BASE_URL_MAP = {
     "qwen72b":     os.getenv("VLLM_BASE_URL_QWEN72B",    "http://localhost:8001/v1"),
     "meditron70b": os.getenv("VLLM_BASE_URL_MEDITRON70B", "http://localhost:8002/v1"),
+    "groq":        "https://api.groq.com/openai/v1",
     "default":     LLM_BASE_URL,
 }
 
 MODEL_MAP = {
     "qwen72b":     os.getenv("VLLM_MODEL_QWEN72B",    "Qwen/Qwen2.5-72B-Instruct"),
     "meditron70b": os.getenv("VLLM_MODEL_MEDITRON",   "epfl-llm/meditron-70b"),
+    "groq":        os.getenv("GROQ_MODEL",             "llama-3.3-70b-versatile"),
     "default":     os.getenv("LLM_MODEL",              "claude-sonnet-4-6"),
 }
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 
 _anthropic_client = None
 _openai_clients: dict = {}
@@ -91,10 +95,8 @@ def _get_openai_for_model(model_key: str):
     if model_key not in _openai_clients:
         from openai import AsyncOpenAI
         base_url = VLLM_BASE_URL_MAP.get(model_key, VLLM_BASE_URL_MAP["default"])
-        _openai_clients[model_key] = AsyncOpenAI(
-            api_key=os.getenv("VLLM_API_KEY", "EMPTY"),
-            base_url=base_url,
-        )
+        api_key = GROQ_API_KEY if model_key == "groq" else os.getenv("VLLM_API_KEY", "EMPTY")
+        _openai_clients[model_key] = AsyncOpenAI(api_key=api_key, base_url=base_url)
     return _openai_clients[model_key]
 
 
@@ -150,6 +152,12 @@ def build_user_message(text: str, images_b64: list[str] | None = None, *, backen
 async def _call_once(messages, system, max_tokens, cache_system, model_key, timeout, json_schema=None):
     try:
         force_anthropic = model_key in ("claude", "anthropic")
+        force_openai_compat = model_key in ("groq", "qwen72b", "meditron70b")
+        if force_openai_compat:
+            return await asyncio.wait_for(
+                _chat_openai(messages, system, max_tokens, model_key, json_schema=json_schema),
+                timeout=timeout,
+            )
         if LLM_BACKEND == "anthropic" or force_anthropic:
             return await asyncio.wait_for(
                 _chat_anthropic(messages, system, max_tokens, cache_system),
