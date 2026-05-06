@@ -138,6 +138,7 @@ def _find_slide_wsi(slide_id: str) -> Optional[Path]:
     """Map a slide_id back to its on-disk WSI path.
 
     Resolution order:
+    0. Exact filename-stem match in the local pool (handles cases not in JSON)
     1. Exact match in tcga_demo_cases.json + file present on disk
     2. Round-robin over local pool keyed by the slide's INDEX inside its
        case — guarantees SP1 != SP2 != SP3 visually when several slides of
@@ -145,6 +146,11 @@ def _find_slide_wsi(slide_id: str) -> Optional[Path]:
     3. Cross-case fuzzy by TCGA patient prefix
     4. Last resort: hash-based pick over local pool
     """
+    pool_early = _local_svs_pool()
+    for p in pool_early:
+        if p.stem == slide_id:
+            return p
+
     matched_case: Optional[dict] = None
     matched_index: int = -1
     for case in _load_demo_cases():
