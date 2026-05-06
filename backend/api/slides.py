@@ -158,13 +158,14 @@ def _find_slide_wsi(slide_id: str) -> Optional[Path]:
 
     # Round-robin within the matched case so SP0/SP1/SP2/... pick distinct files
     if matched_case is not None and pool:
-        # Try each pool slot starting at matched_index, prefer same-prefix matches
-        # so the visible WSI still belongs to the same TCGA patient if possible.
         prefix = "-".join(slide_id.split("-")[:3])
         prefix_pool = [p for p in pool if p.stem.startswith(prefix)] if prefix else []
         if prefix_pool and matched_index < len(prefix_pool):
             return prefix_pool[matched_index]
-        return pool[matched_index % len(pool)]
+        # Per-case offset so different cases land on different starting files
+        case_id = matched_case.get("case_id", "")
+        offset = int(hashlib.md5(case_id.encode("utf-8")).hexdigest()[:4], 16) % len(pool)
+        return pool[(offset + matched_index) % len(pool)]
 
     # Cross-case fuzzy by TCGA patient prefix (no JSON match at all)
     prefix = "-".join(slide_id.split("-")[:3])
