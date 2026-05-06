@@ -51,16 +51,36 @@ def _slide_id_from_path(slide_path: str) -> str:
     return Path(slide_path).stem
 
 
-def _find_slide_wsi(slide_id: str) -> Optional[Path]:
-    """Map a slide_id back to its on-disk WSI path (if downloaded).
+_SLIDES_ROOTS = [
+    Path("/root/pathmind/data/slides"),
+    Path("/home/ubuntu/pathmind/data/slides"),
+    Path("/data/slides"),
+]
 
-    Matches on three identifiers per slide so the frontend can use the
-    short friendly name (e.g. "TCGA-OL-A66K-DX1") even when the on-disk
-    file has a UUID-suffixed real name:
-      - real path stem (e.g. "TCGA-OL-A66K-01Z-00-DX1.C1DC85F1-...")
-      - friendly slide_name with .svs stripped (e.g. "TCGA-OL-A66K-DX1")
-      - friendly slide_name as-is (in case the front sent it with .svs)
+
+def _any_local_svs_for_prefix(prefix: str) -> Optional[Path]:
+    """Return any .svs on disk whose stem starts with `prefix` (TCGA case ID)."""
+    if not prefix:
+        return None
+    for root in _SLIDES_ROOTS:
+        if not root.exists():
+            continue
+        for cand in root.rglob("*.svs"):
+            if cand.stem.startswith(prefix):
+                return cand
+    return None
+
+
+def _find_slide_wsi(slide_id: str) -> Optional[Path]:
+    """Map a slide_id back to its on-disk WSI path.
+
+    Resolution order:
+    1. Exact match in tcga_demo_cases.json + file present on disk
+    2. Same-case fallback: any other slide of the same TCGA case that IS on disk
+       (DX1 may be 3+ GB and skipped at download time, but TS1 is usually local)
+    3. Cross-case fuzzy: any local .svs sharing the same TCGA patient prefix
     """
+    matched_case: Optional[dict] = None
     for case in _load_demo_cases():
         slide_paths = case.get("slide_paths", [])
         slide_names = case.get("slide_names", [])
@@ -71,8 +91,24 @@ def _find_slide_wsi(slide_id: str) -> Optional[Path]:
                 candidates.add(name)
                 candidates.add(Path(name).stem)
             if slide_id in candidates:
-                return _resolve_path(sp)
-    return None
+                resolved = _resolve_path(sp)
+                if resolved is not None:
+                    return resolved
+                matched_case = case
+                break
+        if matched_case is not None:
+            break
+
+    # Same-case fallback: try any other slide_path of this case that's on disk
+    if matched_case is not None:
+        for sp in matched_case.get("slide_paths", []):
+            r = _resolve_path(sp)
+            if r is not None:
+                return r
+
+    # Cross-case fuzzy by TCGA patient prefix (e.g. "TCGA-OL-A66K")
+    prefix = "-".join(slide_id.split("-")[:3])
+    return _any_local_svs_for_prefix(prefix)
 
 
 @router.get("/slide/{slide_id}/thumbnail")
