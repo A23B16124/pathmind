@@ -24,10 +24,17 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 CACHE_DIR = Path(os.getenv("PATHMIND_THUMB_CACHE", "/tmp/pathmind_thumbs"))
 
-
 # Bump this when the synthetic generator changes so old cached JPEGs are
 # transparently superseded without manual cleanup on the AMD box.
-_CACHE_VERSION = "v3"
+_CACHE_VERSION = "v4"
+
+# Local test slides — used as texture base for the synthetic placeholder so it
+# looks like real histology rather than a plain colour fill.
+_TEXTURE_CANDIDATES = [
+    Path("/home/ubuntu/pathmind/data/slides/CMU-1-JP2K-33005.svs"),
+    Path("/home/ubuntu/pathmind/data/slides/JP2K-33003-1.svs"),
+    Path("/home/ubuntu/pathmind/data/slides/CMU-1-Small-Region.svs"),
+]
 
 
 def get_thumbnail_path(slide_id: str, size: int) -> Path:
@@ -53,45 +60,64 @@ def _real_thumbnail(wsi_path: Path, size: int, dest: Path) -> Path:
     return dest
 
 
-def _synthetic_thumbnail(slide_id: str, size: int, dest: Path) -> Path:
-    """Neutral H&E-tinted placeholder used when the real WSI is not on disk.
+def _texture_base(size: int) -> Optional[Image.Image]:
+    """Try to load a crop from a local test WSI as the placeholder texture.
 
-    Deliberately featureless — no fake "lesions" or stromal foci — so that the
-    Tile-Triage ROIs (which are computed on the real WSI, not on this image)
-    are not visually mismatched against fictitious tissue features. A subtle
-    diagonal "PREVIEW" wordmark makes it obvious this is not the real slide.
+    Returns None if OpenSlide is unavailable or no test slide is found.
+    The returned image is (size×size) RGB, already colour-normalised toward H&E.
     """
-    img = Image.new("RGB", (size, size), (244, 232, 230))  # pale paraffin/H&E pink
+    try:
+        import openslide  # noqa: F401 — optional dep
+    except Exception:
+        return None
 
-    # Faint vignette to break the flat fill without implying tissue structure.
-    overlay = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(overlay, "RGBA")
-    cx, cy = size // 2, size // 2
-    rad = int(size * 0.55)
-    for i in range(18):
-        a = int(8 * (1 - i / 18))
-        r = rad + i * 8
-        draw.ellipse([cx - r, cy - r, cx + r, cy + r], outline=(180, 150, 150, a), width=2)
-    img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
+    import openslide as osl
 
-    # Very faint grain so JPEG doesn't band.
-    noise = Image.effect_noise((size, size), 6).convert("RGB")
-    img = Image.blend(img, noise, 0.04)
-    img = img.filter(ImageFilter.GaussianBlur(radius=0.6))
+    for candidate in _TEXTURE_CANDIDATES:
+        if not candidate.exists():
+            continue
+        try:
+            slide = osl.OpenSlide(str(candidate))
+            try:
+                thumb = slide.get_thumbnail((size, size))
+                thumb = thumb.convert("RGB").resize((size, size), Image.LANCZOS)
+                # Shift colours toward H&E pink by blending with a tint layer.
+                tint = Image.new("RGB", (size, size), (244, 220, 218))
+                thumb = Image.blend(thumb, tint, 0.25)
+                return thumb
+            finally:
+                slide.close()
+        except Exception:
+            continue
+    return None
+
+
+def _synthetic_thumbnail(slide_id: str, size: int, dest: Path) -> Path:
+    """H&E-textured placeholder used when the real WSI is not on disk.
+
+    Uses a local test-slide crop as the texture base (real tissue structure,
+    wrong patient) so the image looks like genuine histology. The diagonal
+    "PREVIEW" wordmark makes it unambiguous this is not the actual slide.
+    """
+    base = _texture_base(size)
+    if base is None:
+        base = Image.new("RGB", (size, size), (244, 232, 230))
+
+    img = base
 
     # PREVIEW watermark — repeated diagonal text. Use DejaVu so accents render.
     wm = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     wm_draw = ImageDraw.Draw(wm)
-    font_size = max(14, size // 48)
+    font_size = max(14, size // 44)
     try:
         font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", font_size)
     except Exception:
         font = ImageFont.load_default()
     label = "PREVIEW · WSI NON CHARGÉE"
-    step = max(140, size // 6)
+    step = max(140, size // 5)
     for y in range(-size, size * 2, step):
         for x in range(-size, size * 2, step * 2):
-            wm_draw.text((x, y), label, fill=(120, 80, 90, 42), font=font)
+            wm_draw.text((x, y), label, fill=(240, 240, 240, 110), font=font)
     wm = wm.rotate(-30, resample=Image.BICUBIC, expand=False)
     img = Image.alpha_composite(img.convert("RGBA"), wm).convert("RGB")
 
