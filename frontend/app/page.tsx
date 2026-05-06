@@ -40,8 +40,9 @@ export default function Home() {
   const [isRunning, setIsRunning] = useState(false)
   const [report, setReport] = useState<Report | null>(null)
   const [activeCase, setActiveCase] = useState<DemoCase | null>(null)
-  const [overlays, setOverlays] = useState<ROIOverlay[]>([])
+  const [overlaysBySlide, setOverlaysBySlide] = useState<Record<number, ROIOverlay[]>>({})
   const [viewMode, setViewMode] = useState<"2d" | "3d">("2d")
+  const [activeSlideIndex, setActiveSlideIndex] = useState<number>(0)
   const [activeVolumeSlide, setActiveVolumeSlide] = useState<number>(0)
   const stopRef = useRef<(() => void) | null>(null)
 
@@ -63,7 +64,8 @@ export default function Home() {
     )
     if (event.type === "agent_done" && event.agent === "tile-triage" && event.rois && event.rois.length > 0) {
       const colored = event.rois.map((r, i) => ({ ...r, color: r.color ?? ROI_COLORS[i % ROI_COLORS.length] }))
-      setOverlays((prev) => (event.slide === 0 || prev.length === 0 ? colored : [...prev, ...colored]))
+      const slideIdx = event.slide ?? 0
+      setOverlaysBySlide((prev) => ({ ...prev, [slideIdx]: colored }))
     }
     if (event.type === "analysis_complete") {
       setIsRunning(false)
@@ -76,7 +78,7 @@ export default function Home() {
     setIsRunning(true)
     setReport(null)
     setAgents(INITIAL_AGENTS)
-    setOverlays([])
+    setOverlaysBySlide({})
 
     const caseId = activeCase?.case_id ?? `case-${Date.now()}`
     const patientId = activeCase?.patient_id ?? "anonymous"
@@ -113,14 +115,22 @@ export default function Home() {
     setSlides(demoSlides(demo))
     setReport(null)
     setAgents(INITIAL_AGENTS)
+    setOverlaysBySlide({})
+    setActiveSlideIndex(0)
+    setActiveVolumeSlide(0)
   }, [])
 
   const handleSetSlides = useCallback((s: Slide[]) => {
     setSlides(s)
     setActiveCase(null)
+    setOverlaysBySlide({})
+    setActiveSlideIndex(0)
   }, [])
 
-  const liveOverlays = overlays.length > 0 ? overlays : (isRunning || report ? FALLBACK_OVERLAYS : [])
+  const slideOverlays = overlaysBySlide[activeSlideIndex] ?? []
+  const liveOverlays = slideOverlays.length > 0
+    ? slideOverlays
+    : (isRunning || report ? FALLBACK_OVERLAYS : [])
 
   return (
     <div className="grid grid-rows-[56px_1fr] grid-cols-[280px_1fr_400px] h-[100dvh] w-screen overflow-hidden">
@@ -172,10 +182,10 @@ export default function Home() {
         <div className="absolute top-3 left-3 right-3 z-10 flex justify-between items-start gap-3 pointer-events-none">
           <div className="bg-[var(--paper)]/95 border border-[var(--rule-strong)] px-3.5 py-2 flex gap-3.5 items-center pointer-events-auto">
             <span className="font-mono text-[11px] text-[var(--muted)]">
-              SP · {slides.length > 0 ? `1/${slides.length}` : "—"}
+              SP · {slides.length > 0 ? `${activeSlideIndex + 1}/${slides.length}` : "—"}
             </span>
             <span className="font-serif text-[14px] font-semibold truncate max-w-[260px]">
-              {slides[0]?.name ?? "Pas de lame chargée"}
+              {slides[activeSlideIndex]?.name ?? slides[0]?.name ?? "Pas de lame chargée"}
             </span>
             <span className="text-[11px] text-[var(--ink-soft)] border-l border-[var(--rule)] pl-3.5">
               HES · 40× · 0,25 µm/px
@@ -209,10 +219,40 @@ export default function Home() {
           )}
         </div>
 
+        {/* Slide selector — only in 2D when the case has multiple slides */}
+        {viewMode === "2d" && slides.length > 1 && (
+          <div className="absolute top-[60px] left-3 right-3 z-10 flex justify-center pointer-events-none">
+            <div className="bg-[var(--paper)]/95 border border-[var(--rule-strong)] px-1.5 py-1.5 flex gap-1 pointer-events-auto">
+              {slides.map((s, i) => {
+                const isActive = i === activeSlideIndex
+                const hasROIs = (overlaysBySlide[i]?.length ?? 0) > 0
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setActiveSlideIndex(i)}
+                    title={s.name}
+                    className={`h-7 px-3 text-[11px] font-mono uppercase tracking-widest border ${
+                      isActive
+                        ? "bg-[var(--accent)] text-black border-[var(--accent)]"
+                        : "bg-[var(--surface-2)] text-[var(--muted)] border-[var(--rule-strong)] hover:text-[var(--ink)]"
+                    }`}
+                  >
+                    SP {i + 1}
+                    {hasROIs && (
+                      <span className={`ml-2 inline-block w-1.5 h-1.5 rounded-full ${isActive ? "bg-black/40" : "bg-[var(--accent)]"}`} />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="absolute inset-0">
           {viewMode === "2d" ? (
             <WSIViewer
-              slideId={slides[0]?.name ?? "Aucune lame"}
+              slideId={slides[activeSlideIndex]?.name ?? slides[0]?.name ?? "Aucune lame"}
               className="w-full h-full"
               overlays={liveOverlays}
             />

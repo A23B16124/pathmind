@@ -52,10 +52,25 @@ def _slide_id_from_path(slide_path: str) -> str:
 
 
 def _find_slide_wsi(slide_id: str) -> Optional[Path]:
-    """Map a slide_id back to its on-disk WSI path (if downloaded)."""
+    """Map a slide_id back to its on-disk WSI path (if downloaded).
+
+    Matches on three identifiers per slide so the frontend can use the
+    short friendly name (e.g. "TCGA-OL-A66K-DX1") even when the on-disk
+    file has a UUID-suffixed real name:
+      - real path stem (e.g. "TCGA-OL-A66K-01Z-00-DX1.C1DC85F1-...")
+      - friendly slide_name with .svs stripped (e.g. "TCGA-OL-A66K-DX1")
+      - friendly slide_name as-is (in case the front sent it with .svs)
+    """
     for case in _load_demo_cases():
-        for sp in case.get("slide_paths", []):
-            if _slide_id_from_path(sp) == slide_id:
+        slide_paths = case.get("slide_paths", [])
+        slide_names = case.get("slide_names", [])
+        for i, sp in enumerate(slide_paths):
+            candidates = {_slide_id_from_path(sp)}
+            if i < len(slide_names):
+                name = slide_names[i]
+                candidates.add(name)
+                candidates.add(Path(name).stem)
+            if slide_id in candidates:
                 return _resolve_path(sp)
     return None
 

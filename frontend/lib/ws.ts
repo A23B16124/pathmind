@@ -114,7 +114,9 @@ export async function fetchCachedReport(caseId: string): Promise<Report | null> 
 /**
  * Replay a cached report as a synthetic WS stream — agents flash through in
  * ~3 seconds so the user still sees the multi-agent debate UI without waiting
- * 5–10 minutes for the live pipeline.
+ * 5–10 minutes for the live pipeline. Real Tile-Triage ROIs (per slide) are
+ * emitted from the cached `triage_results` so the WSIViewer overlays match
+ * the agent output, not the mock fallbacks.
  */
 export function replayFromCache(report: Report, onEvent: (event: WSEvent) => void): () => void {
   const agents: AgentName[] = [
@@ -127,12 +129,49 @@ export function replayFromCache(report: Report, onEvent: (event: WSEvent) => voi
   ]
   const timers: ReturnType<typeof setTimeout>[] = []
   const STEP = 380
+
+  // Pull real per-slide Tile-Triage ROIs out of the cache.
+  type TriageEntry = { slide_index: number; regions_of_interest?: Array<Record<string, number | string>> }
+  const reportRecord = report as unknown as Record<string, unknown>
+  const triage = (reportRecord.triage_results as TriageEntry[] | undefined) ?? []
+  const realRoisBySlide = new Map<number, ROIOverlay[]>()
+  for (const t of triage) {
+    const rois: ROIOverlay[] = (t.regions_of_interest ?? [])
+      .map((r) => ({
+        x: Number(r.x),
+        y: Number(r.y),
+        w: Number(r.w),
+        h: Number(r.h),
+        tissue: r.tissue_fraction !== undefined ? Number(r.tissue_fraction) : undefined,
+        label: typeof r.roi_id === 'string' ? r.roi_id : undefined,
+      }))
+      .filter((r) => Number.isFinite(r.x) && Number.isFinite(r.y) && r.w > 0 && r.h > 0)
+    if (rois.length > 0) realRoisBySlide.set(t.slide_index, rois)
+  }
+
   agents.forEach((a, i) => {
     timers.push(setTimeout(() => onEvent({ type: 'agent_start', agent: a }), i * STEP))
-    timers.push(setTimeout(
-      () => onEvent({ type: 'agent_done', agent: a, confidence: 0.85 + (i % 3) * 0.04 }),
-      i * STEP + STEP - 80,
-    ))
+    if (a === 'tile-triage' && realRoisBySlide.size > 0) {
+      // Emit one agent_done per slide so overlaysBySlide gets populated correctly.
+      const slideIndices = Array.from(realRoisBySlide.keys()).sort((x, y) => x - y)
+      slideIndices.forEach((slideIdx, k) => {
+        timers.push(setTimeout(
+          () => onEvent({
+            type: 'agent_done',
+            agent: a,
+            confidence: 0.85,
+            slide: slideIdx,
+            rois: realRoisBySlide.get(slideIdx),
+          }),
+          i * STEP + STEP - 80 - (slideIndices.length - 1 - k) * 60,
+        ))
+      })
+    } else {
+      timers.push(setTimeout(
+        () => onEvent({ type: 'agent_done', agent: a, confidence: 0.85 + (i % 3) * 0.04 }),
+        i * STEP + STEP - 80,
+      ))
+    }
   })
   timers.push(setTimeout(() => {
     onEvent({
