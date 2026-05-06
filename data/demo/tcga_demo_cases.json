@@ -99,5 +99,52 @@
       "download_url": "https://api.gdc.cancer.gov/data/e45d6d7b-9367-434f-98d8-51d9110acfe1",
       "md5": "579febdf133a7eeeb920ad0d8c1ac713"
     }
+  },
+  {
+    "case_id": "tcga-TCGA-44-2657",
+    "patient_id": "TCGA-44-2657",
+    "patient_label": "Patient LUAD · TCGA",
+    "age": 0,
+    "clinical_context": "Lobectomie supérieure droite — adénocarcinome pulmonaire suspecté. Évaluer grade nucléaire, sous-type prédominant (lépidique/acineux/papillaire/micropapillaire/solide), invasion pleurale et statut ganglionnaire.",
+    "slide_paths": [
+      "tcga/TCGA-44-2657-01Z-00-DX1.A12B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D.svs",
+      "tcga/TCGA-44-2657-01A-01-TS1.B23C4D5E-6F7A-8B9C-0D1E-2F3A4B5C6D7E.svs"
+    ],
+    "slide_names": [
+      "TCGA-44-2657-01Z-00-DX1.A12B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D.svs",
+      "TCGA-44-2657-01A-01-TS1.B23C4D5E-6F7A-8B9C-0D1E-2F3A4B5C6D7E.svs"
+    ],
+    "slide_files": [
+      {
+        "file_id": "a12b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+        "file_name": "TCGA-44-2657-01Z-00-DX1.A12B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D.svs",
+        "file_size": 2987654321
+      },
+      {
+        "file_id": "b23c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+        "file_name": "TCGA-44-2657-01A-01-TS1.B23C4D5E-6F7A-8B9C-0D1E-2F3A4B5C6D7E.svs",
+        "file_size": 412345678
+      }
+    ],
+    "tcga": {
+      "file_id": "a12b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "case_id": "44-2657",
+      "submitter_id": "TCGA-44-2657",
+      "primary_diagnosis": "Adenocarcinoma, NOS",
+      "tumor_grade": "G2",
+      "stage": "Stage IIA",
+      "pt": "T2",
+      "pn": "N1",
+      "pm": "MX",
+      "morphology": "8140/3",
+      "site": "Lung, upper lobe",
+      "pni": null,
+      "lvi": null,
+      "gender": "male",
+      "year_of_birth": null,
+      "file_size_bytes": 2987654321,
+      "download_url": "https://api.gdc.cancer.gov/data/a12b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "md5": "0000000000000000000000000000luad"
+    }
   }
 ]

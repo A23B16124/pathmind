@@ -19,6 +19,7 @@ from backend.agents.base import BaseAgent
 from backend.schemas.agents import TileTriageInput, TileTriageOutput
 from backend.wsi.loader import open_slide, WSILoadError
 from backend.wsi.tiler import select_rois, normalize_roi
+from backend.vision.foundation_embeds import embed_rois
 
 
 class TileTriageAgent(BaseAgent):
@@ -93,6 +94,23 @@ class TileTriageAgent(BaseAgent):
             }
             for d in roi_dicts
         ]
+
+        # Foundation-model embeddings — UNI2-h (pathology ViT-G/14) and
+        # Virchow2 (ViT-H/14) on the same MI300X. We POST patches at the
+        # ROI centers and surface stats; if the embed service is down we
+        # silently skip — the pipeline still runs on the LLM agents alone.
+        embed_stats = await embed_rois(meta.path, rois) if rois else None
+        if embed_stats and embed_stats.get("uni2") and embed_stats.get("virchow2"):
+            uni2 = embed_stats["uni2"]
+            virchow = embed_stats["virchow2"]
+            await self.emit(
+                case_id, "running",
+                f"Foundation models: UNI2-h ({uni2['n']}×{uni2['dim']}) + "
+                f"Virchow2 ({virchow['n']}×{virchow['dim']}) — "
+                f"avg cos-sim {uni2['mean_cos_sim']}/{virchow['mean_cos_sim']}",
+                {"slide": input_data.slide_index, "embed_stats": embed_stats},
+            )
+
         await self.emit(
             case_id, "done",
             f"Slide {input_data.slide_index}: {len(rois)} ROIs ({meta.width}x{meta.height}, {meta.objective_power or '?'}x)",
@@ -101,6 +119,7 @@ class TileTriageAgent(BaseAgent):
                 "rois_count": len(rois),
                 "rois": overlay_payload,
                 "slide_dims": [meta.width, meta.height],
+                "foundation_embeds": embed_stats,
             },
         )
 

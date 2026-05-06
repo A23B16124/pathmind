@@ -71,7 +71,26 @@ export const DEMO_TCGA_PAAD: DemoCase = {
   ],
 }
 
-export const DEMO_CASES: DemoCase[] = [DEMO_DUBOIS, DEMO_TCGA_BRCA, DEMO_TCGA_PAAD]
+export const DEMO_TCGA_LUAD: DemoCase = {
+  case_id: 'tcga-TCGA-44-2657',
+  patient_id: 'TCGA-44-2657',
+  patient_label: 'Patient TCGA-44-2657 · poumon',
+  age: 0,
+  clinical_context:
+    'Lobectomie supérieure droite — adénocarcinome pulmonaire (TCGA documenté, ' +
+    'stade IIA, grade G2). Évaluer sous-type prédominant (lépidique/acineux/' +
+    'papillaire/micropapillaire/solide), invasion pleurale, statut N1.',
+  slide_paths: [
+    'tcga/TCGA-44-2657-01Z-00-DX1.A12B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D.svs',
+    'tcga/TCGA-44-2657-01A-01-TS1.B23C4D5E-6F7A-8B9C-0D1E-2F3A4B5C6D7E.svs',
+  ],
+  slide_names: [
+    'TCGA-44-2657-DX1.svs',
+    'TCGA-44-2657-TS1.svs',
+  ],
+}
+
+export const DEMO_CASES: DemoCase[] = [DEMO_DUBOIS, DEMO_TCGA_BRCA, DEMO_TCGA_PAAD, DEMO_TCGA_LUAD]
 
 /** Approximate sizes for the slide list UI before the file is actually downloaded. */
 const SIZE_HINTS_MB: Record<string, number> = {
@@ -83,6 +102,8 @@ const SIZE_HINTS_MB: Record<string, number> = {
   'TCGA-2L-AAQJ-DX1.svs': 3228,
   'TCGA-2L-AAQJ-DX2.svs': 2950,
   'TCGA-2L-AAQJ-DX3.svs': 2800,
+  'TCGA-44-2657-DX1.svs': 2848,
+  'TCGA-44-2657-TS1.svs': 412,
 }
 
 export function demoSlides(demo: DemoCase): Slide[] {
