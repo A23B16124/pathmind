@@ -159,17 +159,23 @@ def _find_slide_wsi(slide_id: str) -> Optional[Path]:
     # Round-robin within the matched case so SP0/SP1/SP2/... pick distinct files
     if matched_case is not None and pool:
         n_slides = len(matched_case.get("slide_paths", []))
+        # Files already used as exact matches by other slides of this case —
+        # exclude them from the fallback pool so a missing-slide fallback
+        # never collides with a sibling slide that has a real file.
+        reserved: set[Path] = set()
+        for sp in matched_case.get("slide_paths", []):
+            r = _resolve_path(sp)
+            if r is not None:
+                reserved.add(r)
+        free_pool = [p for p in pool if p not in reserved] or pool
+
         prefix = "-".join(slide_id.split("-")[:3])
-        prefix_pool = [p for p in pool if p.stem.startswith(prefix)] if prefix else []
-        # Only use prefix-pool if it covers ALL slides of this case (else SP0
-        # gets the prefix file and SP1+ collide elsewhere)
+        prefix_pool = [p for p in free_pool if p.stem.startswith(prefix)] if prefix else []
         if len(prefix_pool) >= n_slides:
             return prefix_pool[matched_index]
-        # Distribute over global pool with case-specific offset so different
-        # cases start at different pool slots
         case_id = matched_case.get("case_id", "")
-        offset = int(hashlib.md5(case_id.encode("utf-8")).hexdigest()[:4], 16) % len(pool)
-        return pool[(offset + matched_index) % len(pool)]
+        offset = int(hashlib.md5(case_id.encode("utf-8")).hexdigest()[:4], 16) % len(free_pool)
+        return free_pool[(offset + matched_index) % len(free_pool)]
 
     # Cross-case fuzzy by TCGA patient prefix (no JSON match at all)
     prefix = "-".join(slide_id.split("-")[:3])
