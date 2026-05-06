@@ -369,6 +369,10 @@ export function WSIViewer({ slideId, slidePath, className, overlays }: WSIViewer
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tileSources: buildTileSource(slideId, slidePath) as any,
       prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
+      // Force the 2D canvas drawer — the WebGL drawer crashes with
+      // "Error creating texture in WebGL. undefined" on large single-image
+      // tile sources (our 2048×2048 thumbnails). Canvas is plenty fast here.
+      drawer: 'canvas',
       showNavigationControl: false,
       showNavigator: true,
       navigatorPosition: 'BOTTOM_RIGHT',
