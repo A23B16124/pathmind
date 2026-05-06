@@ -171,14 +171,15 @@ def _find_slide_wsi(slide_id: str) -> Optional[Path]:
     # Round-robin within the matched case so SP0/SP1/SP2/... pick distinct files
     if matched_case is not None and pool:
         n_slides = len(matched_case.get("slide_paths", []))
-        # Files already used as exact matches by other slides of this case —
-        # exclude them from the fallback pool so a missing-slide fallback
-        # never collides with a sibling slide that has a real file.
+        # Files reserved by exact matches anywhere in the demo set — excluded
+        # from fallback pool so a missing-slide fallback never collides with
+        # an exact-match slide of any case.
         reserved: set[Path] = set()
-        for sp in matched_case.get("slide_paths", []):
-            r = _resolve_path(sp)
-            if r is not None:
-                reserved.add(r)
+        for c in _load_demo_cases():
+            for sp in c.get("slide_paths", []):
+                r = _resolve_path(sp)
+                if r is not None:
+                    reserved.add(r)
         free_pool = [p for p in pool if p not in reserved] or pool
 
         prefix = "-".join(slide_id.split("-")[:3])
