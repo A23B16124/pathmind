@@ -338,7 +338,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || ''
 // Local placeholder served by the backend (synthetic CMU-1 H&E texture).
 // Avoids external DNS dependency that breaks behind corporate proxies / strict DNS.
 const PLACEHOLDER_TILE_SOURCE = API_BASE
-  ? { type: 'image', url: `${API_BASE}/api/slide/CMU-1-Small-Region/thumbnail?size=1024`, crossOriginPolicy: 'Anonymous' }
+  ? { type: 'image', url: `${API_BASE}/api/slide/CMU-1-Small-Region/thumbnail?size=1024` }
   : null
 
 // Build a single-image tileSource from a backend thumbnail. OpenSeadragon
@@ -354,7 +354,6 @@ function buildTileSource(slideId: string, slidePath?: string): unknown {
   return {
     type: 'image',
     url: `${API_BASE}/api/slide/${safeId}/thumbnail?size=2048`,
-    crossOriginPolicy: 'Anonymous',
   }
 }
 
