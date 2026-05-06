@@ -107,6 +107,10 @@ class ChiefInput(_StrictModel):
     cross_slide: CrossSlideOutput
     literature: LiteratureHunterOutput
     clinical_data: dict = Field(default_factory=dict)
+    # Upper bound on Chief confidence derived from upstream histo-A/B reads.
+    # When per-slide readers had thin evidence (e.g. zero patches, text-only
+    # blind agent), Chief cannot honestly exceed the average of its sources.
+    evidence_cap: Optional[float] = None
 
 
 class ChiefOutput(_StrictModel):

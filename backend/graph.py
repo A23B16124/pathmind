@@ -182,7 +182,25 @@ async def node_literature(state: PipelineState) -> dict:
     return {"literature": lit}
 
 
+def _evidence_cap(
+    histo_a: list[HistopathologistOutput] | None,
+    histo_b: list[HistopathologistOutput] | None,
+) -> float:
+    """Bound Chief confidence by what the per-slide readers actually saw.
+
+    cap = mean(all histo confidences) + 0.10, clamped to [0.0, 0.92].
+    Blind readers (zero patches) return ~0.2 → cap ~0.30.
+    Solid 0.7+ readers → cap ~0.85, leaves room for synthesis bonus
+    without hallucinated certainty.
+    """
+    confs = [r.confidence for r in (histo_a or []) + (histo_b or []) if r is not None]
+    if not confs:
+        return 0.5
+    return max(0.0, min(0.92, sum(confs) / len(confs) + 0.10))
+
+
 async def node_chief(state: PipelineState) -> dict:
+    cap = _evidence_cap(state.get("histo_a_results"), state.get("histo_b_results"))
     report = await ChiefAgent.instance().run(
         state["case_id"],
         ChiefInput(
@@ -190,6 +208,7 @@ async def node_chief(state: PipelineState) -> dict:
             cross_slide=state["cross_slide"],
             literature=state["literature"],
             clinical_data=state["clinical_data"] or {},
+            evidence_cap=cap,
         ),
     )
     return {"report": report}

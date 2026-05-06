@@ -117,12 +117,19 @@ class ChiefAgent(BaseAgent):
                 + f"</ul></div>"
             )
 
+        # Honest confidence: cap by the evidence coming from upstream histo
+        # agents.  If readers had thin evidence (no patches / text-only blind),
+        # Chief cannot inflate.  Without a cap, fall back to LLM self-report.
+        raw_conf = 0.0 if parse_failed else float(data.get("confidence") or 0.92)
+        if input_data.evidence_cap is not None:
+            raw_conf = min(raw_conf, input_data.evidence_cap)
+
         return ChiefOutput(
             debate_rounds=rounds,
             debate_summary=data.get("debate_summary") or "",
             diagnosis=data.get("primary_diagnosis") or "",
             biomarkers=data.get("biomarkers") or [],
-            confidence=0.0 if parse_failed else float(data.get("confidence") or 0.92),
+            confidence=raw_conf,
             cap_report=data or {},
             report_html=report_html,
         )

@@ -30,6 +30,21 @@ CHUNK_SIZE = 10
 FINDINGS_TRUNCATE = 600
 
 
+def _aggregate_confidence(
+    slides_a: list[HistopathologistOutput],
+    slides_b: list[HistopathologistOutput],
+) -> float:
+    """Mean confidence across both readers — honest aggregation, no inflation.
+
+    Used to be hardcoded at 0.89 regardless of input quality; that masked
+    blind/empty reads downstream.  Now reflects what the readers actually saw.
+    """
+    confs = [r.confidence for r in slides_a + slides_b if r is not None]
+    if not confs:
+        return 0.0
+    return max(0.0, min(1.0, sum(confs) / len(confs)))
+
+
 def _as_str(v) -> str:
     """Coerce LLM-returned value into a string. Models occasionally emit
     nested objects/lists where a string is expected — flatten via JSON dump.
@@ -134,7 +149,7 @@ class CrossSlideAgent(BaseAgent):
             dominant_pattern=_as_str(data.get("dominant_pattern")),
             affected_slides=data.get("affected_slides") or [],
             disagreements=[_as_str(d) for d in (data.get("disagreements") or [])],
-            confidence=0.89,
+            confidence=_aggregate_confidence(input_data.slides_a, input_data.slides_b),
         )
 
     async def _reduce_partials(
@@ -173,11 +188,18 @@ class CrossSlideAgent(BaseAgent):
         all_affected = sorted({s for p in partials for s in p.affected_slides})
         all_disagreements = list(dict.fromkeys(d for p in partials for d in p.disagreements))
 
+        # In hierarchical mode the partials already carry honest aggregated
+        # confidences from their own slides_a/slides_b averages.  Mean across
+        # chunks reflects the same evidence-bound principle without needing
+        # to re-thread the original histo lists down here.
+        chunk_confs = [p.confidence for p in partials if p.confidence]
+        merged_conf = sum(chunk_confs) / len(chunk_confs) if chunk_confs else 0.5
+
         return CrossSlideOutput(
             synthesis_a=_as_str(data.get("synthesis_a")) or "; ".join(p.synthesis_a for p in partials if p.synthesis_a),
             synthesis_b=_as_str(data.get("synthesis_b")) or "; ".join(p.synthesis_b for p in partials if p.synthesis_b),
             dominant_pattern=_as_str(data.get("dominant_pattern")) or (partials[0].dominant_pattern if partials else ""),
             affected_slides=data.get("affected_slides") or all_affected,
             disagreements=[_as_str(d) for d in (data.get("disagreements") or all_disagreements)],
-            confidence=0.89,
+            confidence=merged_conf,
         )
