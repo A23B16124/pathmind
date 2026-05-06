@@ -11,6 +11,7 @@ The slide_id is the file_name (or stem) of the WSI; case_id matches the
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any, Optional
@@ -108,7 +109,29 @@ def _find_slide_wsi(slide_id: str) -> Optional[Path]:
 
     # Cross-case fuzzy by TCGA patient prefix (e.g. "TCGA-OL-A66K")
     prefix = "-".join(slide_id.split("-")[:3])
-    return _any_local_svs_for_prefix(prefix)
+    same_prefix = _any_local_svs_for_prefix(prefix)
+    if same_prefix is not None:
+        # If multiple slides of the same case all fall back here (because their
+        # exact files are missing) we'd show the same image twice. Spread them
+        # deterministically across the local pool so SP1 ≠ SP2 visually.
+        pool: list[Path] = []
+        for root in _SLIDES_ROOTS:
+            if root.exists():
+                pool.extend(sorted(root.rglob("*.svs")))
+        if len(pool) > 1:
+            digest = hashlib.md5(slide_id.encode("utf-8")).digest()
+            return pool[digest[0] % len(pool)]
+        return same_prefix
+
+    # Last resort: any local .svs, picked deterministically by slide_id hash
+    pool: list[Path] = []
+    for root in _SLIDES_ROOTS:
+        if root.exists():
+            pool.extend(sorted(root.rglob("*.svs")))
+    if not pool:
+        return None
+    digest = hashlib.md5(slide_id.encode("utf-8")).digest()
+    return pool[digest[0] % len(pool)]
 
 
 @router.get("/slide/{slide_id}/thumbnail")
