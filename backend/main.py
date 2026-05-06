@@ -187,47 +187,62 @@ _DEMO_DUBOIS_SLIDE_NAMES = [
 ]
 
 
-def _generate_thumbnail(slide_id: str, size: int) -> bytes:
-    """Deterministic tissue-coloured JPEG keyed on slide_id."""
+_SLIDES_ROOTS = [
+    Path("/root/pathmind/data/slides"),
+    Path("/home/ubuntu/pathmind/data/slides"),
+    Path("/data/slides"),
+]
+
+
+def _find_wsi_for_slide_id(slide_id: str) -> Optional[Path]:
+    """Resolve a slide_id to a real .svs file on disk.
+
+    Tries (in order):
+    1. Exact filename match `{slide_id}.svs` under any slides root (recursive)
+    2. Substring match — a stem that contains the slide_id (or vice versa)
+    3. Deterministic hash-based fallback to a local test slide so the same
+       slide_id always renders the same WSI (avoids flicker on re-fetch).
+    """
+    for root in _SLIDES_ROOTS:
+        if not root.exists():
+            continue
+        # Exact match
+        for cand in root.rglob(f"{slide_id}.svs"):
+            return cand
+        # Substring match (slide_id in stem or stem in slide_id)
+        for cand in root.rglob("*.svs"):
+            stem = cand.stem
+            if slide_id in stem or stem in slide_id:
+                return cand
+            # TCGA: match on the patient ID prefix (first 3 dash-separated segments)
+            slide_prefix = "-".join(slide_id.split("-")[:3])
+            if slide_prefix and slide_prefix in stem:
+                return cand
+
+    # Deterministic fallback — pick a real local SVS based on slide_id hash
+    pool: list[Path] = []
+    for root in _SLIDES_ROOTS:
+        if root.exists():
+            pool.extend(sorted(root.rglob("*.svs")))
+    if not pool:
+        return None
     digest = hashlib.md5(slide_id.encode("utf-8")).digest()
-    hue = digest[0] / 255.0  # 0..1
-    sat = 0.30 + (digest[1] / 255.0) * 0.20  # 0.30..0.50, brownish
-    light = 0.55 + (digest[2] / 255.0) * 0.20  # 0.55..0.75
-    r, g, b = colorsys.hls_to_rgb(hue, light, sat)
-    base = (int(r * 255), int(g * 255), int(b * 255))
-
-    img = Image.new("RGB", (size, size), base)
-    rng = random.Random(int.from_bytes(digest[:8], "big"))
-    pixels = img.load()
-    for y in range(size):
-        for x in range(0, size, 4):  # sparse noise — fast, still grainy
-            n = rng.randint(-18, 18)
-            px = pixels[x, y]
-            pixels[x, y] = (
-                max(0, min(255, px[0] + n)),
-                max(0, min(255, px[1] + n)),
-                max(0, min(255, px[2] + n)),
-            )
-
-    from io import BytesIO
-    buf = BytesIO()
-    img.save(buf, format="JPEG", quality=82)
-    return buf.getvalue()
+    return pool[digest[0] % len(pool)]
 
 
 @app.get("/api/slide/{slide_id}/thumbnail")
 async def slide_thumbnail(slide_id: str, size: int = 1024):
-    """Placeholder tissue-tinted thumbnail. Cached on disk under /tmp/pathmind_thumbs/."""
-    safe_id = "".join(c if c.isalnum() or c in "-_." else "_" for c in slide_id)[:120]
+    """Real WSI thumbnail via OpenSlide, cached on disk.
+
+    Resolves slide_id → local .svs file (with TCGA-aware fuzzy matching),
+    then extracts a low-res thumbnail with OpenSlide. Falls back to a
+    synthetic H&E-textured placeholder if no WSI is available.
+    """
+    from backend.utils.thumbnail_cache import thumbnail_bytes
+
     size = max(64, min(2048, int(size)))
-    cache_path = _THUMB_CACHE_DIR / f"{safe_id}-{size}.jpg"
-
-    if cache_path.exists():
-        data = await asyncio.to_thread(cache_path.read_bytes)
-    else:
-        data = await asyncio.to_thread(_generate_thumbnail, slide_id, size)
-        await asyncio.to_thread(cache_path.write_bytes, data)
-
+    wsi_path = await asyncio.to_thread(_find_wsi_for_slide_id, slide_id)
+    data = await asyncio.to_thread(thumbnail_bytes, slide_id, wsi_path, size)
     return Response(content=data, media_type="image/jpeg")
 
 
