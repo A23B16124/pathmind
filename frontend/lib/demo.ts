@@ -35,12 +35,12 @@ export const DEMO_DUBOIS: DemoCase = {
 export const DEMO_TCGA_BRCA: DemoCase = {
   case_id: 'tcga-TCGA-OL-A66K',
   patient_id: 'TCGA-OL-A66K',
-  patient_label: 'Patiente TCGA-OL-A66K · sein',
+  patient_label: 'Patiente A66K · sein',
   age: 0,
   clinical_context:
-    'Macrobiopsie mammaire — recherche carcinome canalaire infiltrant. ' +
-    'Diagnostic TCGA documenté : carcinome lobulaire, stade IIA. ' +
-    'Statut HER2, ER/PR, Ki-67 à confirmer en IHC.',
+    'Femme, macrobiopsie mammaire pour masse palpable quadrant supéro-externe. ' +
+    'Mammographie : opacité spiculée 22 mm, ACR 5. Pas d\'adénopathie axillaire palpable. ' +
+    'Demande : caractérisation histologique, grade, statut ER/PR/HER2/Ki-67 à prévoir en IHC.',
   slide_paths: [
     'tcga/TCGA-OL-A66K-01Z-00-DX1.C1DC85F1-4FAE-4411-9886-11DCB5E70CC3.svs',
     'tcga/TCGA-OL-A66K-01Z-00-DX2.svs',
@@ -54,11 +54,12 @@ export const DEMO_TCGA_BRCA: DemoCase = {
 export const DEMO_TCGA_PAAD: DemoCase = {
   case_id: 'tcga-TCGA-2L-AAQJ',
   patient_id: 'TCGA-2L-AAQJ',
-  patient_label: 'Patient TCGA-2L-AAQJ · pancréas',
+  patient_label: 'Patient AAQJ · pancréas',
   age: 0,
   clinical_context:
-    'Biopsie tête de pancréas — adénocarcinome canalaire infiltrant (TCGA documenté, ' +
-    'stade III, grade G2). Évaluation marges, engainement périnerveux, invasion lymphovasculaire.',
+    'Femme, ictère obstructif progressif et perte de poids 6 kg sur 2 mois. ' +
+    'TDM : masse hypodense 28 mm tête du pancréas, dilatation Wirsung et VBP. CA 19-9 élevé. ' +
+    'Biopsie écho-endoscopique. Demande : nature de la lésion, grade, marges, engainement périnerveux, invasion lymphovasculaire.',
   slide_paths: [
     'tcga/TCGA-2L-AAQJ-01Z-00-DX1.91D3718F-DF73-48BA-BCB8-A00A000043F7.svs',
     'tcga/TCGA-2L-AAQJ-01Z-00-DX2.svs',
@@ -74,12 +75,12 @@ export const DEMO_TCGA_PAAD: DemoCase = {
 export const DEMO_TCGA_LUAD: DemoCase = {
   case_id: 'tcga-TCGA-44-2657',
   patient_id: 'TCGA-44-2657',
-  patient_label: 'Patient TCGA-44-2657 · poumon',
+  patient_label: 'Patient 2657 · poumon',
   age: 0,
   clinical_context:
-    'Lobectomie supérieure droite — adénocarcinome pulmonaire (TCGA documenté, ' +
-    'stade IIA, grade G2). Évaluer sous-type prédominant (lépidique/acineux/' +
-    'papillaire/micropapillaire/solide), invasion pleurale, statut N1.',
+    'Homme fumeur 30 PA, nodule lobe supérieur droit 28 mm découvert sur scanner thoracique. ' +
+    'TEP-FDG : hyperfixation focale, pas de localisation à distance. Lobectomie supérieure droite + curage. ' +
+    'Demande : nature, grade nucléaire, sous-type prédominant (lépidique/acineux/papillaire/micropapillaire/solide), invasion pleurale, statut ganglionnaire.',
   slide_paths: [
     'tcga/TCGA-44-2657-01Z-00-DX1.A12B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D.svs',
     'tcga/TCGA-44-2657-01A-01-TS1.B23C4D5E-6F7A-8B9C-0D1E-2F3A4B5C6D7E.svs',
