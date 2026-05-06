@@ -114,12 +114,24 @@ def _any_local_svs_for_prefix(prefix: str) -> Optional[Path]:
     return None
 
 
+_WSI_EXTS = ("*.svs", "*.ndpi", "*.tiff", "*.tif", "*.mrxs")
+
+
 def _local_svs_pool() -> list[Path]:
     pool: list[Path] = []
     for root in _SLIDES_ROOTS:
-        if root.exists():
-            pool.extend(sorted(root.rglob("*.svs")))
-    return pool
+        if not root.exists():
+            continue
+        for ext in _WSI_EXTS:
+            pool.extend(root.rglob(ext))
+    # De-duplicate while preserving sort order
+    seen: set[Path] = set()
+    unique: list[Path] = []
+    for p in sorted(pool):
+        if p not in seen:
+            seen.add(p)
+            unique.append(p)
+    return unique
 
 
 def _find_slide_wsi(slide_id: str) -> Optional[Path]:
