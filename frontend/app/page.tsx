@@ -118,6 +118,31 @@ export default function Home() {
     setOverlaysBySlide({})
     setActiveSlideIndex(0)
     setActiveVolumeSlide(0)
+
+    // Pre-load real ROIs from the backend (computed via Otsu tissue mask on
+    // the actual WSI shown). This way overlays align with tissue BEFORE
+    // running the full pipeline; the WS tile-triage event will replace them
+    // with pipeline-produced ROIs once analysis runs.
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? ''
+    fetch(`${apiUrl}/api/case/${encodeURIComponent(demo.case_id)}/slides`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((data: { slides: Array<{ index: number; rois: Array<{ x: number; y: number; w: number; h: number; tissue?: number }> }> }) => {
+        const map: Record<number, ROIOverlay[]> = {}
+        for (const s of data.slides) {
+          map[s.index] = (s.rois ?? []).map((r, i) => ({
+            x: r.x,
+            y: r.y,
+            w: r.w,
+            h: r.h,
+            color: ROI_COLORS[i % ROI_COLORS.length],
+            label: `ROI ${i + 1}`,
+          }))
+        }
+        setOverlaysBySlide(map)
+      })
+      .catch(() => {
+        // silent — viewer will fall back to FALLBACK_OVERLAYS
+      })
   }, [])
 
   const handleSetSlides = useCallback((s: Slide[]) => {

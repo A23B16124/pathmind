@@ -21,20 +21,62 @@ from fastapi.responses import FileResponse, JSONResponse
 
 from backend.utils.thumbnail_cache import ensure_thumbnail
 from backend.wsi.loader import _resolve_path
+from backend.wsi.tiler import select_rois, normalize_roi
 
 router = APIRouter(prefix="/api", tags=["slides"])
 
 ROOT = Path(__file__).resolve().parents[2]
 DEMO_CASES_PATH = ROOT / "data" / "demo" / "tcga_demo_cases.json"
+_ROI_CACHE_DIR = Path("/tmp/pathmind_rois")
+_ROI_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-# Default ROIs returned when the pipeline has not yet produced real ones for a
-# given slide. They give the Volume 3D viewer something visible without forcing
-# the user to wait for analysis to complete. Coordinates are normalised (0..1).
-_DEFAULT_ROIS = [
-    {"x": 0.32, "y": 0.18, "w": 0.06, "h": 0.06, "tissue": 0.91},
-    {"x": 0.61, "y": 0.41, "w": 0.06, "h": 0.06, "tissue": 0.83},
-    {"x": 0.27, "y": 0.66, "w": 0.06, "h": 0.06, "tissue": 0.78},
+# Static fallback ROIs — used only if no WSI is available at all (no local
+# .svs file). Centered, low-density, just to keep the viewer non-empty.
+_FALLBACK_ROIS = [
+    {"x": 0.40, "y": 0.40, "w": 0.10, "h": 0.10, "tissue": 0.0},
 ]
+
+
+def _compute_real_rois(wsi_path: Path, max_rois: int = 6) -> list[dict[str, Any]]:
+    """Compute ROIs from the actual WSI via Otsu tissue mask, with disk cache.
+
+    Cache key = (path, mtime, max_rois). Cache file = JSON list of dicts
+    matching the front overlay format (x, y, w, h, tissue) in normalised
+    [0, 1] coords relative to the slide's level-0 dimensions.
+    """
+    try:
+        stat = wsi_path.stat()
+    except FileNotFoundError:
+        return list(_FALLBACK_ROIS)
+
+    key_src = f"{wsi_path}:{stat.st_mtime_ns}:{max_rois}"
+    key = hashlib.md5(key_src.encode("utf-8")).hexdigest()
+    cache_file = _ROI_CACHE_DIR / f"{key}.json"
+    if cache_file.exists():
+        try:
+            return json.loads(cache_file.read_text())
+        except Exception:
+            pass
+
+    try:
+        from openslide import OpenSlide  # local import — keeps optional dep loose
+        slide = OpenSlide(str(wsi_path))
+        try:
+            w0, h0 = slide.dimensions
+        finally:
+            slide.close()
+        rois = select_rois(str(wsi_path), target_tile_px=2048, max_rois=max_rois)
+        out = []
+        for r in rois:
+            n = normalize_roi(r, w0, h0)
+            out.append({
+                "x": n["x"], "y": n["y"], "w": n["w"], "h": n["h"],
+                "tissue": n["tissue_fraction"],
+            })
+        cache_file.write_text(json.dumps(out))
+        return out
+    except Exception:
+        return list(_FALLBACK_ROIS)
 
 
 def _load_demo_cases() -> list[dict[str, Any]]:
@@ -161,12 +203,17 @@ def get_case_slides(case_id: str):
     slides = []
     for i, sp in enumerate(case.get("slide_paths", [])):
         sid = _slide_id_from_path(sp)
+        # Resolve to the actual WSI on disk (may be a fuzzy fallback if the
+        # exact .svs is missing). ROIs are computed from THIS file so they
+        # align visually with whatever thumbnail the viewer ends up showing.
+        wsi = _find_slide_wsi(sid)
+        rois = _compute_real_rois(wsi) if wsi is not None else list(_FALLBACK_ROIS)
         slides.append({
             "id": sid,
             "index": i,
             "name": case.get("slide_names", [""])[i] if i < len(case.get("slide_names", [])) else sp,
             "path": sp,
             "thumbnail_url": f"/api/slide/{sid}/thumbnail",
-            "rois": _DEFAULT_ROIS,
+            "rois": rois,
         })
     return JSONResponse({"case_id": case_id, "slides": slides})
