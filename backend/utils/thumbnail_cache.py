@@ -20,14 +20,14 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 CACHE_DIR = Path(os.getenv("PATHMIND_THUMB_CACHE", "/tmp/pathmind_thumbs"))
 
 
 # Bump this when the synthetic generator changes so old cached JPEGs are
 # transparently superseded without manual cleanup on the AMD box.
-_CACHE_VERSION = "v2"
+_CACHE_VERSION = "v3"
 
 
 def get_thumbnail_path(slide_id: str, size: int) -> Path:
@@ -79,14 +79,19 @@ def _synthetic_thumbnail(slide_id: str, size: int, dest: Path) -> Path:
     img = Image.blend(img, noise, 0.04)
     img = img.filter(ImageFilter.GaussianBlur(radius=0.6))
 
-    # PREVIEW watermark — repeated diagonal text. Use default font (always present).
+    # PREVIEW watermark — repeated diagonal text. Use DejaVu so accents render.
     wm = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     wm_draw = ImageDraw.Draw(wm)
-    label = "PREVIEW · WSI NON CHARGEE"
-    step = max(120, size // 6)
+    font_size = max(14, size // 48)
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", font_size)
+    except Exception:
+        font = ImageFont.load_default()
+    label = "PREVIEW · WSI NON CHARGÉE"
+    step = max(140, size // 6)
     for y in range(-size, size * 2, step):
         for x in range(-size, size * 2, step * 2):
-            wm_draw.text((x, y), label, fill=(120, 80, 90, 38))
+            wm_draw.text((x, y), label, fill=(120, 80, 90, 42), font=font)
     wm = wm.rotate(-30, resample=Image.BICUBIC, expand=False)
     img = Image.alpha_composite(img.convert("RGBA"), wm).convert("RGB")
 
