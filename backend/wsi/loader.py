@@ -78,10 +78,14 @@ def _validate_slide_path(resolved: Path) -> None:
         )
 
 
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
 def _resolve_path(slide_path: str) -> Optional[Path]:
     """Resolve a slide path against common locations. Returns None if unfindable."""
     candidates = [
         Path(slide_path),
+        _REPO_ROOT / "data" / "slides" / slide_path,
         Path("/home/ubuntu/pathmind/data/slides") / slide_path,
         Path(os.getenv("PATHMIND_SLIDES_DIR", "/data/slides")) / slide_path,
     ]
