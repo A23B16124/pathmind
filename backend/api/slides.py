@@ -158,11 +158,15 @@ def _find_slide_wsi(slide_id: str) -> Optional[Path]:
 
     # Round-robin within the matched case so SP0/SP1/SP2/... pick distinct files
     if matched_case is not None and pool:
+        n_slides = len(matched_case.get("slide_paths", []))
         prefix = "-".join(slide_id.split("-")[:3])
         prefix_pool = [p for p in pool if p.stem.startswith(prefix)] if prefix else []
-        if prefix_pool and matched_index < len(prefix_pool):
+        # Only use prefix-pool if it covers ALL slides of this case (else SP0
+        # gets the prefix file and SP1+ collide elsewhere)
+        if len(prefix_pool) >= n_slides:
             return prefix_pool[matched_index]
-        # Per-case offset so different cases land on different starting files
+        # Distribute over global pool with case-specific offset so different
+        # cases start at different pool slots
         case_id = matched_case.get("case_id", "")
         offset = int(hashlib.md5(case_id.encode("utf-8")).hexdigest()[:4], 16) % len(pool)
         return pool[(offset + matched_index) % len(pool)]
