@@ -94,10 +94,18 @@ def _slide_id_from_path(slide_path: str) -> str:
     return Path(slide_path).stem
 
 
+def _accessible(p: Path) -> bool:
+    try:
+        return p.exists()
+    except PermissionError:
+        return False
+
 _SLIDES_ROOTS = [
-    Path("/root/pathmind/data/slides"),
-    Path("/home/ubuntu/pathmind/data/slides"),
-    Path("/data/slides"),
+    p for p in [
+        Path("/root/pathmind/data/slides"),
+        Path("/home/ubuntu/pathmind/data/slides"),
+        Path("/data/slides"),
+    ] if _accessible(p)
 ]
 
 
