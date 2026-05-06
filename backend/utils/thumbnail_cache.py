@@ -25,10 +25,15 @@ from PIL import Image, ImageDraw, ImageFilter
 CACHE_DIR = Path(os.getenv("PATHMIND_THUMB_CACHE", "/tmp/pathmind_thumbs"))
 
 
+# Bump this when the synthetic generator changes so old cached JPEGs are
+# transparently superseded without manual cleanup on the AMD box.
+_CACHE_VERSION = "v2"
+
+
 def get_thumbnail_path(slide_id: str, size: int) -> Path:
     """Stable on-disk path for a given slide_id + size pair."""
     safe = slide_id.replace("/", "_").replace("..", "_")
-    return CACHE_DIR / f"{safe}_{size}.jpg"
+    return CACHE_DIR / f"{safe}_{size}_{_CACHE_VERSION}.jpg"
 
 
 def _save_jpeg(image: Image.Image, dest: Path, quality: int = 82) -> None:
@@ -49,46 +54,41 @@ def _real_thumbnail(wsi_path: Path, size: int, dest: Path) -> Path:
 
 
 def _synthetic_thumbnail(slide_id: str, size: int, dest: Path) -> Path:
-    """Generate a deterministic tissue-like thumbnail keyed by slide_id.
+    """Neutral H&E-tinted placeholder used when the real WSI is not on disk.
 
-    The image looks like an H&E section: pinkish base, irregular tissue silhouette,
-    darker stromal regions. Same `slide_id` always yields the same image — this
-    matters because the frontend caches by URL and we want stability across reloads.
+    Deliberately featureless — no fake "lesions" or stromal foci — so that the
+    Tile-Triage ROIs (which are computed on the real WSI, not on this image)
+    are not visually mismatched against fictitious tissue features. A subtle
+    diagonal "PREVIEW" wordmark makes it obvious this is not the real slide.
     """
-    # Deterministic RNG seeded by slide_id
-    seed = int(hashlib.sha1(slide_id.encode("utf-8")).hexdigest()[:8], 16)
-    import random
-    rng = random.Random(seed)
+    img = Image.new("RGB", (size, size), (244, 232, 230))  # pale paraffin/H&E pink
 
-    img = Image.new("RGB", (size, size), (244, 235, 230))  # very pale pink — paraffin background
-    draw = ImageDraw.Draw(img, "RGBA")
-
-    # Soft tissue silhouette — irregular blob made of overlapping ellipses.
+    # Faint vignette to break the flat fill without implying tissue structure.
+    overlay = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(overlay, "RGBA")
     cx, cy = size // 2, size // 2
-    r0 = int(size * 0.30)
-    pink = (220, 165, 175)
-    for _ in range(18):
-        ox = rng.randint(-int(size * 0.08), int(size * 0.08))
-        oy = rng.randint(-int(size * 0.08), int(size * 0.08))
-        rx = rng.randint(int(size * 0.20), int(size * 0.36))
-        ry = rng.randint(int(size * 0.20), int(size * 0.36))
-        draw.ellipse(
-            [cx + ox - rx, cy + oy - ry, cx + ox + rx, cy + oy + ry],
-            fill=pink + (180,),
-        )
+    rad = int(size * 0.55)
+    for i in range(18):
+        a = int(8 * (1 - i / 18))
+        r = rad + i * 8
+        draw.ellipse([cx - r, cy - r, cx + r, cy + r], outline=(180, 150, 150, a), width=2)
+    img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
 
-    # Darker stromal foci — a few small purple-ish regions to mimic dense cellularity.
-    purple = (120, 60, 110)
-    for _ in range(rng.randint(4, 8)):
-        x = rng.randint(int(size * 0.25), int(size * 0.75))
-        y = rng.randint(int(size * 0.25), int(size * 0.75))
-        r = rng.randint(int(size * 0.04), int(size * 0.10))
-        draw.ellipse([x - r, y - r, x + r, y + r], fill=purple + (130,))
+    # Very faint grain so JPEG doesn't band.
+    noise = Image.effect_noise((size, size), 6).convert("RGB")
+    img = Image.blend(img, noise, 0.04)
+    img = img.filter(ImageFilter.GaussianBlur(radius=0.6))
 
-    # Subtle noise overlay — adds grain, prevents hard edges.
-    noise = Image.effect_noise((size, size), 12).convert("RGB")
-    img = Image.blend(img, noise, 0.06)
-    img = img.filter(ImageFilter.GaussianBlur(radius=1.4))
+    # PREVIEW watermark — repeated diagonal text. Use default font (always present).
+    wm = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    wm_draw = ImageDraw.Draw(wm)
+    label = "PREVIEW · WSI NON CHARGEE"
+    step = max(120, size // 6)
+    for y in range(-size, size * 2, step):
+        for x in range(-size, size * 2, step * 2):
+            wm_draw.text((x, y), label, fill=(120, 80, 90, 38))
+    wm = wm.rotate(-30, resample=Image.BICUBIC, expand=False)
+    img = Image.alpha_composite(img.convert("RGBA"), wm).convert("RGB")
 
     _save_jpeg(img, dest)
     return dest

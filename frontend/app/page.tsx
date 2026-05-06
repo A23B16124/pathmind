@@ -253,6 +253,7 @@ export default function Home() {
           {viewMode === "2d" ? (
             <WSIViewer
               slideId={slides[activeSlideIndex]?.name ?? slides[0]?.name ?? "Aucune lame"}
+              slidePath={slides[activeSlideIndex]?.path ?? slides[0]?.path}
               className="w-full h-full"
               overlays={liveOverlays}
             />
