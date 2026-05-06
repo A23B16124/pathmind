@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from pathlib import Path
 
 from backend.agents.base import BaseAgent
 from backend.schemas.agents import TileTriageInput, TileTriageOutput
@@ -32,11 +33,22 @@ class TileTriageAgent(BaseAgent):
             {"slide": input_data.slide_index},
         )
 
+        # Resolve the slide path to an actual file on disk.
+        # input_data.slide_path may be a TCGA path like
+        # "tcga/TCGA-44-2657-01Z-00-DX1.<uuid>.svs" that doesn't exist locally.
+        # _find_slide_wsi() applies the same fallback logic as the thumbnail
+        # endpoint so UNI2/Virchow2 run on real tissue instead of failing.
+        from backend.api.slides import _find_slide_wsi  # local import avoids circular dep
+
+        slide_id = Path(input_data.slide_path).stem
+        resolved = await asyncio.to_thread(_find_slide_wsi, slide_id)
+        actual_path = str(resolved) if resolved is not None else input_data.slide_path
+
         try:
-            meta = await asyncio.to_thread(open_slide, input_data.slide_path)
+            meta = await asyncio.to_thread(open_slide, actual_path)
             rois = await asyncio.to_thread(
                 select_rois,
-                input_data.slide_path,
+                actual_path,
                 2048,   # target tile px (level-0)
                 8,      # max ROIs
                 0.30,   # min tissue fraction
