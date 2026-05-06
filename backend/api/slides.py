@@ -114,16 +114,27 @@ def _any_local_svs_for_prefix(prefix: str) -> Optional[Path]:
     return None
 
 
+def _local_svs_pool() -> list[Path]:
+    pool: list[Path] = []
+    for root in _SLIDES_ROOTS:
+        if root.exists():
+            pool.extend(sorted(root.rglob("*.svs")))
+    return pool
+
+
 def _find_slide_wsi(slide_id: str) -> Optional[Path]:
     """Map a slide_id back to its on-disk WSI path.
 
     Resolution order:
     1. Exact match in tcga_demo_cases.json + file present on disk
-    2. Same-case fallback: any other slide of the same TCGA case that IS on disk
-       (DX1 may be 3+ GB and skipped at download time, but TS1 is usually local)
-    3. Cross-case fuzzy: any local .svs sharing the same TCGA patient prefix
+    2. Round-robin over local pool keyed by the slide's INDEX inside its
+       case — guarantees SP1 != SP2 != SP3 visually when several slides of
+       the same case lack their exact files (DX1 is 3+ GB, often skipped).
+    3. Cross-case fuzzy by TCGA patient prefix
+    4. Last resort: hash-based pick over local pool
     """
     matched_case: Optional[dict] = None
+    matched_index: int = -1
     for case in _load_demo_cases():
         slide_paths = case.get("slide_paths", [])
         slide_names = case.get("slide_names", [])
@@ -138,38 +149,29 @@ def _find_slide_wsi(slide_id: str) -> Optional[Path]:
                 if resolved is not None:
                     return resolved
                 matched_case = case
+                matched_index = i
                 break
         if matched_case is not None:
             break
 
-    # Same-case fallback: try any other slide_path of this case that's on disk
-    if matched_case is not None:
-        for sp in matched_case.get("slide_paths", []):
-            r = _resolve_path(sp)
-            if r is not None:
-                return r
+    pool = _local_svs_pool()
 
-    # Cross-case fuzzy by TCGA patient prefix (e.g. "TCGA-OL-A66K")
+    # Round-robin within the matched case so SP0/SP1/SP2/... pick distinct files
+    if matched_case is not None and pool:
+        # Try each pool slot starting at matched_index, prefer same-prefix matches
+        # so the visible WSI still belongs to the same TCGA patient if possible.
+        prefix = "-".join(slide_id.split("-")[:3])
+        prefix_pool = [p for p in pool if p.stem.startswith(prefix)] if prefix else []
+        if prefix_pool and matched_index < len(prefix_pool):
+            return prefix_pool[matched_index]
+        return pool[matched_index % len(pool)]
+
+    # Cross-case fuzzy by TCGA patient prefix (no JSON match at all)
     prefix = "-".join(slide_id.split("-")[:3])
     same_prefix = _any_local_svs_for_prefix(prefix)
     if same_prefix is not None:
-        # If multiple slides of the same case all fall back here (because their
-        # exact files are missing) we'd show the same image twice. Spread them
-        # deterministically across the local pool so SP1 ≠ SP2 visually.
-        pool: list[Path] = []
-        for root in _SLIDES_ROOTS:
-            if root.exists():
-                pool.extend(sorted(root.rglob("*.svs")))
-        if len(pool) > 1:
-            digest = hashlib.md5(slide_id.encode("utf-8")).digest()
-            return pool[digest[0] % len(pool)]
         return same_prefix
 
-    # Last resort: any local .svs, picked deterministically by slide_id hash
-    pool: list[Path] = []
-    for root in _SLIDES_ROOTS:
-        if root.exists():
-            pool.extend(sorted(root.rglob("*.svs")))
     if not pool:
         return None
     digest = hashlib.md5(slide_id.encode("utf-8")).digest()
