@@ -20,7 +20,22 @@ interface WSIViewerProps {
   overlays?: Overlay[]
 }
 
-const TILE_SOURCE = 'https://openseadragon.github.io/example-images/highsmith/highsmith.dzi'
+const PLACEHOLDER_TILE_SOURCE = 'https://openseadragon.github.io/example-images/highsmith/highsmith.dzi'
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || ''
+
+// Build a single-image tileSource from a backend thumbnail. OpenSeadragon
+// can pan/zoom a flat JPEG via the simpleImage type — good enough for the
+// demo until we expose a real DZI/IIIF tile server backed by OpenSlide.
+function buildTileSource(slideId: string): unknown {
+  const isDemoLabel = !slideId || slideId === 'Aucune lame' || slideId === 'Pas de lame chargée'
+  if (isDemoLabel || !API_BASE) return PLACEHOLDER_TILE_SOURCE
+  const safeId = encodeURIComponent(slideId.replace(/\.svs$/i, ''))
+  return {
+    type: 'image',
+    url: `${API_BASE}/api/slide/${safeId}/thumbnail?size=2048`,
+    crossOriginPolicy: 'Anonymous',
+  }
+}
 
 export function WSIViewer({ slideId, className, overlays }: WSIViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -32,7 +47,8 @@ export function WSIViewer({ slideId, className, overlays }: WSIViewerProps) {
 
     const viewer = OpenSeadragon({
       element: containerRef.current,
-      tileSources: TILE_SOURCE,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      tileSources: buildTileSource(slideId) as any,
       prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
       showNavigationControl: false,
       showNavigator: true,
@@ -60,6 +76,20 @@ export function WSIViewer({ slideId, className, overlays }: WSIViewerProps) {
       viewerRef.current = null
     }
   }, [])
+
+  // Re-open with a new tile source when slideId changes
+  useEffect(() => {
+    const viewer = viewerRef.current
+    if (!viewer) return
+    isReadyRef.current = false
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      viewer.open(buildTileSource(slideId) as any)
+    } catch {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      viewer.open(PLACEHOLDER_TILE_SOURCE as any)
+    }
+  }, [slideId])
 
   useEffect(() => {
     const viewer = viewerRef.current
