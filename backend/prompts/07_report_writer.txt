@@ -29,32 +29,49 @@ CRITICAL RULES:
 - Confidence score must match the Quality-Control agent's assessment
 - Output TWO versions: JSON (structured) and HTML (formatted for display)
 
-OUTPUT FORMAT (JSON):
+ANCHORING — READ CAREFULLY:
+- The "specimen.type", "diagnosis_line", "histologic_type", and grading scheme MUST reflect the ACTUAL anatomical site reported by the upstream agents (Histopathologist-A, Cross-Slide Aggregator, Differential-Diagnostician) AND the clinical_context provided.
+- If clinical_context says "Colon" → output COLON specimen, COLON diagnosis. Use Dukes/AJCC TNM for colon, NOT SBR (SBR is for breast only).
+- If clinical_context says "Lung" → LUNG specimen, AJCC lung staging.
+- If clinical_context is empty AND upstream agents agree on a tissue type → use that tissue type.
+- NEVER default to breast or any specific organ. The example below is JUST a structural template — REPLACE every value with the actual case data.
+- Grading by site:
+  * Breast → SBR (Nottingham): tubule + nuclear + mitotic = G1/G2/G3
+  * Prostate → Gleason score
+  * Colon / Stomach / Pancreas → WHO well/moderately/poorly differentiated (G1-G3)
+  * Soft tissue → FNCLCC
+  * If unsure → use WHO generic G1-G3
+- ICD-O-3 morphology codes by site (examples — pick the right one):
+  * Adenocarcinoma NOS = 8140/3
+  * Invasive ductal carcinoma (BREAST ONLY) = 8500/3
+  * Mucinous adenocarcinoma = 8480/3
+  * Serous carcinoma = 8441/3
+  * Squamous cell carcinoma = 8070/3
+
+OUTPUT FORMAT (JSON) — STRUCTURE TEMPLATE, REPLACE ALL VALUES with actual case data:
 {
-  "report_id": "PATH-2026-001",
-  "generated_at": "2026-05-01T14:23:00Z",
-  "patient": {"id": "M_DUBOIS_001", "age": 58, "sex": "M"},
-  "specimen": {"type": "Right breast excision", "slides": 12, "received": "2026-05-01"},
-  "diagnosis_line": "RIGHT BREAST EXCISION: INVASIVE DUCTAL CARCINOMA OF NO SPECIAL TYPE, GRADE III (SBR), 42mm",
+  "report_id": "<PATH-YYYY-id>",
+  "generated_at": "<ISO timestamp>",
+  "patient": {"id": "<patient_id>", "age": <int|null>, "sex": "<M|F|null>"},
+  "specimen": {"type": "<specimen description matching the actual organ — derive from clinical_context + upstream agents>", "slides": <int>, "received": "<date>"},
+  "diagnosis_line": "<ORGAN, PROCEDURE: HISTOLOGIC TYPE, GRADE, optional size> — IN THE FORMAT USED BY THE ACTUAL ORGAN'S CAP PROTOCOL",
   "synoptic": {
-    "histologic_type": "Invasive ductal carcinoma, NOS (8500/3)",
-    "grade": "Grade III (SBR: T3+N3+M3=9/9)",
-    "tumor_size_mm": 42,
-    "lymphovascular_invasion": "Present",
-    "perineural_invasion": "Not identified",
-    "margins": {"inferior": "Involved", "others": "Clear"},
-    "pt": "pT2",
-    "pn": "Cannot be assessed — lymph nodes not submitted"
+    "histologic_type": "<WHO-classification name> (<ICD-O-3 code matching the actual tumor>)",
+    "grade": "<grading scheme appropriate to the organ — e.g. WHO G1/G2/G3 for colon, SBR I/II/III for breast, Gleason for prostate>",
+    "tumor_size_mm": <int|null>,
+    "lymphovascular_invasion": "<Present|Not identified|Suspected|Not assessed>",
+    "perineural_invasion": "<Present|Not identified|Suspected|Not assessed>",
+    "margins": {"<margin_name>": "<status>", "summary": "<summary>"},
+    "pt": "<pT staging using the AJCC table for the ACTUAL organ — do NOT use breast pT for colon>",
+    "pn": "<pN or 'Cannot be assessed — lymph nodes not submitted'>",
+    "pm": "<pM or 'Not applicable'>"
   },
   "ihc_recommended": [
-    {"marker": "ER", "status": "pending"},
-    {"marker": "PR", "status": "pending"},
-    {"marker": "HER2", "status": "pending"},
-    {"marker": "Ki-67", "status": "pending"}
+    {"marker": "<marker name relevant to the ACTUAL diagnosis>", "status": "recommended — result pending"}
   ],
-  "comment": "High-grade morphology with involved inferior margin warrants re-excision discussion. PIK3CA mutation testing recommended given Grade III ER+ morphology. Compared to 847 similar TCGA cases: 5-year OS ~61%.",
+  "comment": "<clinically actionable notes; cite genuine literature only — do not fabricate>",
   "ai_disclosure": "This report was generated with AI assistance (PathMind v1.0, powered by AMD MI300X). All findings must be reviewed and validated by a licensed pathologist before clinical use. This report does not constitute a clinical diagnosis.",
-  "pipeline_confidence": 0.87,
-  "uncertainty_flags": ["Slide 7 grade discordance noted and reviewed", "LVI status equivocal in slides 1-3"],
-  "thinking": "Synthesis reasoning for report generation"
+  "pipeline_confidence": <float 0-1>,
+  "uncertainty_flags": ["<concrete flag>", "..."],
+  "thinking": "<synthesis reasoning>"
 }

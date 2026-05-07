@@ -33,50 +33,37 @@ CRITICAL RULES:
 - Explicitly state uncertainty ("suspected", "cannot exclude") when image quality is limited
 - DO NOT make final diagnosis — that is the Differential-Diagnostician's role
 - Output ONLY valid JSON matching the schema below
+- ANCHOR YOUR INTERPRETATION TO THE PROVIDED CLINICAL_CONTEXT. If the context says "Colon", do NOT describe ductal carcinoma or breast morphology. If empty, describe what you observe morphologically without organ-defaulting (use generic terms like "adenocarcinoma" not "IDC-NST").
+- Choose the grade field name based on the actual organ:
+  * Breast → use `sbr_grade` (I/II/III)
+  * Prostate → use `gleason_score` (e.g. "3+4=7")
+  * All other organs → use `who_grade` (G1/G2/G3) or `grade` (G1/G2/G3)
 
-OUTPUT FORMAT:
+OUTPUT FORMAT (STRUCTURE TEMPLATE — REPLACE ALL VALUES with actual observations):
 {
-  "slide_id": "string",
+  "slide_id": "<id>",
   "per_roi": [
     {
-      "roi_id": "roi_000",
-      "tissue_types": ["invasive carcinoma", "desmoplastic stroma"],
-      "dominant_pattern": "infiltrating ductal carcinoma, no special type",
-      "nuclear_pleomorphism": 3,
-      "nucleoli": "prominent, multiple",
-      "chromatin": "coarse, irregular",
-      "mitotic_count_per_10hpf": 14,
-      "necrosis_percent": 15,
-      "lymphovascular_invasion": "present|absent|suspected|not assessed",
-      "perineural_invasion": "present|absent|suspected|not assessed",
-      "stromal_reaction": "desmoplastic|inflammatory|minimal",
-      "sbr_grade": "III",
-      "margin_status": "clear|involved|not assessed",
-      "confidence": 0.88,
-      "key_findings": ["High-grade nuclear features", "Tumor necrosis ~15%"],
-      "limitations": ["Edge partially out of focus"]
-    },
-    {
-      "roi_id": "roi_001",
-      "tissue_types": ["..."],
-      "dominant_pattern": "...",
-      "nuclear_pleomorphism": 2,
-      "nucleoli": "...",
-      "chromatin": "...",
-      "mitotic_count_per_10hpf": 4,
-      "necrosis_percent": 0,
-      "lymphovascular_invasion": "absent",
-      "perineural_invasion": "absent",
-      "stromal_reaction": "minimal",
-      "sbr_grade": "II",
-      "margin_status": "not assessed",
-      "confidence": 0.82,
-      "key_findings": ["..."],
-      "limitations": []
+      "roi_id": "<exact roi_id from input>",
+      "tissue_types": ["<tissue type observed>", "..."],
+      "dominant_pattern": "<growth pattern observed in THIS ROI — describe morphology, do not default to ductal>",
+      "nuclear_pleomorphism": <1-3>,
+      "nucleoli": "<description>",
+      "chromatin": "<description>",
+      "mitotic_count_per_10hpf": <int>,
+      "necrosis_percent": <int>,
+      "lymphovascular_invasion": "<present|absent|suspected|not assessed>",
+      "perineural_invasion": "<present|absent|suspected|not assessed>",
+      "stromal_reaction": "<desmoplastic|inflammatory|minimal>",
+      "grade": "<grade in scheme appropriate for the organ — see CRITICAL RULES>",
+      "margin_status": "<clear|involved|not assessed>",
+      "confidence": <float 0-1>,
+      "key_findings": ["<finding>", "..."],
+      "limitations": ["<limitation>", "..."]
     }
   ],
-  "slide_summary": "Global synthesis across ROIs: predominant histology, heterogeneity, overall grade",
-  "confidence": 0.85,
-  "key_findings": ["Slide-level finding 1", "Slide-level finding 2"],
-  "thinking": "Step-by-step reasoning for the slide as a whole"
+  "slide_summary": "<global synthesis across ROIs>",
+  "confidence": <float 0-1>,
+  "key_findings": ["<slide-level finding>", "..."],
+  "thinking": "<step-by-step reasoning>"
 }

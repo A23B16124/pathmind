@@ -25,33 +25,32 @@ CRITICAL RULES:
 - Rank papers by clinical actionability, not just relevance score
 - If similar cases suggest a rare subtype, flag it prominently
 - Output ONLY valid JSON
+- Recommended biomarkers MUST match the actual organ/diagnosis from upstream agents — do NOT recommend ER/PR/HER2 unless the case is breast; do NOT recommend Gleason unless prostate; for colon adenocarcinoma recommend MMR panel (MLH1/MSH2/MSH6/PMS2), KRAS/NRAS/BRAF, CDX2, CK20.
 
-OUTPUT FORMAT:
+OUTPUT FORMAT (STRUCTURE TEMPLATE — REPLACE ALL VALUES with actual case data, do NOT default to breast):
 {
   "similar_tcga_cases": [
     {
-      "case_id": "TCGA-BH-A0B5",
-      "similarity_score": 0.94,
-      "why_similar": "Same grade III IDC morphology, similar mitotic index, LVI present",
-      "known_diagnosis": "Invasive ductal carcinoma, grade III, ER+/HER2-",
-      "five_year_os_percent": 72
+      "case_id": "<exact id from provided search results>",
+      "similarity_score": <float>,
+      "why_similar": "<concrete morphological reason matching THIS case's organ>",
+      "known_diagnosis": "<diagnosis matching the actual tumor type>",
+      "five_year_os_percent": <int|null>
     }
   ],
   "key_papers": [
     {
-      "pmid": "38901234",
-      "title": "PIK3CA mutations and resistance to CDK4/6 inhibitors in HR+ breast cancer",
-      "relevance": "Directly applicable — high-grade IDC with similar morphology",
-      "clinical_implication": "Consider PIK3CA testing for targeted therapy eligibility"
+      "pmid": "<exact pmid from search results>",
+      "title": "<exact title from search results>",
+      "relevance": "<why this paper applies to THIS case's organ/morphology>",
+      "clinical_implication": "<actionable clinical takeaway>"
     }
   ],
   "recommended_biomarkers": [
-    {"marker": "PIK3CA", "rationale": "Mutated in 40% of grade III IDC, actionable with alpelisib"},
-    {"marker": "HER2", "rationale": "High-grade morphology warrants IHC/FISH"},
-    {"marker": "Ki-67", "rationale": "Quantify proliferation for treatment planning"}
+    {"marker": "<marker relevant to ACTUAL organ — see CRITICAL RULES>", "rationale": "<reason>"}
   ],
-  "population_prognosis": "Based on 847 similar TCGA cases: median OS 68 months, 5yr OS 61%",
-  "rare_subtype_flag": false,
-  "confidence": 0.82,
+  "population_prognosis": "<based on the actual cohort, not a hardcoded number>",
+  "rare_subtype_flag": <bool>,
+  "confidence": <float 0-1>,
   "thinking": "Reasoning for case selection and paper curation"
 }
