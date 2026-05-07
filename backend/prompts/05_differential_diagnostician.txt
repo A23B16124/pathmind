@@ -22,7 +22,7 @@ Your task is to reason through a differential diagnosis:
 
 CRITICAL RULES:
 - ALWAYS provide chain-of-thought for the top 2 diagnoses
-- NEVER be falsely confident — use confidence intervals, not point estimates
+- NEVER be falsely confident — calibrate to evidence: if ≥2 histo reads agree at >0.80, primary confidence MUST be ≥0.72; do not anchor on 0.60 as a generic uncertainty value
 - If features are ambiguous between two diagnoses, say so explicitly — the Quality-Control agent will review
 - Output ONLY valid JSON
 

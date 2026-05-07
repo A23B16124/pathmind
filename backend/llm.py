@@ -151,6 +151,11 @@ def build_user_message(text: str, images_b64: list[str] | None = None, *, backen
 
 async def _call_once(messages, system, max_tokens, cache_system, model_key, timeout, json_schema=None):
     try:
+        if model_key == "claude-cli":
+            return await asyncio.wait_for(
+                _chat_claude_cli(messages, system, max_tokens),
+                timeout=timeout,
+            )
         force_anthropic = model_key in ("claude", "anthropic")
         force_openai_compat = model_key in ("groq", "qwen72b", "meditron70b")
         if force_openai_compat:
@@ -267,3 +272,42 @@ async def _chat_openai(messages, system, max_tokens, model_key: str = "default",
         return resp.choices[0].message.content or ""
     except Exception as e:
         return f"[LLM error: {e}]"
+
+
+async def _chat_claude_cli(messages: list[dict], system: str, max_tokens: int) -> str:
+    """Run claude CLI subprocess with Boss OAuth session (HOME=/root)."""
+    import json as _json
+    import subprocess as _sub
+
+    parts = []
+    if system:
+        parts.append("<system>\n" + system + "\n</system>")
+    for m in messages:
+        role = m.get("role", "user")
+        content = m.get("content", "")
+        if isinstance(content, list):
+            content = " ".join(c.get("text", "") for c in content if isinstance(c, dict))
+        parts.append("<" + role + ">\n" + content + "\n</" + role + ">")
+    prompt = "\n\n".join(parts)
+
+    try:
+        proc = await asyncio.get_event_loop().run_in_executor(
+            None,
+            lambda: _sub.run(
+                ["claude", "-p", prompt, "--output-format", "json"],
+                capture_output=True,
+                text=True,
+                timeout=120,
+                env={**__import__("os").environ, "HOME": "/root"},
+            ),
+        )
+        if proc.returncode != 0:
+            return "[LLM error: claude-cli exit " + str(proc.returncode) + ": " + proc.stderr[:200] + "]"
+        data = _json.loads(proc.stdout)
+        if data.get("is_error"):
+            return "[LLM error: claude-cli reported error]"
+        return data.get("result", "")
+    except _sub.TimeoutExpired:
+        return "[LLM timeout after 120s]"
+    except Exception as e:
+        return "[LLM error: claude-cli: " + str(e) + "]"

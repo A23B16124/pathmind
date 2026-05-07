@@ -11,11 +11,16 @@ export interface Slide {
 
 export type AgentName =
   | 'tile-triage'
+  | 'foundation-uni2'
+  | 'foundation-virchow2'
   | 'histopathologist-a'
   | 'histopathologist-b'
   | 'cross-slide-aggregator'
   | 'literature-hunter'
-  | 'chief'
+  | 'differential-diagnostician'
+  | 'quality-control'
+  | 'report-writer'
+  | 'debate-arena'
 
 export type AgentStatus = 'pending' | 'running' | 'done' | 'error'
 
@@ -114,7 +119,32 @@ export interface DemoCase {
   patient_id: string
   patient_label: string
   age: number
+  sex?: string
+  site?: string
+  sample_type?: string
+  prior_history?: string
   clinical_context: string
   slide_paths: string[]
   slide_names: string[]
+}
+
+export interface HistoFindings {
+  slide_id?: string
+  roi_id?: string
+  tissue_types?: string[]
+  dominant_pattern?: string
+  nuclear_pleomorphism?: number
+  nucleoli?: string
+  chromatin?: string
+  mitotic_count_per_10hpf?: number
+  necrosis_percent?: number
+  lymphovascular_invasion?: string
+  perineural_invasion?: string
+  stromal_reaction?: string
+  sbr_grade?: string
+  margin_status?: string
+  confidence?: number
+  key_findings?: string[]
+  limitations?: string[]
+  thinking?: string
 }

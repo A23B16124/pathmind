@@ -11,3 +11,7 @@ node_modules/
 *.tif
 data/qdrant/
 
+
+# Large data dirs (WSI slides + cached demo reports)
+data/slides/
+data/demo_reports/

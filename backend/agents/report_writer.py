@@ -22,6 +22,7 @@ class ReportWriterAgent(BaseAgent):
         )
         result = await chat(
             agent_name=self.name,
+            model_key="qwen72b",
             system=load_prompt("report_writer"),
             messages=[{"role": "user", "content": user}],
             max_tokens=3500,

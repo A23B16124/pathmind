@@ -113,6 +113,7 @@ class LiteratureHunterAgent(BaseAgent):
 
         result = await chat(
             agent_name=self.name,
+            model_key="qwen72b",
             system=load_prompt("literature_hunter"),
             messages=[{"role": "user", "content": user}],
             max_tokens=2500,

@@ -323,6 +323,7 @@ export interface Overlay {
   h: number
   color?: string
   label?: string
+  roiIndex?: number
 }
 
 const DEFAULT_OVERLAY_COLOR = "#3b82f6"
@@ -332,6 +333,7 @@ interface WSIViewerProps {
   slidePath?: string  // backend file path; preferred for the thumbnail URL because it matches the on-disk WSI
   className?: string
   overlays?: Overlay[]
+  onRoiClick?: (roiIndex: number, label: string) => void
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || ''
@@ -357,7 +359,7 @@ function buildTileSource(slideId: string, slidePath?: string): unknown {
   }
 }
 
-export function WSIViewer({ slideId, slidePath, className, overlays }: WSIViewerProps) {
+export function WSIViewer({ slideId, slidePath, className, overlays, onRoiClick }: WSIViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null)
   const isReadyRef = useRef(false)
@@ -422,6 +424,10 @@ export function WSIViewer({ slideId, slidePath, className, overlays }: WSIViewer
     if (!viewer) return
 
     const apply = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const v: any = viewer as any
+      const worldCount = v.world?.getItemCount?.() ?? -1
+      const before = v.currentOverlays?.length ?? -1
       viewer.clearOverlays()
       if (!overlays || overlays.length === 0) return
       for (const o of overlays) {
@@ -429,7 +435,28 @@ export function WSIViewer({ slideId, slidePath, className, overlays }: WSIViewer
         const el = document.createElement('div')
         el.style.border = `2px solid ${color}`
         el.style.boxSizing = 'border-box'
-        el.style.pointerEvents = 'none'
+        el.style.pointerEvents = onRoiClick ? 'auto' : 'none'
+        const _roiIdx = o.roiIndex ?? -1
+        const _roiLabel = o.label ?? ''
+        if (onRoiClick && _roiIdx >= 0) {
+          let _dx = 0, _dy = 0
+          const stop = (e: Event) => { e.stopPropagation(); (e as PointerEvent).preventDefault?.() }
+          el.addEventListener('pointerdown', (e: PointerEvent) => {
+            e.stopPropagation(); e.preventDefault()
+            _dx = e.clientX; _dy = e.clientY
+          })
+          el.addEventListener('pointerup', (e: PointerEvent) => {
+            e.stopPropagation(); e.preventDefault()
+            const moved = Math.abs(e.clientX - _dx) + Math.abs(e.clientY - _dy)
+            if (moved < 6) onRoiClick(_roiIdx, _roiLabel)
+          })
+          el.addEventListener('mousedown', stop)
+          el.addEventListener('mouseup', stop)
+          el.addEventListener('click', stop)
+          el.addEventListener('mouseenter', () => { el.style.background = `${color}33` })
+          el.addEventListener('mouseleave', () => { el.style.background = `${color}1a` })
+        }
+        el.style.cursor = onRoiClick && _roiIdx >= 0 ? 'pointer' : 'default'
         el.style.background = `${color}1a`
         el.style.position = 'relative'
 
@@ -442,37 +469,50 @@ export function WSIViewer({ slideId, slidePath, className, overlays }: WSIViewer
         label.style.padding = '2px 6px'
         label.style.background = color
         label.style.color = '#0b0b0d'
+        label.style.pointerEvents = 'none'
         label.style.font = '600 10px ui-monospace, SFMono-Regular, Menlo, monospace'
         label.style.letterSpacing = '0.04em'
         label.style.whiteSpace = 'nowrap'
         el.appendChild(label)
 
-        // Task 8: clamp coords to [0, 1] to prevent overlay clipping outside slide
-        const cx = Math.max(0, Math.min(1, o.x))
-        const cy = Math.max(0, Math.min(1, o.y))
-        const cw = Math.max(0.001, Math.min(1 - cx, o.w))
-        const ch = Math.max(0.001, Math.min(1 - cy, o.h))
+        // Backend sends image-normalized coords (x/y/w/h in [0,1] of slide pixels).
+        // OSD overlays expect VIEWPORT coords where the image occupies
+        // [0,1] horizontally but [0, h/w] vertically. Scale via the image's
+        // actual viewport bounds so y/h work for any aspect ratio.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const tiled = (viewer as any).world?.getItemAt?.(0)
+        const b = tiled?.getBounds?.()
+        const sx = b?.width ?? 1
+        const sy = b?.height ?? 1
+        const cx = Math.max(0, Math.min(sx, o.x * sx))
+        const cy = Math.max(0, Math.min(sy, o.y * sy))
+        const cw = Math.max(0.001, Math.min(sx - cx, o.w * sx))
+        const ch = Math.max(0.001, Math.min(sy - cy, o.h * sy))
         viewer.addOverlay({
           element: el,
           location: new OpenSeadragon.Rect(cx, cy, cw, ch),
         })
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const after = (viewer as any).currentOverlays?.length ?? -1
     }
 
-    if (isReadyRef.current) {
-      apply()
-    } else {
-      const handler = () => {
-        apply()
-        viewer.removeHandler('open', handler)
-      }
-      viewer.addHandler('open', handler)
-      return () => {
-        viewer.removeHandler('open', handler)
-      }
+    // Apply immediately if viewer is ready (covers same-slide overlay updates)
+    if (isReadyRef.current) apply()
+
+    // OSD 'open' fires before the world coordinate system is fully usable for
+    // overlay positioning when tile-source changes back-to-back. Two-pass apply:
+    //   1. on 'open' (immediate, may attach overlays before world is sized)
+    //   2. on 'tile-loaded' first fire (world fully laid out — guaranteed)
+    let firstTileSeen = false
+    const onOpen = () => { apply() }
+    const onTileLoaded = () => { if (!firstTileSeen) { firstTileSeen = true; apply() } }
+    viewer.addHandler('open', onOpen)
+    viewer.addHandler('tile-loaded', onTileLoaded)
+    return () => {
+      viewer.removeHandler('open', onOpen)
+      viewer.removeHandler('tile-loaded', onTileLoaded)
     }
-    // slideId/slidePath drive the open() call. Re-apply overlays after each swap
-    // (which re-opens the OSD viewer and would otherwise drop the overlays).
   }, [overlays, slideId, slidePath])
 
   const zoomIn = () => viewerRef.current?.viewport.zoomBy(1.4)

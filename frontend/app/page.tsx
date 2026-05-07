@@ -2,11 +2,13 @@
 export const dynamic = "force-dynamic"
 import { useState, useCallback, useEffect, useRef } from "react"
 import dynamicImport from "next/dynamic"
-import { Slide, AgentState, WSEvent, Report, DemoCase, ROIOverlay } from "@/lib/types"
+import { Slide, AgentState, WSEvent, Report, DemoCase, ROIOverlay, HistoFindings } from "@/lib/types"
 import { SlideUpload } from "@/components/upload/SlideUpload"
 import { ClinicalPanel } from "@/components/clinical/ClinicalPanel"
 import { connectStream, startAnalysis } from "@/lib/ws"
 import { DEMO_CASES, demoSlides } from "@/lib/demo"
+import { GpuPanel } from "@/components/gpu/GpuPanel"
+import { BenchmarkCard } from "@/components/gpu/BenchmarkCard"
 
 const WSIViewer = dynamicImport(
   () => import("@/components/viewer/WSIViewer").then((m) => m.WSIViewer),
@@ -26,13 +28,175 @@ const FALLBACK_OVERLAYS: ROIOverlay[] = [
 ]
 
 const INITIAL_AGENTS: AgentState[] = [
-  { name: "tile-triage",            label: "Tile-Triage",            status: "pending", messages: [] },
-  { name: "histopathologist-a",     label: "Histo-A",                status: "pending", messages: [] },
-  { name: "histopathologist-b",     label: "Histo-B",                status: "pending", messages: [] },
-  { name: "cross-slide-aggregator", label: "Cross-slide",            status: "pending", messages: [] },
-  { name: "literature-hunter",      label: "Literature-Hunter",      status: "pending", messages: [] },
-  { name: "chief",                  label: "Chief",                  status: "pending", messages: [] },
+  { name: "tile-triage",                label: "Tile-Triage",                  status: "pending", messages: [] },
+  { name: "foundation-uni2",            label: "UNI2-h",                       status: "pending", messages: [] },
+  { name: "foundation-virchow2",        label: "Virchow2",                     status: "pending", messages: [] },
+  { name: "histopathologist-a",         label: "Histo-A",                      status: "pending", messages: [] },
+  { name: "histopathologist-b",         label: "Histo-B",                      status: "pending", messages: [] },
+  { name: "cross-slide-aggregator",     label: "Cross-slide",                  status: "pending", messages: [] },
+  { name: "literature-hunter",          label: "Literature-Hunter",            status: "pending", messages: [] },
+  { name: "differential-diagnostician", label: "Differential-Diagnostician",   status: "pending", messages: [] },
+  { name: "quality-control",            label: "Quality-Control",              status: "pending", messages: [] },
+  { name: "debate-arena",               label: "Debate-Arena",                 status: "pending", messages: [] },
+  { name: "report-writer",              label: "Report-Writer",                status: "pending", messages: [] },
 ]
+
+
+function RoiPanel({ findings, slideMeta, roiLabel, onClose }: {
+  findings: import('@/lib/types').HistoFindings | undefined
+  slideMeta?: import('@/lib/types').HistoFindings
+  roiLabel: string
+  onClose: () => void
+}) {
+  const roiId = roiLabel.split(' ')[0] || roiLabel
+  if (!findings) {
+    return (
+      <div className="absolute right-0 top-0 h-full w-[340px] z-20 flex flex-col bg-zinc-950 border-l border-zinc-800">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 shrink-0">
+          <div>
+            <div className="text-xs font-mono text-zinc-400 uppercase tracking-widest">ROI</div>
+            <div className="text-sm font-semibold text-zinc-100 font-mono">{roiId}</div>
+          </div>
+          <button onClick={onClose} className="text-zinc-500 hover:text-zinc-200 transition-colors p-1" aria-label="Fermer">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div className="flex-1 flex items-center justify-center px-6 text-center">
+          <div className="space-y-2">
+            <div className="inline-block w-4 h-4 border-2 border-zinc-700 border-t-zinc-300 rounded-full animate-spin"></div>
+            <div className="text-xs font-mono text-zinc-400 uppercase tracking-widest">Histo-A en cours</div>
+            <div className="text-[11px] text-zinc-500">Findings dispo dès que Histo-A finit cette lame.</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  const slideId = findings.slide_id ?? '—'
+  const grade = findings.sbr_grade
+  const mitotic = findings.mitotic_count_per_10hpf
+  const necro = findings.necrosis_percent
+  const lvi = findings.lymphovascular_invasion
+  const pni = findings.perineural_invasion
+  const conf = findings.confidence
+  const tissues = findings.tissue_types ?? []
+  const kf = findings.key_findings ?? []
+  const pattern = findings.dominant_pattern
+
+  const flagColor = (val?: string) => {
+    if (!val) return 'text-zinc-500'
+    const v = val.toLowerCase()
+    if (v === 'present') return 'text-red-400'
+    if (v === 'absent') return 'text-green-400'
+    return 'text-yellow-400'
+  }
+
+  return (
+    <div className="absolute right-0 top-0 h-full w-[340px] z-20 flex flex-col bg-zinc-950 border-l border-zinc-800 overflow-y-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 shrink-0">
+        <div>
+          <div className="text-xs font-mono text-zinc-400 uppercase tracking-widest">ROI</div>
+          <div className="text-sm font-semibold text-zinc-100 font-mono">{roiId}</div>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-zinc-500 hover:text-zinc-200 transition-colors p-1"
+          aria-label="Fermer"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div className="px-4 py-4 space-y-5 text-sm">
+        {/* Tissues */}
+        {tissues.length > 0 && (
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-2">Tissu</div>
+            <div className="flex flex-wrap gap-1.5">
+              {tissues.map((t, i) => (
+                <span key={i} className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-200 text-xs font-mono">{t}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Pattern */}
+        {pattern && (
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-1">Architecture</div>
+            <div className="text-zinc-300 text-xs leading-relaxed">{pattern}</div>
+          </div>
+        )}
+
+        {/* Grade row */}
+        {(grade || mitotic != null || necro != null) && (
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-2">Grade</div>
+            <div className="flex gap-4 text-xs font-mono">
+              {grade && <span className="text-zinc-100">SBR <span className="text-amber-300 font-semibold">{grade}</span></span>}
+              {mitotic != null && <span className="text-zinc-300">Mitoses <span className="text-zinc-100">{mitotic}</span><span className="text-zinc-500">/10HPF</span></span>}
+              {necro != null && necro > 0 && <span className="text-zinc-300">Necrose <span className="text-zinc-100">{necro}</span><span className="text-zinc-500">%</span></span>}
+            </div>
+          </div>
+        )}
+
+        {/* Invasion flags */}
+        {(lvi || pni) && (
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-2">Invasion</div>
+            <div className="flex gap-4 text-xs font-mono">
+              {lvi && <span>LVI <span className={flagColor(lvi)}>{lvi}</span></span>}
+              {pni && <span>PNI <span className={flagColor(pni)}>{pni}</span></span>}
+            </div>
+          </div>
+        )}
+
+        {/* Key findings */}
+        {kf.length > 0 && (
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-2">Findings</div>
+            <ul className="space-y-1.5">
+              {kf.map((f, i) => (
+                <li key={i} className="flex gap-2 text-zinc-300 text-xs leading-relaxed">
+                  <span className="text-zinc-600 shrink-0 mt-0.5">—</span>
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Slide-level synthesis (separate context) */}
+        {slideMeta && slideMeta.dominant_pattern && (
+          <div className="pt-3 border-t border-zinc-800/80">
+            <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-1.5">Synthese lame</div>
+            <div className="text-[11px] text-zinc-400 leading-relaxed">{slideMeta.dominant_pattern}</div>
+          </div>
+        )}
+
+        {/* Confidence */}
+        {conf != null && (
+          <div className="pt-2 border-t border-zinc-800">
+            <div className="flex items-center justify-between text-xs font-mono">
+              <span className="text-zinc-500">Confiance Histo-A</span>
+              <span className="text-zinc-200">{(conf * 100).toFixed(0)}%</span>
+            </div>
+            <div className="mt-1.5 h-1 bg-zinc-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-zinc-400 rounded-full transition-all"
+                style={{ width: `${(conf * 100).toFixed(0)}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function Home() {
   const [slides, setSlides] = useState<Slide[]>([])
@@ -41,6 +205,8 @@ export default function Home() {
   const [report, setReport] = useState<Report | null>(null)
   const [activeCase, setActiveCase] = useState<DemoCase | null>(null)
   const [overlaysBySlide, setOverlaysBySlide] = useState<Record<number, ROIOverlay[]>>({})
+  const [histoFindingsBySlide, setHistoFindingsBySlide] = useState<Record<number, Record<string, HistoFindings>>>({})
+  const [selectedRoi, setSelectedRoi] = useState<{ roiIndex: number; label: string } | null>(null)
   const [viewMode, setViewMode] = useState<"2d" | "3d">("2d")
   const [activeSlideIndex, setActiveSlideIndex] = useState<number>(0)
   const [activeVolumeSlide, setActiveVolumeSlide] = useState<number>(0)
@@ -63,9 +229,47 @@ export default function Home() {
       })
     )
     if (event.type === "agent_done" && event.agent === "tile-triage" && event.rois && event.rois.length > 0) {
-      const colored = event.rois.map((r, i) => ({ ...r, color: r.color ?? ROI_COLORS[i % ROI_COLORS.length] }))
+      const colored = event.rois.map((r, i) => ({ ...r, color: r.color ?? ROI_COLORS[i % ROI_COLORS.length], roiIndex: i }))
       const slideIdx = event.slide ?? 0
-      setOverlaysBySlide((prev) => ({ ...prev, [slideIdx]: colored }))
+      setOverlaysBySlide((prev) => {
+        const next = { ...prev, [slideIdx]: colored }
+        return next
+      })
+    }
+    if (event.type === "agent_done" && event.agent === "histopathologist-a" && event.message) {
+      const slideIdx = event.slide ?? 0
+      let raw = event.message.trim()
+      const fence = raw.match(/```(?:json)?\s*([\s\S]*?)```/)
+      if (fence) raw = fence[1].trim()
+      const first = raw.indexOf("{"); const last = raw.lastIndexOf("}")
+      if (first >= 0 && last > first) raw = raw.slice(first, last + 1)
+      try {
+        const parsed = JSON.parse(raw) as { per_roi?: HistoFindings[]; slide_summary?: string; key_findings?: string[]; confidence?: number; slide_id?: string } & HistoFindings
+        const byRoi: Record<string, HistoFindings> = {}
+        const slideLevel: HistoFindings = {
+          slide_id: parsed.slide_id,
+          key_findings: parsed.key_findings,
+          confidence: parsed.confidence,
+          dominant_pattern: parsed.slide_summary,
+        }
+        if (Array.isArray(parsed.per_roi) && parsed.per_roi.length > 0) {
+          for (const entry of parsed.per_roi) {
+            const rid = (entry?.roi_id ?? "").toString()
+            if (rid) byRoi[rid] = entry
+          }
+        } else {
+          // Legacy: single-object output. Fan out to all ROIs as a fallback.
+          byRoi["__slide__"] = parsed as HistoFindings
+        }
+        byRoi["__slide__"] = slideLevel
+        setHistoFindingsBySlide(prev => ({ ...prev, [slideIdx]: byRoi }))
+      } catch (e) {
+        console.warn("[Histo-A] JSON parse failed for slide", slideIdx, "raw[:200]:", raw.slice(0, 200))
+        setHistoFindingsBySlide(prev => ({
+          ...prev,
+          [slideIdx]: { __slide__: { key_findings: [event.message ?? ""], confidence: event.confidence } }
+        }))
+      }
     }
     if (event.type === "analysis_complete") {
       setIsRunning(false)
@@ -79,6 +283,8 @@ export default function Home() {
     setReport(null)
     setAgents(INITIAL_AGENTS)
     setOverlaysBySlide({})
+    setHistoFindingsBySlide({})
+    setSelectedRoi(null)
 
     const caseId = activeCase?.case_id ?? `case-${Date.now()}`
     const patientId = activeCase?.patient_id ?? "anonymous"
@@ -92,7 +298,14 @@ export default function Home() {
         patient_id: patientId,
         slide_paths: slidePaths,
         clinical_data: activeCase
-          ? { age: activeCase.age, context: activeCase.clinical_context }
+          ? {
+              age: activeCase.age,
+              sex: activeCase.sex,
+              site: activeCase.site,
+              sample_type: activeCase.sample_type,
+              prior_history: activeCase.prior_history,
+              context: activeCase.clinical_context,
+            }
           : undefined,
       })
     } catch (e) {
@@ -104,11 +317,18 @@ export default function Home() {
   }, [slides, activeCase, onEvent])
 
   const handleLoadDemo = useCallback((demo: DemoCase) => {
+    // Close any prior pipeline WebSocket — events from the previous case
+    // would otherwise mutate this case's state (cross-contamination bug).
+    stopRef.current?.()
+    stopRef.current = null
+    setIsRunning(false)
     setActiveCase(demo)
     setSlides(demoSlides(demo))
     setReport(null)
     setAgents(INITIAL_AGENTS)
     setOverlaysBySlide({})
+    setHistoFindingsBySlide({})
+    setSelectedRoi(null)
     setActiveSlideIndex(0)
     setActiveVolumeSlide(0)
     // ROIs are populated only after the user clicks "Analyser" — when the
@@ -117,9 +337,16 @@ export default function Home() {
   }, [])
 
   const handleSetSlides = useCallback((s: Slide[]) => {
+    stopRef.current?.()
+    stopRef.current = null
+    setIsRunning(false)
+    setReport(null)
+    setAgents(INITIAL_AGENTS)
     setSlides(s)
     setActiveCase(null)
     setOverlaysBySlide({})
+    setHistoFindingsBySlide({})
+    setSelectedRoi(null)
     setActiveSlideIndex(0)
   }, [])
 
@@ -156,9 +383,7 @@ export default function Home() {
             <span className={`w-1.5 h-1.5 rounded-full ${isRunning ? "bg-[var(--accent)] agent-running" : "bg-[var(--ok)]"}`} />
             Qwen2.5-72B-VL · Meditron-70B
           </span>
-          <span className="font-mono text-[11px] border border-[var(--rule)] bg-[var(--paper-2)] px-2.5 py-1">
-            MI300X · 192 Go HBM
-          </span>
+          <GpuPanel />
         </div>
       </header>
 
@@ -245,15 +470,33 @@ export default function Home() {
           </div>
         )}
 
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 flex">
           {viewMode === "2d" ? (
+            <div className="relative flex-1 h-full">
             <WSIViewer
               slideId={slides[activeSlideIndex]?.name ?? slides[0]?.name ?? "Aucune lame"}
               slidePath={slides[activeSlideIndex]?.path ?? slides[0]?.path}
               className="w-full h-full"
               overlays={liveOverlays}
+              onRoiClick={(roiIndex, label) => setSelectedRoi({ roiIndex, label })}
             />
+            {selectedRoi && (() => {
+              const roiId = selectedRoi.label.split(" ")[0] || ""
+              const slideMap = histoFindingsBySlide[activeSlideIndex]
+              const f = slideMap?.[roiId] ?? slideMap?.["__slide__"]
+              const slideMeta = slideMap?.["__slide__"]
+              return (
+                <RoiPanel
+                  findings={f}
+                  slideMeta={slideMeta}
+                  roiLabel={selectedRoi.label}
+                  onClose={() => setSelectedRoi(null)}
+                />
+              )
+            })()}
+            </div>
           ) : (
+            <div className="relative flex-1 h-full">
             <VolumeViewer
               caseId={activeCase?.case_id}
               slides={
@@ -275,6 +518,7 @@ export default function Home() {
               activeSlideIndex={activeVolumeSlide}
               onSlideClick={(i) => setActiveVolumeSlide(i)}
             />
+            </div>
           )}
         </div>
 
@@ -284,6 +528,12 @@ export default function Home() {
               Contexte
             </span>
             <span className="text-[12px] text-[var(--ink-soft)]">{activeCase.clinical_context}</span>
+          </div>
+        )}
+        {/* Benchmark card — visible when no case running, collapses when running */}
+        {!isRunning && (
+          <div className="absolute bottom-3 right-3 z-10 w-[320px] pointer-events-auto">
+            <BenchmarkCard />
           </div>
         )}
       </main>

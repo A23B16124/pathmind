@@ -58,7 +58,7 @@ export function ReportPanel({ report, patientLabel, onClose, onExport }: Props) 
                   <span className="text-[9px] font-mono px-1 py-0 rounded border border-amber-500/40 text-amber-400">
                     Histo-A vs Histo-B
                   </span>
-                  <span className="text-[9px] font-mono text-[var(--muted)]">Qwen 72B vs Meditron 70B</span>
+                  <span className="text-[9px] font-mono text-[var(--muted)]">Qwen2.5-72B-VL vs Meditron-70B</span>
                 </div>
                 <p className="text-xs leading-relaxed text-[var(--text)]">
                   {report.debate_summary}

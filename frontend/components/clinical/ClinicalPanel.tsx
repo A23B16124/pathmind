@@ -8,12 +8,17 @@ import { DebateTab } from "./DebateTab"
 import { WarningsBanner } from "./WarningsBanner"
 
 const AGENT_LABELS: Record<string, { label: string; sub: string }> = {
-  "tile-triage":            { label: "Tile-Triage",            sub: "tissue mask · Otsu" },
-  "histopathologist-a":     { label: "Histo-A · lecture primaire",      sub: "Qwen2.5-72B-VL" },
-  "histopathologist-b":     { label: "Histo-B · lecture indépendante",  sub: "Meditron-70B" },
-  "cross-slide-aggregator": { label: "Cross-slide · agrégation",        sub: "map-reduce" },
-  "literature-hunter":      { label: "Literature-Hunter",               sub: "Qdrant · TCGA + PubMed" },
-  "chief":                  { label: "Chief · arbitrage",               sub: "débat structuré + CAP" },
+  "tile-triage":                { label: "Tile-Triage",                      sub: "tissue mask · Otsu" },
+  "foundation-uni2":            { label: "UNI2-h",                           sub: "ViT-G/14 · pathology FM" },
+  "foundation-virchow2":        { label: "Virchow2",                         sub: "ViT-H/14 · pathology FM" },
+  "histopathologist-a":         { label: "Histo-A · lecture primaire",        sub: "Qwen2.5-72B-VL" },
+  "histopathologist-b":         { label: "Histo-B · lecture indépendante",    sub: "Meditron-70B" },
+  "cross-slide-aggregator":     { label: "Cross-slide · agrégation",          sub: "map-reduce" },
+  "literature-hunter":          { label: "Literature-Hunter",                 sub: "Qdrant · TCGA + PubMed" },
+  "differential-diagnostician": { label: "Differential-Diagnostician",        sub: "DDx chaîne de pensée" },
+  "quality-control":            { label: "Quality-Control · débat",           sub: "audit critique" },
+  "debate-arena":               { label: "Debate-Arena · live",              sub: "DDx ↔ QC rounds" },
+  "report-writer":              { label: "Report-Writer",                     sub: "rapport CAP final" },
 }
 
 type TabKey = "diagnostic" | "debate" | "literature"
@@ -46,7 +51,7 @@ export function ClinicalPanel({ agents, isRunning, report, patientLabel }: Props
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`flex-1 py-3 px-3 font-serif text-[13px] font-medium border-r border-[var(--rule)] last:border-r-0 transition-colors ${
+            className={`flex-1 py-3.5 px-3 font-serif text-[15px] font-medium border-r border-[var(--rule)] last:border-r-0 transition-colors ${
               tab === t.key
                 ? "text-[var(--ink)] bg-[var(--paper-2)] border-b-2 border-b-[var(--accent)] -mb-px"
                 : "text-[var(--muted)] hover:text-[var(--ink-soft)]"
@@ -54,30 +59,30 @@ export function ClinicalPanel({ agents, isRunning, report, patientLabel }: Props
           >
             {t.label}
             {t.key === "literature" && litCount > 0 && (
-              <span className="ml-1.5 text-[10px] font-mono text-[var(--accent)]">{litCount}</span>
+              <span className="ml-1.5 text-[11px] font-mono text-[var(--accent)]">{litCount}</span>
             )}
           </button>
         ))}
       </div>
 
-      {/* Audit warnings — surfaced before everything else when present */}
-      {report?.warnings && report.warnings.length > 0 && (
-        <WarningsBanner warnings={report.warnings} />
-      )}
-
-      {/* Export bar — visible only when a report is ready */}
-      {report && (
-        <ExportBar report={report} patientLabel={patientLabel} />
-      )}
-
-      {/* Pipeline (always visible) */}
-      <AgentList agents={agents} agentLabels={AGENT_LABELS} isRunning={isRunning} />
-
-      {/* Body */}
+      {/* Body — tab content fills available space */}
       <div className="flex-1 overflow-y-auto">
-        {tab === "diagnostic"  && <DiagnosticTab report={report} patientLabel={patientLabel} />}
-        {tab === "debate"      && <DebateTab report={report} agents={agents} />}
-        {tab === "literature"  && <LiteratureTab literature={report?.literature} />}
+        {tab === "diagnostic" && (
+          <>
+            {report?.warnings && report.warnings.length > 0 && (
+              <WarningsBanner warnings={report.warnings} />
+            )}
+            {report && <ExportBar report={report} patientLabel={patientLabel} />}
+            <DiagnosticTab report={report} patientLabel={patientLabel} />
+          </>
+        )}
+        {tab === "debate"     && <DebateTab report={report} agents={agents} />}
+        {tab === "literature" && <LiteratureTab literature={report?.literature} />}
+      </div>
+
+      {/* Pipeline — collapsible at the bottom, always visible */}
+      <div className="border-t border-[var(--rule-strong)] max-h-[40vh] overflow-y-auto">
+        <AgentList agents={agents} agentLabels={AGENT_LABELS} isRunning={isRunning} />
       </div>
 
       {/* Footer actions */}
@@ -140,7 +145,7 @@ function ExportBar({ report, patientLabel }: { report: Report; patientLabel?: st
     <div className="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-[var(--rule)] bg-[var(--paper-2)]">
       <div className="flex flex-col">
         <span className="smcaps !text-[var(--ink)] !text-[9.5px]">Rapport CAP</span>
-        <span className="font-mono text-[10px] text-[var(--muted)]">v1.4 · {report.confidence ? `τ ${report.confidence.toFixed(2)}` : ""}</span>
+        <span className={`font-mono text-[10px] ${(report.confidence ?? 1) < 0.70 ? "text-red-600 font-semibold" : "text-[var(--muted)]"}`}>v1.4 · {report.confidence ? `τ ${report.confidence.toFixed(2)}${report.confidence < 0.70 ? " · LOW" : ""}` : ""}</span>
       </div>
       <div className="flex">
         <ExpBtn label="PDF"  onClick={() => exportFile("pdf")}  busy={busy === "pdf"} />

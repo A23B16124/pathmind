@@ -28,11 +28,15 @@ def _parse_confidence(raw: str) -> float | None:
     if not raw:
         return None
     s = raw.strip()
+    # Strip leading fence (```json or ```)
     if s.startswith("```"):
-        s = s.split("```", 2)[-1]
-        if s.lstrip().startswith("json"):
+        s = s[3:]
+        if s.lstrip().lower().startswith("json"):
             s = s.lstrip()[4:]
-        s = s.rsplit("```", 1)[0]
+        # Strip trailing fence
+        if s.rstrip().endswith("```"):
+            s = s.rstrip()[:-3]
+    s = s.strip()
     try:
         d = json.loads(s)
         c = d.get("confidence")
@@ -40,6 +44,14 @@ def _parse_confidence(raw: str) -> float | None:
             return max(0.0, min(1.0, float(c)))
     except Exception:
         pass
+    # Regex fallback: find "confidence": <number> anywhere in string
+    import re
+    m = re.search(r'"confidence"\s*:\s*([0-9]*\.?[0-9]+)', s)
+    if m:
+        try:
+            return max(0.0, min(1.0, float(m.group(1))))
+        except Exception:
+            pass
     return None
 # Task 3: hard limits to stay within LLM context
 MAX_PATCH_BYTES = 1 * 1024 * 1024   # 1 MB
@@ -108,15 +120,16 @@ class HistopathologistAAgent(BaseAgent):
             f"=== CLINICAL CONTEXT (anchor your analysis to this) ===\n{input_data.clinical_context}\n\n"
             if input_data.clinical_context else ""
         )
+        roi_ids_list = ", ".join(r["id"] for r in roi_summary)
         text = (
             f"{clinical_block}"
             f"Slide index: {input_data.slide_index}\n"
-            f"ROIs (level-0 px): {json.dumps(roi_summary)}\n"
-            f"Image patches attached: {len(patches)}\n\n"
-            f"Examine each patch IN LIGHT OF THE CLINICAL CONTEXT ABOVE and produce full "
-            f"histopathological analysis (organ-appropriate diagnoses, differential, grading). "
-            f"Do NOT diagnose pathologies inconsistent with the indicated organ/site. "
-            f"Output JSON only."
+            f"ROIs ({len(roi_summary)} total) — analyze EACH separately: {json.dumps(roi_summary)}\n"
+            f"Image patches attached: {len(patches)} (in same order as ROIs above: {roi_ids_list})\n\n"
+            f"For EACH of the {len(roi_summary)} ROIs, produce a separate entry in `per_roi` array. "
+            f"Use the EXACT roi_id from above. Different ROIs MUST have differentiated findings if they show different histology. "
+            f"Anchor analysis to CLINICAL CONTEXT. Do NOT diagnose pathologies inconsistent with the indicated organ/site. "
+            f"Output JSON only matching the schema in the system prompt."
         )
 
         user_msg = build_user_message(text, images_b64=patches)
@@ -126,7 +139,8 @@ class HistopathologistAAgent(BaseAgent):
             model_key="qwen72b",
             system=load_prompt("histopathologist"),
             messages=[user_msg],
-            max_tokens=2500,
+            max_tokens=4000,
+            timeout=180.0,
         )
 
         await self.emit(

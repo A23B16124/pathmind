@@ -163,5 +163,86 @@
       "download_url": "https://api.gdc.cancer.gov/data/a12b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
       "md5": "0000000000000000000000000000luad"
     }
+  },
+  {
+    "case_id": "tcga-TCGA-A6-5659",
+    "patient_id": "TCGA-A6-5659",
+    "patient_label": "Patient A6-5659 — côlon",
+    "age": 82,
+    "sex": "M",
+    "site": "Côlon ascendant / cæcum",
+    "sample_type": "Hémicolectomie droite, 6 lames (1 DX, 5 TS/BS multi-blocs)",
+    "prior_history": "Pas d'antécédent néoplasique. Pas de traitement antitumoral antérieur.",
+    "clinical_context": "Homme 82 ans. Anémie ferriprive d'apparition récente (Hb 9,8 g/dL), asthénie, perte de poids 5 kg en 2 mois, transit alterné. Examen clinique : abdomen souple, pas de masse palpable, TR sans particularité. Biologie : Hb 9,8, ferritine 8 µg/L, CRP 28, ACE 12 ng/mL. Coloscopie totale : lésion bourgeonnante sténosante du côlon ascendant à 110 cm de la marge anale, biopsies multiples puis hémicolectomie droite avec curage. TDM TAP : épaississement pariétal cæcal, pas d'adénomégalie suspecte, foie sans lésion focale, pas de carcinose. Pas d'antécédent personnel ni familial connu de pathologie colique. Demande : nature de la lésion, grade, profondeur d'invasion (pT), marges chirurgicales, engainement périnerveux (PNI), invasion lymphovasculaire (LVI), nombre de ganglions envahis sur le curage, statut MSI à prévoir si carcinome confirmé.",
+    "slide_paths": [
+      "tcga/TCGA-A6-5659-01Z-00-DX1.c671806f-013e-4d99-9841-cda5bd43eff1.svs",
+      "tcga/TCGA-A6-5659-01A-01-TS1.dbb4f3d2-3b68-4642-a4ef-c168571f807e.svs",
+      "tcga/TCGA-A6-5659-01A-01-BS1.68fc1dd8-b1fd-451b-95ba-ec402bfb84b6.svs",
+      "tcga/TCGA-A6-5659-01B-03-BS3.D77C3B01-5D98-43AE-AA4C-FB1C3C5EA0A8.svs",
+      "tcga/TCGA-A6-5659-01B-04-BS4.3557F6B1-2DB8-48FA-87A0-86B293BA9FFC.svs",
+      "tcga/TCGA-A6-5659-11A-01-TS1.d1a844c4-de66-4210-9201-8b74b14fea32.svs"
+    ],
+    "slide_names": [
+      "TCGA-A6-5659-01Z-00-DX1.c671806f-013e-4d99-9841-cda5bd43eff1.svs",
+      "TCGA-A6-5659-01A-01-TS1.dbb4f3d2-3b68-4642-a4ef-c168571f807e.svs",
+      "TCGA-A6-5659-01A-01-BS1.68fc1dd8-b1fd-451b-95ba-ec402bfb84b6.svs",
+      "TCGA-A6-5659-01B-03-BS3.D77C3B01-5D98-43AE-AA4C-FB1C3C5EA0A8.svs",
+      "TCGA-A6-5659-01B-04-BS4.3557F6B1-2DB8-48FA-87A0-86B293BA9FFC.svs",
+      "TCGA-A6-5659-11A-01-TS1.d1a844c4-de66-4210-9201-8b74b14fea32.svs"
+    ],
+    "slide_files": [
+      {
+        "file_id": "301a0478-49d9-4adf-b060-baf2b8cd8e51",
+        "file_name": "TCGA-A6-5659-01Z-00-DX1.c671806f-013e-4d99-9841-cda5bd43eff1.svs",
+        "file_size": 97785437
+      },
+      {
+        "file_id": "0e54a209-5d48-4823-9509-975700a99023",
+        "file_name": "TCGA-A6-5659-01A-01-TS1.dbb4f3d2-3b68-4642-a4ef-c168571f807e.svs",
+        "file_size": 63520000
+      },
+      {
+        "file_id": "d1796b40-3e97-4ec8-a00b-526745026e83",
+        "file_name": "TCGA-A6-5659-01A-01-BS1.68fc1dd8-b1fd-451b-95ba-ec402bfb84b6.svs",
+        "file_size": 124190000
+      },
+      {
+        "file_id": "b8e95c14-536d-4f85-b23c-86ff7fc2399b",
+        "file_name": "TCGA-A6-5659-01B-03-BS3.D77C3B01-5D98-43AE-AA4C-FB1C3C5EA0A8.svs",
+        "file_size": 54530000
+      },
+      {
+        "file_id": "b4ed166b-c038-4470-8b1d-bf4dfeabbbfd",
+        "file_name": "TCGA-A6-5659-01B-04-BS4.3557F6B1-2DB8-48FA-87A0-86B293BA9FFC.svs",
+        "file_size": 31170000
+      },
+      {
+        "file_id": "96cea694-dfc6-45ef-a98d-67050b93db05",
+        "file_name": "TCGA-A6-5659-11A-01-TS1.d1a844c4-de66-4210-9201-8b74b14fea32.svs",
+        "file_size": 106260000
+      }
+    ],
+    "tcga": {
+      "submitter_id": "TCGA-A6-5659",
+      "case_id": "98d45099-feae-4dad-aa38-ec03fed6d999",
+      "primary_diagnosis": "Adenocarcinoma, NOS",
+      "tumor_grade": null,
+      "stage": "Stage I",
+      "pt": "T2",
+      "pn": "N0",
+      "pm": "M0",
+      "morphology": "8140/3",
+      "site": "Ascending colon",
+      "site_of_resection_or_biopsy": "Cecum",
+      "tissue_or_organ_of_origin": "Ascending colon",
+      "pni": null,
+      "lvi": null,
+      "gender": "male",
+      "race": "white",
+      "ethnicity": "not hispanic or latino",
+      "prior_malignancy": "no",
+      "prior_treatment": "No",
+      "classification_of_tumor": "primary"
+    }
   }
 ]

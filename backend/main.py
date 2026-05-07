@@ -97,11 +97,15 @@ async def health():
         "qdrant": qdrant,
         "agents": [
             "tile-triage",
+            "foundation-uni2",
+            "foundation-virchow2",
             "histopathologist-a",
             "histopathologist-b",
             "cross-slide-aggregator",
             "literature-hunter",
-            "chief",
+            "differential-diagnostician",
+            "quality-control",
+            "report-writer",
         ],
         "uptime_seconds": int(time.time() - _STARTUP_TIME),
     }
@@ -312,9 +316,11 @@ async def _run_pipeline(req: AnalyzeRequest):
                 "biomarkers": report.biomarkers,
                 "debate_summary": report.debate_summary,
                 "confidence": report.confidence,
+                "confidence_breakdown": report.confidence_breakdown,
                 "cap_report": report.cap_report,
                 "report_html": report.report_html,
                 "debate_rounds": [d.model_dump() for d in report.debate_rounds],
+                "debate_history": extras.get("debate_history") or [],
                 "literature": {
                     "key_findings": kf,
                     "similar_cases": literature.similar_cases,
@@ -359,3 +365,93 @@ async def _run_pipeline(req: AnalyzeRequest):
                 {"agent": "pipeline", "status": "error", "content": f"Pipeline error: {e}"},
             )
             raise
+
+
+# ── GPU Stats (rocm-smi) ──────────────────────────────────────────────────────
+
+import subprocess
+import re as _re
+
+def _parse_rocm_smi() -> dict:
+    """Parse rocm-smi text output for the AMD MI300X."""
+    try:
+        result = subprocess.run(
+            ["rocm-smi", "--showmeminfo", "vram", "--showuse"],
+            capture_output=True, text=True, timeout=3,
+        )
+        out = result.stdout
+        vram_used_b = 0
+        vram_total_b = 192 * 1024 * 1024 * 1024
+        gpu_util = 0
+        for line in out.splitlines():
+            line = line.strip()
+            if "VRAM Total Used Memory" in line:
+                m = _re.search(r"(\d{6,})", line)
+                if m:
+                    vram_used_b = int(m.group(1))
+            elif "VRAM Total Memory" in line:
+                m = _re.search(r"(\d{6,})", line)
+                if m:
+                    vram_total_b = int(m.group(1))
+            elif "GPU use" in line:
+                m = _re.search(r"(\d+)\s*$", line)
+                if m:
+                    gpu_util = int(m.group(1))
+        return {
+            "vram_used_mb": vram_used_b // (1024 * 1024),
+            "vram_total_mb": vram_total_b // (1024 * 1024),
+            "gpu_util_pct": gpu_util,
+            "source": "rocm-smi",
+        }
+    except Exception:
+        return {
+            "vram_used_mb": 0,
+            "vram_total_mb": 192 * 1024,
+            "gpu_util_pct": 0,
+            "source": "unavailable",
+        }
+
+
+@app.get("/api/gpu-stats")
+async def gpu_stats():
+    """Live AMD MI300X VRAM and utilization stats."""
+    stats = await asyncio.to_thread(_parse_rocm_smi)
+    return stats
+
+
+
+# ── Agent log stream ─────────────────────────────────────────────────
+# Ring buffer of recent agent events (broadcasted via WS) — exposed at
+# /api/logs for the /log inspector page. Captures everything: started,
+# running, done, error, with timestamp + content.
+from collections import deque as _deque
+import time as _t
+
+_AGENT_LOG_BUFFER: _deque = _deque(maxlen=2000)
+
+async def _log_intercept(case_id: str, event: dict):
+    """Hook called by ws_manager.broadcast for every event."""
+    _AGENT_LOG_BUFFER.append({
+        "ts": _t.time(),
+        "case_id": case_id,
+        "agent": event.get("agent", "?"),
+        "status": event.get("status", "?"),
+        "content": event.get("content", "")[:600],
+        "confidence": event.get("confidence"),
+    })
+
+# Monkey-patch manager.broadcast to capture all events
+from backend.ws_manager import manager as _logmgr
+_orig_broadcast = _logmgr.broadcast
+async def _wrapped_broadcast(case_id, event):
+    await _log_intercept(case_id, event)
+    return await _orig_broadcast(case_id, event)
+_logmgr.broadcast = _wrapped_broadcast
+
+
+@app.get("/api/logs")
+async def get_logs(limit: int = 200, since: float = 0.0):
+    """Return recent agent log events (newest first)."""
+    items = [e for e in _AGENT_LOG_BUFFER if e["ts"] > since]
+    items.sort(key=lambda x: x["ts"], reverse=True)
+    return {"logs": items[:limit], "count": len(items)}

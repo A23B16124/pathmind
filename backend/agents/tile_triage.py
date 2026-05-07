@@ -111,17 +111,50 @@ class TileTriageAgent(BaseAgent):
         # Virchow2 (ViT-H/14) on the same MI300X. We POST patches at the
         # ROI centers and surface stats; if the embed service is down we
         # silently skip — the pipeline still runs on the LLM agents alone.
+        # Emit foundation models as visible agents in the pipeline
+        from backend.ws_manager import manager as _mgr
+        await _mgr.broadcast(case_id, {"agent": "foundation-uni2", "status": "running",
+            "content": f"UNI2-h: extracting 224×224 patches @ ROI centers (slide {input_data.slide_index})"})
+        await _mgr.broadcast(case_id, {"agent": "foundation-virchow2", "status": "running",
+            "content": f"Virchow2: extracting tile features (slide {input_data.slide_index})"})
+
         embed_stats = await embed_rois(meta.path, rois) if rois else None
+        foundation_confidence: float | None = None
         if embed_stats and embed_stats.get("uni2") and embed_stats.get("virchow2"):
             uni2 = embed_stats["uni2"]
             virchow = embed_stats["virchow2"]
-            await self.emit(
-                case_id, "running",
-                f"Foundation models: UNI2-h ({uni2['n']}×{uni2['dim']}) + "
-                f"Virchow2 ({virchow['n']}×{virchow['dim']}) — "
-                f"avg cos-sim {uni2['mean_cos_sim']}/{virchow['mean_cos_sim']}",
-                {"slide": input_data.slide_index, "embed_stats": embed_stats},
-            )
+            uni2_conf = round(float(uni2["mean_cos_sim"]), 3)
+            virchow_conf = round(float(virchow["mean_cos_sim"]), 3)
+            foundation_confidence = round((uni2_conf + virchow_conf) / 2, 3)
+            await _mgr.broadcast(case_id, {"agent": "foundation-uni2", "status": "done",
+                "content": f"UNI2-h: {uni2['n']} patches × {uni2['dim']}d · cos-sim {uni2['mean_cos_sim']}",
+                "confidence": uni2_conf})
+            await _mgr.broadcast(case_id, {"agent": "foundation-virchow2", "status": "done",
+                "content": f"Virchow2: {virchow['n']} patches × {virchow['dim']}d · cos-sim {virchow['mean_cos_sim']}",
+                "confidence": virchow_conf})
+        elif embed_stats and embed_stats.get("uni2"):
+            uni2 = embed_stats["uni2"]
+            foundation_confidence = round(float(uni2["mean_cos_sim"]), 3)
+            await _mgr.broadcast(case_id, {"agent": "foundation-uni2", "status": "done",
+                "content": f"UNI2-h: {uni2['n']} patches × {uni2['dim']}d · cos-sim {uni2['mean_cos_sim']}",
+                "confidence": foundation_confidence})
+            await _mgr.broadcast(case_id, {"agent": "foundation-virchow2", "status": "error",
+                "content": "Virchow2 embed service unreachable"})
+        elif embed_stats and embed_stats.get("virchow2"):
+            virchow = embed_stats["virchow2"]
+            foundation_confidence = round(float(virchow["mean_cos_sim"]), 3)
+            await _mgr.broadcast(case_id, {"agent": "foundation-uni2", "status": "error",
+                "content": "UNI2-h embed service unreachable"})
+            await _mgr.broadcast(case_id, {"agent": "foundation-virchow2", "status": "done",
+                "content": f"Virchow2: {virchow['n']} patches × {virchow['dim']}d · cos-sim {virchow['mean_cos_sim']}",
+                "confidence": foundation_confidence})
+        else:
+            await _mgr.broadcast(case_id, {"agent": "foundation-uni2", "status": "error",
+                "content": "UNI2-h embed service unreachable"})
+            await _mgr.broadcast(case_id, {"agent": "foundation-virchow2", "status": "error",
+                "content": "Virchow2 embed service unreachable"})
+
+        confidence = foundation_confidence if foundation_confidence is not None else (0.85 if rois else 0.4)
 
         await self.emit(
             case_id, "done",
@@ -132,10 +165,9 @@ class TileTriageAgent(BaseAgent):
                 "rois": overlay_payload,
                 "slide_dims": [meta.width, meta.height],
                 "foundation_embeds": embed_stats,
+                "confidence": confidence,
             },
         )
-
-        confidence = 0.85 if rois else 0.4
         return TileTriageOutput(
             slide_index=input_data.slide_index,
             slide_path=meta.path,
@@ -147,4 +179,5 @@ class TileTriageAgent(BaseAgent):
             tile_count=len(rois),
             confidence=confidence,
             summary=summary_str,
+            foundation_embeds=embed_stats or {},
         )

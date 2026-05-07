@@ -24,7 +24,7 @@ class HistopathologistBAgent(BaseAgent):
     async def run(self, case_id: str, input_data: HistopathologistInput) -> HistopathologistOutput:
         await self.emit(
             case_id, "running",
-            f"Histo-B (Groq Llama-3.3-70B) second read slide {input_data.slide_index}",
+            f"Histo-B (Meditron-70B) second read slide {input_data.slide_index}",
             {"slide": input_data.slide_index},
         )
 
@@ -42,14 +42,17 @@ class HistopathologistBAgent(BaseAgent):
             f"=== CLINICAL CONTEXT (anchor your analysis to this) ===\n{input_data.clinical_context}\n\n"
             if input_data.clinical_context else ""
         )
+        roi_ids_list = ", ".join(r["id"] for r in roi_summary)
         text = (
             f"{clinical_block}"
             f"Slide index: {input_data.slide_index}\n"
-            f"ROIs (level-0 px): {json.dumps(roi_summary)}\n"
-            f"Image patches attached: {len(patches)}\n\n"
-            f"Provide your independent second-read analysis IN LIGHT OF THE CLINICAL CONTEXT — "
+            f"ROIs ({len(roi_summary)} total) - analyze EACH separately: {json.dumps(roi_summary)}\n"
+            f"Image patches attached: {len(patches)} (same order: {roi_ids_list})\n\n"
+            f"For EACH of the {len(roi_summary)} ROIs, produce a separate entry in per_roi array using its EXACT roi_id. "
+            f"Different ROIs MUST have differentiated findings if histology differs. "
+            f"Provide your independent second-read analysis IN LIGHT OF THE CLINICAL CONTEXT - "
             f"challenge the dominant pattern but stay consistent with the indicated organ/site. "
-            f"Output JSON only."
+            f"Output JSON only matching the schema."
         )
 
         # Groq doesn't support vision — send text-only (no image patches for Histo-B)
@@ -57,10 +60,11 @@ class HistopathologistBAgent(BaseAgent):
 
         result = await chat(
             agent_name=self.name,
-            model_key="groq",
+            model_key="meditron70b",
             system=load_prompt("histopathologist_b"),
             messages=[user_msg],
-            max_tokens=2500,
+            max_tokens=4000,
+            timeout=180.0,
         )
 
         await self.emit(

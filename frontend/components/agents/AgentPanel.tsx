@@ -5,17 +5,24 @@ import { AgentState, AgentStatus } from "@/lib/types"
 
 const AGENT_LABELS: Record<string, string> = {
   "tile-triage": "Tile Triage",
+  "foundation-uni2": "UNI2-h",
+  "foundation-virchow2": "Virchow2",
   "histopathologist-a": "Histo-A",
   "histopathologist-b": "Histo-B",
   "cross-slide-aggregator": "Cross-Slide Aggregator",
   "literature-hunter": "Literature Hunter",
-  "chief": "Chief (Arbitrator)",
+  "differential-diagnostician": "Differential-Diagnostician",
+  "quality-control": "Quality-Control",
+  "report-writer": "Report-Writer",
+  "debate-arena": "Debate-Arena",
 }
 
 const AGENT_MODEL_BADGE: Record<string, string> = {
   "histopathologist-a": "Qwen 72B",
-  "histopathologist-b": "Meditron 70B",
-  "chief": "Qwen 72B",
+  "histopathologist-b": "Llama-3.3-70B (Groq)",
+  "differential-diagnostician": "Qwen 72B",
+  "quality-control": "Qwen 72B",
+  "report-writer": "Qwen 72B",
 }
 
 const STATUS_DOT: Record<AgentStatus, string> = {
@@ -129,7 +136,7 @@ export function AgentPanel({ agents, vramPct, isRunning }: Props) {
                   {AGENT_MODEL_BADGE[agent.name]}
                 </span>
               )}
-              {agent.name === "chief" && agent.messages.some(m => m.includes("Debate:")) && (
+              {(agent.name === "quality-control" || agent.name === "differential-diagnostician") && agent.messages.some(m => m.includes("challenge") || m.includes("Debate:") || m.includes("QC")) && (
                 <span className="text-[8px] font-mono px-1 py-0 rounded border border-amber-500/40 text-amber-400 bg-amber-500/5 flex-shrink-0">
                   DEBATE
                 </span>

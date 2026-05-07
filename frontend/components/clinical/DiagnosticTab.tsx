@@ -62,17 +62,69 @@ export function DiagnosticTab({ report, patientLabel }: Props) {
         </div>
 
         {/* Confidence */}
-        <div className="mt-4 grid grid-cols-[1fr_auto] gap-3 items-center">
-          <div>
-            <div className="smcaps mb-1.5">Confiance multi-agents</div>
-            <div className="h-[6px] bg-[var(--paper-2)] border border-[var(--rule)] overflow-hidden">
-              <div className="h-full bg-[var(--accent)]" style={{ width: `${Math.round(conf * 100)}%` }} />
-            </div>
-          </div>
-          <div className="font-serif text-[18px] font-semibold text-[var(--accent)]">
-            {conf.toFixed(2)}<span className="font-mono text-[11px] text-[var(--muted)] ml-1">/1</span>
-          </div>
-        </div>
+        {(() => {
+          const lowConf = conf < 0.70 && conf > 0
+          const veryLow = conf < 0.55 && conf > 0
+          const barColor = veryLow ? "bg-red-600" : lowConf ? "bg-amber-500" : "bg-[var(--accent)]"
+          const textColor = veryLow ? "text-red-600" : lowConf ? "text-amber-600" : "text-[var(--accent)]"
+          return (
+            <>
+              <div className="mt-4 grid grid-cols-[1fr_auto] gap-3 items-center">
+                <div>
+                  <div className="smcaps mb-1.5">Confiance multi-agents</div>
+                  <div className="h-[6px] bg-[var(--paper-2)] border border-[var(--rule)] overflow-hidden">
+                    <div className={`h-full ${barColor}`} style={{ width: `${Math.round(conf * 100)}%` }} />
+                  </div>
+                </div>
+                <div className={`font-serif text-[18px] font-semibold ${textColor}`}>
+                  {conf.toFixed(2)}<span className="font-mono text-[11px] text-[var(--muted)] ml-1">/1</span>
+                </div>
+              </div>
+              {(() => {
+                const bd = (report as unknown as Record<string, Record<string, unknown> | undefined>)?.confidence_breakdown
+                if (!bd || Object.keys(bd).length === 0) return null
+                const num = (k: string) => typeof bd[k] === "number" ? (bd[k] as number) : null
+                const cells: { label: string; v: number | null }[] = [
+                  { label: "DDx",     v: num("ddx_model") },
+                  { label: "Histo",   v: num("histo_mean") },
+                  { label: "QC",      v: num("qc_pipeline") },
+                  { label: "Report",  v: num("report_writer") },
+                ]
+                const mult = num("qc_verdict_mult")
+                return (
+                  <div className="mt-3 border border-[var(--rule)] bg-[var(--paper-2)] p-3">
+                    <div className="font-mono text-[9.5px] uppercase tracking-[0.14em] text-[var(--muted)] mb-2">Décomposition multi-agents</div>
+                    <div className="grid grid-cols-4 gap-2">
+                      {cells.map(c => (
+                        <div key={c.label} className="text-center">
+                          <div className="font-mono text-[9.5px] uppercase tracking-[0.1em] text-[var(--muted)]">{c.label}</div>
+                          <div className="font-serif text-[14px] font-semibold text-[var(--ink)]">{c.v !== null ? c.v.toFixed(2) : "—"}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {mult !== null && mult < 1 && (
+                      <div className="mt-2 text-[10.5px] font-mono text-[var(--muted)] text-center">
+                        × QC verdict multiplier: {mult.toFixed(2)} (verdict pénalise le composite)
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
+              {lowConf && (
+                <div className={`mt-3 border-l-4 ${veryLow ? "border-red-600 bg-red-50 dark:bg-red-950/30" : "border-amber-500 bg-amber-50 dark:bg-amber-950/30"} p-3`}>
+                  <div className={`font-mono text-[10px] uppercase tracking-[0.14em] font-semibold mb-1 ${veryLow ? "text-red-700 dark:text-red-400" : "text-amber-700 dark:text-amber-400"}`}>
+                    {veryLow ? "ALERTE — confiance critique" : "Vigilance — confiance basse"}
+                  </div>
+                  <div className="text-[12px] leading-[1.5] text-[var(--ink)]">
+                    {veryLow
+                      ? "Le pipeline n'a pas atteint un consensus exploitable cliniquement. Examen par un pathologiste senior REQUIS avant toute décision thérapeutique. Considérer IHC complémentaire et imagerie de corrélation."
+                      : "Confiance multi-agents sous le seuil de signature autonome (0.70). Revue par un second pathologiste recommandée. Vérifier les divergences Histo-A/Histo-B et les éventuels challenges QC non résolus."}
+                  </div>
+                </div>
+              )}
+            </>
+          )
+        })()}
       </div>
 
       {/* Biomarkers */}

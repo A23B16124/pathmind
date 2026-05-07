@@ -5,15 +5,19 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 const AGENT_NAMES: Record<string, AgentName> = {
   tile_triage: 'tile-triage',
-  histopathologist: 'histopathologist-a',          // legacy fallback
+  'foundation-uni2': 'foundation-uni2',
+  'foundation-virchow2': 'foundation-virchow2',
+  histopathologist: 'histopathologist-a',
   histopathologist_a: 'histopathologist-a',
   histopathologist_b: 'histopathologist-b',
   cross_slide_aggregator: 'cross-slide-aggregator',
   literature_hunter: 'literature-hunter',
-  differential_diagnostician: 'chief',             // legacy fallback
-  quality_control: 'chief',                         // legacy fallback
-  report_writer: 'chief',                           // legacy fallback
-  chief: 'chief',
+  differential_diagnostician: 'differential-diagnostician',
+  quality_control: 'quality-control',
+  report_writer: 'report-writer',
+  'debate-arena': 'debate-arena',
+  debate_arena: 'debate-arena',
+  chief: 'report-writer',
 }
 
 function normalizeAgent(raw: string): AgentName | 'pipeline' {
@@ -121,11 +125,16 @@ export async function fetchCachedReport(caseId: string): Promise<Report | null> 
 export function replayFromCache(report: Report, onEvent: (event: WSEvent) => void): () => void {
   const agents: AgentName[] = [
     'tile-triage',
+    'foundation-uni2',
+    'foundation-virchow2',
     'histopathologist-a',
     'histopathologist-b',
     'cross-slide-aggregator',
     'literature-hunter',
-    'chief',
+    'differential-diagnostician',
+    'quality-control',
+    'report-writer',
+    'debate-arena',
   ]
   const timers: ReturnType<typeof setTimeout>[] = []
   const STEP = 380
@@ -219,11 +228,16 @@ export function connectStream(caseId: string, onEvent: (event: WSEvent) => void)
 export function createMockStream(onEvent: (event: WSEvent) => void): () => void {
   const agents: AgentName[] = [
     'tile-triage',
+    'foundation-uni2',
+    'foundation-virchow2',
     'histopathologist-a',
     'histopathologist-b',
     'cross-slide-aggregator',
     'literature-hunter',
-    'chief',
+    'differential-diagnostician',
+    'quality-control',
+    'report-writer',
+    'debate-arena',
   ]
 
   let i = 0
@@ -264,11 +278,16 @@ export function createMockStream(onEvent: (event: WSEvent) => void): () => void 
 function getMockMessage(agent: AgentName): string {
   const m: Record<AgentName, string> = {
     'tile-triage': '847 ROIs detected across 12 slides. Focused on perinuclear zones.',
+    'foundation-uni2': 'UNI2-h embeddings: 8 patches × 1536d, mean cos-sim 0.71',
+    'foundation-virchow2': 'Virchow2 embeddings: 8 patches × 1280d, mean cos-sim 0.68',
     'histopathologist-a': 'Histo-A (Qwen72B): infiltrating ductal architecture, grade III.',
-    'histopathologist-b': 'Histo-B (Meditron70B): acinar variant pattern, grade II.',
+    'histopathologist-b': 'Histo-B (Meditron-70B): acinar variant pattern, grade II.',
     'cross-slide-aggregator': 'Inter-slide coherence — disagreement on grade II vs III, margin status.',
     'literature-hunter': '847 similar TCGA breast cases. 12 relevant PubMed abstracts.',
-    'chief': 'Debate: 2 disagreements identified. Arbitrating grade and margin.',
+    'differential-diagnostician': 'Primary: Invasive ductal carcinoma NST (91%). DDx #2: Lobular pleomorphic variant (6%).',
+    'quality-control': '[MINOR] Grade III assignment: slide 7 mitotic count 4/10HPF below threshold. IHC panel complete.',
+    'report-writer': 'CAP report generated. QC verdict: accepted. Confidence: 0.87.',
+    'debate-arena': 'Round 1: DDx vs QC challenge — exchange in progress.',
   }
   return m[agent] ?? 'Processing...'
 }

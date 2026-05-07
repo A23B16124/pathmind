@@ -24,6 +24,7 @@ class TileTriageOutput(_StrictModel):
     confidence: float = 0.0
     summary: str = ""
     parse_failed: bool = False
+    foundation_embeds: dict = Field(default_factory=dict)
 
 
 class HistopathologistInput(_StrictModel):
@@ -114,6 +115,7 @@ class ChiefInput(_StrictModel):
 
 
 class ChiefOutput(_StrictModel):
+    confidence_breakdown: dict = Field(default_factory=dict)
     debate_rounds: list[DebateRound] = Field(default_factory=list)
     debate_summary: str = ""
     diagnosis: str = ""
@@ -121,3 +123,68 @@ class ChiefOutput(_StrictModel):
     biomarkers: list[str] = Field(default_factory=list)
     confidence: float = 0.0
     report_html: str = ""
+
+
+# ── Differential Diagnostician ────────────────────────────────────────────────
+
+class DiagnosticianInput(_StrictModel):
+    patient_id: str
+    cross_slide: CrossSlideOutput
+    literature: LiteratureHunterOutput
+    clinical_data: dict = Field(default_factory=dict)
+    evidence_cap: Optional[float] = None
+    foundation_embeds: list[dict] = Field(default_factory=list)
+    qc_feedback: Optional["QCOutput"] = None
+    debate_round: int = 0
+
+
+class DiagnosticianOutput(_StrictModel):
+    primary_diagnosis: str = ""
+    icd_o_code: str = ""
+    pt_stage: str = ""
+    pn_stage: str = ""
+    grade: str = ""
+    margin_status: str = ""
+    confidence: float = 0.0
+    top_ddx: list[dict] = Field(default_factory=list)
+    recommended_ihc_panel: list[str] = Field(default_factory=list)
+    ambiguous_features: list[str] = Field(default_factory=list)
+    thinking: str = ""
+    raw_json: str = ""
+
+
+# ── Quality Control ───────────────────────────────────────────────────────────
+
+class QCInput(_StrictModel):
+    patient_id: str
+    diagnostician_output: DiagnosticianOutput
+    cross_slide: CrossSlideOutput
+    literature: LiteratureHunterOutput
+    clinical_data: dict = Field(default_factory=dict)
+
+
+class QCOutput(_StrictModel):
+    verdict: str = "accepted"  # accepted | revision_requested | escalate
+    overall_confidence: float = 0.0
+    challenges: list[dict] = Field(default_factory=list)
+    inconsistencies: list[str] = Field(default_factory=list)
+    missing_workup: list[str] = Field(default_factory=list)
+    ihc_panel_complete: bool = True
+    staging_correct: bool = True
+    literature_support_adequate: bool = True
+    revision_request: str = ""
+    thinking: str = ""
+    raw_json: str = ""
+
+
+# ── Report Writer Input (takes Diagnostician + QC) ────────────────────────────
+
+class ReportWriterInput(_StrictModel):
+    patient_id: str
+    diagnostician_output: DiagnosticianOutput
+    qc_output: QCOutput
+    cross_slide: CrossSlideOutput
+    literature: LiteratureHunterOutput
+    clinical_data: dict = Field(default_factory=dict)
+    evidence_cap: Optional[float] = None
+    histo_a_results: Optional[list] = None
