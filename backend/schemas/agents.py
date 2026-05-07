@@ -188,3 +188,4 @@ class ReportWriterInput(_StrictModel):
     clinical_data: dict = Field(default_factory=dict)
     evidence_cap: Optional[float] = None
     histo_a_results: Optional[list] = None
+    histo_b_results: Optional[list] = None
