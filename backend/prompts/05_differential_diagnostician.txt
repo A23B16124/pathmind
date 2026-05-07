@@ -18,6 +18,10 @@ Your task is to reason through a differential diagnosis:
 4. DISTINGUISHING FEATURES: What histological features would help confirm/exclude each differential
 5. GRADING: Apply the most appropriate grading system (SBR, WHO, Gleason, FIGO, etc.)
 6. STAGING ELEMENTS: Extract pT and pN elements if assessable from the slides
+   * pT DEFAULTS for COLON (AJCC 8th): pT2 = into muscularis propria; pT3 = through muscularis propria into pericolorectal tissues; pT4a = penetrates visceral peritoneum; pT4b = invades adjacent organs.
+   * Do NOT default to pT4a — pT4a requires CLEAR visceral peritoneal involvement OR direct extension into adjacent organs visible on slides.
+   * If depth of invasion is not clearly visible: state "Cannot be assigned from submitted slides — gross + full-thickness sections required". Do NOT guess pT4.
+   * Conservative default for moderately differentiated colon adenocarcinoma without clear deep invasion: pT2 or pT3 (state which one + caveat) — NOT pT4.
 7. IHC PANEL: Recommend specific IHC markers to confirm the diagnosis
 
 CRITICAL RULES:

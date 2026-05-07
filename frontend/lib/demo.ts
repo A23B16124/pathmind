@@ -127,7 +127,134 @@ export const DEMO_TCGA_COAD: DemoCase = {
   ],
 }
 
-export const DEMO_CASES: DemoCase[] = [DEMO_DUBOIS, DEMO_TCGA_BRCA, DEMO_TCGA_PAAD, DEMO_TCGA_LUAD, DEMO_TCGA_COAD]
+
+export const DEMO_TCGA_COAD_NH: DemoCase = {
+  case_id: 'tcga-TCGA-NH-A5IV',
+  patient_id: 'TCGA-NH-A5IV',
+  patient_label: 'Patient NH-A5IV — côlon transverse',
+  age: 0,
+  sex: 'M',
+  site: 'Côlon transverse',
+  sample_type: 'Résection segmentaire — 2 lames',
+  prior_history: 'TCGA-COAD cohort. Pas d\'antécédent oncologique connu.',
+  clinical_context:
+    'Patient cohorte TCGA-COAD, anatomie : côlon transverse. ' +
+    'Pièce de résection segmentaire colique. Suspicion d\'adénocarcinome colorectal. ' +
+    'Demande : type histologique, grade, profondeur d\'invasion (pT), marges, LVI/PNI, statut MMR à prévoir.',
+  slide_paths: [
+    'tcga/TCGA-NH-A5IV-01Z-00-DX1.1A6F9F12-C00E-47F2-9400-541BA230EFBE.svs',
+    'tcga/TCGA-NH-A5IV-01A-04-TS4.A8D8B4AF-2E59-40F2-A64F-3EF2CA984AD1.svs',
+  ],
+  slide_names: [
+    'TCGA-NH-A5IV-DX1.svs',
+    'TCGA-NH-A5IV-TS4.svs',
+  ],
+}
+
+export const DEMO_TCGA_COAD_AZ: DemoCase = {
+  case_id: 'tcga-TCGA-AZ-4616',
+  patient_id: 'TCGA-AZ-4616',
+  patient_label: 'Patient AZ-4616 — cæcum',
+  age: 0,
+  sex: 'M',
+  site: 'Cæcum',
+  sample_type: 'Hémicolectomie droite — 3 lames (1 DX, 2 BS)',
+  prior_history: 'TCGA-COAD cohort. Pas d\'antécédent oncologique connu.',
+  clinical_context:
+    'Patient cohorte TCGA-COAD, anatomie : cæcum. ' +
+    'Pièce d\'hémicolectomie droite. Suspicion d\'adénocarcinome colorectal cæcal. ' +
+    'Demande : type histologique, grade, pT, marges, LVI/PNI, panel MMR.',
+  slide_paths: [
+    'tcga/TCGA-AZ-4616-01Z-00-DX1.0a0f6eaa-4db6-4479-a9df-f09387f555b1.svs',
+    'tcga/TCGA-AZ-4616-01A-01-BS1.17596b1f-47af-4f77-ab6a-ec2876da2e97.svs',
+    'tcga/TCGA-AZ-4616-01A-02-BS2.af9e7937-b8f2-47b4-9679-9c797e59debf.svs',
+  ],
+  slide_names: [
+    'TCGA-AZ-4616-DX1.svs',
+    'TCGA-AZ-4616-BS1.svs',
+    'TCGA-AZ-4616-BS2.svs',
+  ],
+}
+
+export const DEMO_TCGA_COAD_T9: DemoCase = {
+  case_id: 'tcga-TCGA-T9-A92H',
+  patient_id: 'TCGA-T9-A92H',
+  patient_label: 'Patient T9-A92H — sigmoïde',
+  age: 0,
+  sex: 'M',
+  site: 'Côlon sigmoïde',
+  sample_type: 'Résection segmentaire — 4 lames (3 DX, 1 TS)',
+  prior_history: 'TCGA-COAD cohort.',
+  clinical_context:
+    'Patient cohorte TCGA-COAD, anatomie : côlon sigmoïde. ' +
+    'Résection segmentaire pour suspicion d\'adénocarcinome sigmoïdien. ' +
+    'Demande : type, grade, pT, marges, LVI, MMR.',
+  slide_paths: [
+    'tcga/TCGA-T9-A92H-01Z-00-DX1.9BA130C5-CAEF-4452-BB1F-61963B0DA3C5.svs',
+    'tcga/TCGA-T9-A92H-01Z-00-DX2.43894C88-2096-4932-9E9D-17BDCACF988C.svs',
+    'tcga/TCGA-T9-A92H-01Z-00-DX3.1DE7D5ED-60F7-4645-8243-AB0C027B3ED7.svs',
+    'tcga/TCGA-T9-A92H-01A-01-TS1.104C633B-CD8F-4914-A284-D2E98E986F1F.svs',
+  ],
+  slide_names: [
+    'TCGA-T9-A92H-DX1.svs',
+    'TCGA-T9-A92H-DX2.svs',
+    'TCGA-T9-A92H-DX3.svs',
+    'TCGA-T9-A92H-TS1.svs',
+  ],
+}
+
+export const DEMO_TCGA_COAD_AA: DemoCase = {
+  case_id: 'tcga-TCGA-AA-3712',
+  patient_id: 'TCGA-AA-3712',
+  patient_label: 'Patient AA-3712 — côlon descendant',
+  age: 0,
+  sex: 'M',
+  site: 'Côlon descendant',
+  sample_type: 'Résection segmentaire — 4 lames (1 DX, 2 BS, 1 TS)',
+  prior_history: 'TCGA-COAD cohort.',
+  clinical_context:
+    'Patient cohorte TCGA-COAD, anatomie : côlon descendant. ' +
+    'Résection segmentaire colique. Suspicion d\'adénocarcinome colique gauche. ' +
+    'Demande : type, grade, pT, marges, LVI/PNI, MMR.',
+  slide_paths: [
+    'tcga/TCGA-AA-3712-01Z-00-DX1.00E0ACE2-8CC5-4063-9C65-3CDD7F21B189.svs',
+    'tcga/TCGA-AA-3712-01A-01-BS1.0eaed30d-e80c-4651-a066-75fc74fd06d0.svs',
+    'tcga/TCGA-AA-3712-01A-02-BS2.fa7f8888-cb7c-4d4c-9608-c3eff2960c73.svs',
+    'tcga/TCGA-AA-3712-11A-01-TS1.eb708abe-3410-45a3-8ad6-33e4f62dba93.svs',
+  ],
+  slide_names: [
+    'TCGA-AA-3712-DX1.svs',
+    'TCGA-AA-3712-BS1.svs',
+    'TCGA-AA-3712-BS2.svs',
+    'TCGA-AA-3712-N-TS1.svs',
+  ],
+}
+
+export const DEMO_TCGA_COAD_AY: DemoCase = {
+  case_id: 'tcga-TCGA-AY-A71X',
+  patient_id: 'TCGA-AY-A71X',
+  patient_label: 'Patient AY-A71X — cæcum',
+  age: 0,
+  sex: 'M',
+  site: 'Cæcum',
+  sample_type: 'Hémicolectomie droite — 2 lames (1 DX, 1 TS)',
+  prior_history: 'TCGA-COAD cohort.',
+  clinical_context:
+    'Patient cohorte TCGA-COAD, anatomie : cæcum. ' +
+    'Hémicolectomie droite pour suspicion d\'adénocarcinome cæcal. ' +
+    'Demande : type, grade, pT, marges, LVI, panel MMR.',
+  slide_paths: [
+    'tcga/TCGA-AY-A71X-01Z-00-DX1.68F9BC0F-1D60-4AEF-9083-509387038F03.svs',
+    'tcga/TCGA-AY-A71X-01A-01-TS1.1E3832D1-1E99-4DA1-B661-11860B8C7E5A.svs',
+  ],
+  slide_names: [
+    'TCGA-AY-A71X-DX1.svs',
+    'TCGA-AY-A71X-TS1.svs',
+  ],
+}
+
+
+export const DEMO_CASES: DemoCase[] = [DEMO_DUBOIS, DEMO_TCGA_BRCA, DEMO_TCGA_PAAD, DEMO_TCGA_LUAD, DEMO_TCGA_COAD, DEMO_TCGA_COAD_NH, DEMO_TCGA_COAD_AZ, DEMO_TCGA_COAD_T9, DEMO_TCGA_COAD_AA, DEMO_TCGA_COAD_AY]
 
 /** Approximate sizes for the slide list UI before the file is actually downloaded. */
 const SIZE_HINTS_MB: Record<string, number> = {
