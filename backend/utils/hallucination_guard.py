@@ -39,13 +39,46 @@ _KNOWN_BIOMARKERS = {
     # Pancreas / GI
     "synaptophysin", "synaptophysine", "chromogranin", "chromogranine",
     "igg4", "ki-67", "ki67", "ck7", "ck19", "ck20", "muc1", "muc2", "muc5ac",
-    "p53", "p16", "smad4", "dpc4", "kras", "cdx2",
+    "p53", "p16", "smad4", "dpc4", "kras", "cdx2", "villin",
     # Breast
-    "er", "pr", "her2", "her2/neu", "ki-67", "e-cadherin", "ecad", "p120",
+    "er", "pr", "her2", "her2/neu", "e-cadherin", "ecad", "p120",
     "gata3", "mammaglobin", "gcdfp-15", "topoisomerase",
+    # MMR / Lynch (MSI panel)
+    "mlh1", "msh2", "msh6", "pms2",
+    # Lung / mesothelium / lymphatic / vascular
+    "ttf1", "ttf-1", "napsina", "napsin-a", "p40", "p63", "calretinin",
+    "wt1", "d2-40", "d240", "podoplanin", "podoplanine",
+    "cd31", "cd34", "erg", "fli1", "fli-1", "factor8", "factorviii",
+    "von willebrand", "vwf",
+    # Prostate / urothelial
+    "psa", "psma", "amacr", "p504s", "racemase", "gata-3",
+    # Melanoma / soft tissue
+    "hmb-45", "hmb45", "melan-a", "melana", "sox10", "sox-10", "mitf",
+    "myogenin", "myod1", "myod-1",
+    # Hematolymphoid
+    "cd5", "cd10", "cd15", "cd19", "cd23", "cd30", "cd45", "cd56", "cd79a",
+    "bcl-2", "bcl2", "bcl-6", "bcl6", "mum1", "pax5", "pax-5", "tdt",
+    "kappa", "lambda", "alk", "alk-1",
+    # GIST / endocrine / germ cell
+    "cd117", "ckit", "c-kit", "dog1", "dog-1", "inhibin", "afp",
+    "beta-hcg", "hcg", "oct4", "oct-4", "sall4", "glypican-3", "glypican3",
+    # Renal / hepatobiliary
+    "pax8", "pax-8", "rcc", "cd10", "hepar1", "hepar-1", "arginase", "arginase-1",
+    # Neural / neuroendocrine
+    "gfap", "nse", "cd56", "neurofilament", "olig2", "olig-2",
     # General
-    "cd3", "cd4", "cd8", "cd20", "cd68", "cd138", "vimentin", "s100",
-    "smooth muscle actin", "sma", "desmin",
+    "cd3", "cd4", "cd8", "cd20", "cd68", "cd138", "vimentin", "s100", "s-100",
+    "smooth muscle actin", "sma", "desmin", "actin", "ema", "cea",
+    "ck", "ck5/6", "ck56", "ck8/18", "ck818", "ae1/ae3", "ae1ae3", "pancytokeratin",
+    "ki-67", "ki67", "p504s", "ttf1",
+    # Special stains (histochemistry — not IHC but routinely on path reports)
+    "elastic", "verhoeff", "verhoeff-van gieson", "vvg", "van gieson",
+    "trichrome", "masson", "masson trichrome", "pas", "pas-d", "pasd",
+    "reticulin", "réticuline", "reticuline", "gomori", "grocott", "gms",
+    "congo red", "congo", "rouge congo", "ziehl", "ziehl-neelsen", "zn",
+    "giemsa", "warthin-starry", "fontana", "alcian blue", "alcian",
+    "perls", "prussian blue", "fer", "iron", "mucicarmine", "mucicarmin",
+    "oil red o", "sudan", "fouchet",
 }
 
 
@@ -173,16 +206,31 @@ def _check_quantitative_claims(report_dict: dict, max_patches_seen: int) -> list
     return out
 
 
+_KNOWN_SLUGS = {re.sub(r"[^a-z0-9]+", "", k.lower()) for k in _KNOWN_BIOMARKERS}
+
+# Split combined panels: "CD31 / D2-40", "ER+/PR+", "CK7, CK20", "MLH1+MSH2"
+_BIOMARKER_SPLIT_RE = re.compile(r"[\s]*[/,;+&][\s]*|\s+et\s+|\s+and\s+", re.IGNORECASE)
+
+
 def _check_biomarkers(biomarkers: Iterable[str]) -> list[Warning_]:
     out: list[Warning_] = []
-    for b in biomarkers or []:
-        slug = re.sub(r"[^a-z0-9]+", "", b.lower())
-        if not slug:
-            continue
-        if not any(slug == re.sub(r"[^a-z0-9]+", "", k.lower()) for k in _KNOWN_BIOMARKERS):
-            out.append(_w("biomarker_unknown", "info",
-                          f"Biomarqueur non reconnu — vérifier l'orthographe IHC.",
-                          b))
+    seen: set[str] = set()
+    for raw in biomarkers or []:
+        # Strip parenthetical content first (clone names, alt names): "Ki-67 (MIB-1)" → "Ki-67"
+        no_paren = re.sub(r"\s*\([^)]*\)", "", raw)
+        for token in _BIOMARKER_SPLIT_RE.split(no_paren):
+            # Strip status suffixes like "+/-", "(+)", "positif", "négatif"
+            clean = re.sub(r"\(?\s*[+\-±]\s*\)?$", "", token).strip()
+            clean = re.sub(r"\s+(positif|négatif|negatif|positive|negative|perdu|conserv[ée]|loss|retained)$",
+                           "", clean, flags=re.IGNORECASE).strip()
+            slug = re.sub(r"[^a-z0-9]+", "", clean.lower())
+            if not slug or slug in seen:
+                continue
+            seen.add(slug)
+            if slug not in _KNOWN_SLUGS:
+                out.append(_w("biomarker_unknown", "info",
+                              f"Biomarqueur non reconnu — vérifier l'orthographe IHC.",
+                              clean))
     return out
 
 
