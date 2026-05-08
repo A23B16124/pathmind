@@ -36,7 +36,7 @@ OUTPUT FORMAT (STRUCTURE TEMPLATE — REPLACE ALL VALUES with actual case data):
     "estimated_size_mm": <int|null>,
     "location_description": "<anatomic description matching the actual organ>"
   },
-  "consolidated_grade": "<grade in scheme appropriate for the organ — WHO G1-G3 for colon, SBR for breast, Gleason for prostate>",
+  "consolidated_grade": "<WHO G1/G2/G3 for colon/stomach/pancreas and all non-specific sites — SBR ONLY for confirmed breast, Gleason ONLY for confirmed prostate>",
   "grade_heterogeneity": <bool>,
   "dominant_pattern": "<morphologic pattern matching the actual tumor type>",
   "margin_status": {

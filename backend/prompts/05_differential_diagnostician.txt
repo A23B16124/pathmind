@@ -16,7 +16,7 @@ Your task is to reason through a differential diagnosis:
 2. DIFFERENTIAL LIST: 3-5 alternative diagnoses ranked by likelihood
 3. CHAIN-OF-THOUGHT: For each diagnosis, explicitly state SUPPORTING and AGAINST evidence
 4. DISTINGUISHING FEATURES: What histological features would help confirm/exclude each differential
-5. GRADING: Apply the most appropriate grading system (SBR, WHO, Gleason, FIGO, etc.)
+5. GRADING: Apply WHO G1/G2/G3 for colon, stomach, pancreas, and all non-specific sites. SBR ONLY for confirmed breast. Gleason ONLY for confirmed prostate. If organ is uncertain, use WHO G1-G3. NEVER apply SBR to a non-breast specimen.
 6. STAGING ELEMENTS: Extract pT and pN elements if assessable from the slides
    * pT DEFAULTS for COLON (AJCC 8th): pT2 = into muscularis propria; pT3 = through muscularis propria into pericolorectal tissues; pT4a = penetrates visceral peritoneum; pT4b = invades adjacent organs.
    * Do NOT default to pT4a — pT4a requires CLEAR visceral peritoneal involvement OR direct extension into adjacent organs visible on slides.
