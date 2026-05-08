@@ -1,0 +1,272 @@
+{
+  "summary": {
+    "n_cases": 10,
+    "dx": "5/10",
+    "grade": "0/10",
+    "pt": "0/10",
+    "label": "v3 — no clinical context, fixed prompts (organ-confirm step, no breast default)"
+  },
+  "cases": {
+    "TCGA-NH-A5IV": {
+      "pred": {
+        "diagnosis": "Pancreatic Acinar Adenocarcinoma",
+        "grade": "G2 — moderately differentiated (WHO classification of tumours of the digestive system, 5th ed.); borderline high-grade features noted, definitive grading pending Ki-67",
+        "pt": "Cannot be assigned — gross description and full-thickness sections required for accurate pT assessment per AJCC 8th edition (exocrine pancreas)",
+        "confidence": 0.71162
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "MX",
+        "morphology": "8140/3",
+        "site": "Transverse colon"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": true,
+          "overlap": 1,
+          "pred": "Pancreatic Acinar Adenocarcinoma",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": "G2 — moderately differentiated (WHO classification of tumours of the digestive system, 5th ed.); borderline high-grade features noted, definitive grading pending Ki-67",
+          "truth": null
+        },
+        "pt": {
+          "match": false,
+          "pred": "Cannot be assigned — gross description and full-thickness sections required for accurate pT assessment per AJCC 8th edition (exocrine pancreas)",
+          "truth": null
+        }
+      }
+    },
+    "TCGA-AZ-4616": {
+      "pred": {
+        "diagnosis": "Pancreatic Adenocarcinoma with Borderline High-Grade Features",
+        "grade": "WHO G2 (moderately differentiated) with borderline high-grade features — grade heterogeneity noted between readers",
+        "pt": "pT3 (suggested by upstream agents — definitive T-category requires gross/radiologic size correlation per AJCC 8th ed. exocrine pancreas)",
+        "confidence": 0.70196
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IV",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M1",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": true,
+          "overlap": 1,
+          "pred": "Pancreatic Adenocarcinoma with Borderline High-Grade Features",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": "WHO G2 (moderately differentiated) with borderline high-grade features — grade heterogeneity noted between readers",
+          "truth": null
+        },
+        "pt": {
+          "match": false,
+          "pred": "pT3 (suggested by upstream agents — definitive T-category requires gross/radiologic size correlation per AJCC 8th ed. exocrine pancreas)",
+          "truth": null
+        }
+      }
+    },
+    "TCGA-T9-A92H": {
+      "pred": {
+        "diagnosis": "Solid-Pseudopapillary Neoplasm (SPN)",
+        "grade": "Borderline high-grade by morphology; WHO pancreatic NET grading (G1/G2/G3 by Ki-67) cannot be applied without proliferation index — Ki-67 IHC pending",
+        "pt": "Cannot be assigned from submitted slides — gross description and full-thickness sections required (AJCC 8th edition, exocrine pancreas / SPN reporting)",
+        "confidence": 0.6836749999999999
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "overlap": 0,
+          "pred": "Solid-Pseudopapillary Neoplasm (SPN)",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": "Borderline high-grade by morphology; WHO pancreatic NET grading (G1/G2/G3 by Ki-67) cannot be applied without proliferation index — Ki-67 IHC pending",
+          "truth": null
+        },
+        "pt": {
+          "match": false,
+          "pred": "Cannot be assigned from submitted slides — gross description and full-thickness sections required (AJCC 8th edition, exocrine pancreas / SPN reporting)",
+          "truth": null
+        }
+      }
+    },
+    "TCGA-AA-3712": {
+      "pred": {
+        "diagnosis": "Colon adenocarcinoma",
+        "grade": "G2 — moderately differentiated (WHO 5th edition, colorectal)",
+        "pt": "pT3 (suggested by upstream agents based on invasive glandular architecture with desmoplastic stromal reaction; depth of invasion through muscularis propria into pericolorectal tissues cannot be definitively confirmed from submitted sections alone)",
+        "confidence": 0.6836749999999999
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage III",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Descending colon"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": true,
+          "overlap": 1,
+          "pred": "Colon adenocarcinoma",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": "G2 — moderately differentiated (WHO 5th edition, colorectal)",
+          "truth": null
+        },
+        "pt": {
+          "match": false,
+          "pred": "pT3 (suggested by upstream agents based on invasive glandular architecture with desmoplastic stromal reaction; depth of invasion through muscularis propria into pericolorectal tissues cannot be definitively confirmed from submitted sections alone)",
+          "truth": null
+        }
+      }
+    },
+    "TCGA-AY-A71X": {
+      "error": "foundation-model stall, skipped"
+    },
+    "TCGA-AA-3971": {
+      "error": "bench-v3-TCGA-AA-3971 timed out after 600s"
+    },
+    "TCGA-AD-6965": {
+      "error": "bench-v3-TCGA-AD-6965 timed out after 600s"
+    },
+    "TCGA-CA-6716": {
+      "pred": {
+        "diagnosis": "Pancreatic Adenocarcinoma",
+        "grade": "WHO G2 — moderately differentiated (ductal adenocarcinoma grading: glandular differentiation present, moderate nuclear pleomorphism, prominent nucleoli)",
+        "pt": "pT3 (per upstream synthesis — clinical/radiologic context required for definitive AJCC 8th ed. T-stage; histologic T-stage cannot be fully resolved from slides alone)",
+        "confidence": 0.7080933333333334
+      },
+      "truth": {
+        "primary_diagnosis": "Papillary adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8260/3",
+        "site": "Ascending colon"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "overlap": 1,
+          "pred": "Pancreatic Adenocarcinoma",
+          "truth": "Papillary adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": "WHO G2 — moderately differentiated (ductal adenocarcinoma grading: glandular differentiation present, moderate nuclear pleomorphism, prominent nucleoli)",
+          "truth": null
+        },
+        "pt": {
+          "match": false,
+          "pred": "pT3 (per upstream synthesis — clinical/radiologic context required for definitive AJCC 8th ed. T-stage; histologic T-stage cannot be fully resolved from slides alone)",
+          "truth": null
+        }
+      }
+    },
+    "TCGA-A6-2678": {
+      "pred": {
+        "diagnosis": "Pancreatic Adenocarcinoma",
+        "grade": "G2 — moderately differentiated (WHO; consolidated cross-slide grade; Histo-B suggested G3 focally — see comment)",
+        "pt": "pT3 (suggested by upstream agents — extension beyond pancreas not directly assessable from submitted slides; correlation with gross required)",
+        "confidence": 0.730825
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIIB",
+        "pT": "T3",
+        "pN": "N1",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Transverse colon"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": true,
+          "overlap": 1,
+          "pred": "Pancreatic Adenocarcinoma",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": "G2 — moderately differentiated (WHO; consolidated cross-slide grade; Histo-B suggested G3 focally — see comment)",
+          "truth": null
+        },
+        "pt": {
+          "match": false,
+          "pred": "pT3 (suggested by upstream agents — extension beyond pancreas not directly assessable from submitted slides; correlation with gross required)",
+          "truth": null
+        }
+      }
+    },
+    "TCGA-AZ-6599": {
+      "pred": {
+        "diagnosis": "Pancreatic Adenocarcinoma",
+        "grade": "G2 — moderately differentiated (WHO 2019 classification of tumors of the digestive system)",
+        "pt": "pT3 (tumor extends beyond the pancreas without involvement of the celiac axis or superior mesenteric artery — AJCC 8th edition pancreas, provisional based on upstream synthesis)",
+        "confidence": 0.6802250000000001
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage I",
+        "pT": "T2",
+        "pN": "N0",
+        "pM": "MX",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": true,
+          "overlap": 1,
+          "pred": "Pancreatic Adenocarcinoma",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": "G2 — moderately differentiated (WHO 2019 classification of tumors of the digestive system)",
+          "truth": null
+        },
+        "pt": {
+          "match": false,
+          "pred": "pT3 (tumor extends beyond the pancreas without involvement of the celiac axis or superior mesenteric artery — AJCC 8th edition pancreas, provisional based on upstream synthesis)",
+          "truth": null
+        }
+      }
+    }
+  }
+}

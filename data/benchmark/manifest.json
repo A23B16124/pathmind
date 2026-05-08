@@ -1,214 +1,44 @@
 {
   "cases": [
     {
-      "submitter_id": "TCGA-NH-A5IV",
-      "case_id": "cc22913d-2dda-48bb-82aa-9960b73f3e44",
-      "report_file_id": "9672f2af-2be3-4a35-b3be-e02c990ce7b9",
-      "report_file_name": "TCGA-NH-A5IV.F7280EE2-0A62-4DE5-8A20-17B6FBB51F41.PDF",
+      "submitter_id": "TCGA-F4-6809",
+      "case_id": "e7af286b-3dec-4cf2-8fbd-fa64b3efdf7f",
+      "report_file_id": "aa66e95c-5ca9-42dc-97e4-a17b0eaf62bb",
+      "report_file_name": "TCGA-F4-6809.3EEF31F7-8C59-4B40-B441-DAAE9CB87C92.PDF",
       "gt": {
         "primary_diagnosis": "Adenocarcinoma, NOS",
         "tumor_grade": null,
-        "stage": "Stage IIA",
-        "pT": "T3",
-        "pN": "N0",
-        "pM": "MX",
-        "morphology": "8140/3",
-        "site": "Transverse colon"
-      },
-      "slides": [
-        {
-          "file_id": "76117b24-54f6-4b64-9c4e-eb67b611eead",
-          "file_name": "TCGA-NH-A5IV-01A-04-TS4.A8D8B4AF-2E59-40F2-A64F-3EF2CA984AD1.svs",
-          "size_mb": 254.4
-        },
-        {
-          "file_id": "a8903dd1-b3ec-4b10-89f3-142fab914157",
-          "file_name": "TCGA-NH-A5IV-01Z-00-DX1.1A6F9F12-C00E-47F2-9400-541BA230EFBE.svs",
-          "size_mb": 1492.4
-        }
-      ],
-      "total_size_gb": 1.71
-    },
-    {
-      "submitter_id": "TCGA-AZ-4616",
-      "case_id": "e703af88-c05f-4d7b-b225-d640e4d1a2a5",
-      "report_file_id": "de57c689-861b-4af5-a2a8-f3b92ba0b196",
-      "report_file_name": "TCGA-AZ-4616.A2E6B613-40A7-4B4B-91F9-AFFB8541D909.PDF",
-      "gt": {
-        "primary_diagnosis": "Adenocarcinoma, NOS",
-        "tumor_grade": null,
-        "stage": "Stage IV",
-        "pT": "T3",
-        "pN": "N2",
-        "pM": "M1",
-        "morphology": "8140/3",
-        "site": "Cecum"
-      },
-      "slides": [
-        {
-          "file_id": "5783bad7-1d94-4257-a234-af0330b96ad9",
-          "file_name": "TCGA-AZ-4616-01Z-00-DX1.0a0f6eaa-4db6-4479-a9df-f09387f555b1.svs",
-          "size_mb": 749.3
-        },
-        {
-          "file_id": "930a0a17-525e-40b4-9b6a-87ed7e3235c7",
-          "file_name": "TCGA-AZ-4616-01A-02-BS2.af9e7937-b8f2-47b4-9679-9c797e59debf.svs",
-          "size_mb": 127.9
-        },
-        {
-          "file_id": "6120da78-32da-4031-8987-e9a0be3a4acb",
-          "file_name": "TCGA-AZ-4616-01A-01-BS1.17596b1f-47af-4f77-ab6a-ec2876da2e97.svs",
-          "size_mb": 95.7
-        }
-      ],
-      "total_size_gb": 0.95
-    },
-    {
-      "submitter_id": "TCGA-T9-A92H",
-      "case_id": "81a7184e-f9f5-4e3f-9603-5f5642386c1e",
-      "report_file_id": "db6e784e-e6ca-47c0-9593-a76cb567f361",
-      "report_file_name": "TCGA-T9-A92H.AE058D5A-7249-44E5-87AA-663B07DA6A63.PDF",
-      "gt": {
-        "primary_diagnosis": "Adenocarcinoma, NOS",
-        "tumor_grade": null,
-        "stage": "Stage IIA",
-        "pT": "T3",
-        "pN": "N0",
-        "pM": "M0",
-        "morphology": "8140/3",
-        "site": "Sigmoid colon"
-      },
-      "slides": [
-        {
-          "file_id": "b9a36eb1-ce20-4166-8cb8-a00782229e61",
-          "file_name": "TCGA-T9-A92H-01Z-00-DX3.1DE7D5ED-60F7-4645-8243-AB0C027B3ED7.svs",
-          "size_mb": 596.7
-        },
-        {
-          "file_id": "89db6ed1-ea38-413a-9f05-1336a8e2275a",
-          "file_name": "TCGA-T9-A92H-01A-01-TS1.104C633B-CD8F-4914-A284-D2E98E986F1F.svs",
-          "size_mb": 278.5
-        },
-        {
-          "file_id": "0595727b-58bb-45e8-8a54-ce1e8e9df83a",
-          "file_name": "TCGA-T9-A92H-01Z-00-DX1.9BA130C5-CAEF-4452-BB1F-61963B0DA3C5.svs",
-          "size_mb": 685.3
-        },
-        {
-          "file_id": "bb9f6b33-f007-4915-9b73-05f847db0964",
-          "file_name": "TCGA-T9-A92H-01Z-00-DX2.43894C88-2096-4932-9E9D-17BDCACF988C.svs",
-          "size_mb": 618.2
-        }
-      ],
-      "total_size_gb": 2.13
-    },
-    {
-      "submitter_id": "TCGA-AA-3712",
-      "case_id": "2b94070a-21ec-457b-88af-3d2a89b97ac6",
-      "report_file_id": "5f3c8fd1-3a3a-4c06-b3c2-0ee0f1aa9df9",
-      "report_file_name": "TCGA-AA-3712.DEA49ACF-C268-4547-AE88-D7A5CFDB5808.PDF",
-      "gt": {
-        "primary_diagnosis": "Adenocarcinoma, NOS",
-        "tumor_grade": null,
-        "stage": "Stage III",
-        "pT": "T3",
-        "pN": "N2",
-        "pM": "M0",
-        "morphology": "8140/3",
-        "site": "Descending colon"
-      },
-      "slides": [
-        {
-          "file_id": "f421e476-ad03-4780-8c04-0f2961117ab6",
-          "file_name": "TCGA-AA-3712-01A-01-BS1.0eaed30d-e80c-4651-a066-75fc74fd06d0.svs",
-          "size_mb": 115.9
-        },
-        {
-          "file_id": "bc687047-9968-40e5-b6a6-03a8af7d086a",
-          "file_name": "TCGA-AA-3712-11A-01-TS1.eb708abe-3410-45a3-8ad6-33e4f62dba93.svs",
-          "size_mb": 62.7
-        },
-        {
-          "file_id": "3962ba26-19f7-46be-af73-e39b37a51c64",
-          "file_name": "TCGA-AA-3712-01Z-00-DX1.00E0ACE2-8CC5-4063-9C65-3CDD7F21B189.svs",
-          "size_mb": 8.2
-        },
-        {
-          "file_id": "820076d2-857e-4e59-9767-b695da2d7ae3",
-          "file_name": "TCGA-AA-3712-01A-02-BS2.fa7f8888-cb7c-4d4c-9608-c3eff2960c73.svs",
-          "size_mb": 68.1
-        }
-      ],
-      "total_size_gb": 0.25
-    },
-    {
-      "submitter_id": "TCGA-AY-A71X",
-      "case_id": "d4da3298-3a02-44a6-bdcd-d260f38e520b",
-      "report_file_id": "0b6dcf0e-3aad-4f3e-a070-70793bc02db0",
-      "report_file_name": "TCGA-AY-A71X.32360E38-C269-487F-806F-A3880DE9F3EC.PDF",
-      "gt": {
-        "primary_diagnosis": "Adenocarcinoma, NOS",
-        "tumor_grade": null,
-        "stage": "Stage I",
-        "pT": "T2",
-        "pN": "N0",
-        "pM": "M0",
-        "morphology": "8140/3",
-        "site": "Cecum"
-      },
-      "slides": [
-        {
-          "file_id": "d15b5a16-7fba-4355-891d-96c66bec062e",
-          "file_name": "TCGA-AY-A71X-01A-01-TS1.1E3832D1-1E99-4DA1-B661-11860B8C7E5A.svs",
-          "size_mb": 208.9
-        },
-        {
-          "file_id": "5af6b02b-f142-41f7-a1a4-1fd61dc73f3e",
-          "file_name": "TCGA-AY-A71X-01Z-00-DX1.68F9BC0F-1D60-4AEF-9083-509387038F03.svs",
-          "size_mb": 2053.6
-        }
-      ],
-      "total_size_gb": 2.21
-    },
-    {
-      "submitter_id": "TCGA-AA-3971",
-      "case_id": "10994156-7c2f-420e-aeb8-11d566b3d5e4",
-      "report_file_id": "99124dc5-b607-4c8f-acbc-64f7b92e529b",
-      "report_file_name": "TCGA-AA-3971.C9868EE7-4CC6-4C5D-AA91-ED744A8FEF35.PDF",
-      "gt": {
-        "primary_diagnosis": "Adenocarcinoma, NOS",
-        "tumor_grade": null,
-        "stage": "Stage III",
+        "stage": "Stage IVA",
         "pT": "T3",
         "pN": "N1",
-        "pM": "M0",
+        "pM": "M1",
         "morphology": "8140/3",
         "site": "Sigmoid colon"
       },
       "slides": [
         {
-          "file_id": "1ada25d1-82f9-40c3-b866-ac7a889845b5",
-          "file_name": "TCGA-AA-3971-01A-01-TS1.4434d86c-aeed-4f53-998c-7b310a42d8e9.svs",
-          "size_mb": 79.3
+          "file_id": "940f86d9-850e-4959-b3e7-ea63b1d2588a",
+          "file_name": "TCGA-F4-6809-01Z-00-DX1.5ab8333f-0c77-4685-8701-4130a93e6f3a.svs",
+          "size_mb": 506.2
         },
         {
-          "file_id": "4a644f46-af06-44ac-a7c6-f13258d70357",
-          "file_name": "TCGA-AA-3971-01Z-00-DX1.348b1114-a9d5-4a37-8dfd-3bc8738fec35.svs",
-          "size_mb": 522.1
+          "file_id": "b5c2f16d-e609-4a3e-8f80-a7979af032e6",
+          "file_name": "TCGA-F4-6809-01A-01-TS1.7c734fc1-45b2-40c1-b332-07c9dd21bd3d.svs",
+          "size_mb": 544.4
         },
         {
-          "file_id": "452b0a7c-17e5-4474-adbc-68bd449c7f05",
-          "file_name": "TCGA-AA-3971-01A-01-BS1.43f25781-1cbe-4a02-9d55-4ccdd36a4d0d.svs",
-          "size_mb": 125.8
+          "file_id": "056b25da-af6e-4f1a-a819-fc668a119d78",
+          "file_name": "TCGA-F4-6809-01A-01-BS1.557dfb5e-749e-43e5-96b4-39f322fd22c0.svs",
+          "size_mb": 419.9
         }
       ],
-      "total_size_gb": 0.71
+      "total_size_gb": 1.44
     },
     {
-      "submitter_id": "TCGA-AD-6965",
-      "case_id": "c8de215d-53a4-4e6c-be58-5887a8094815",
-      "report_file_id": "67048091-8884-4b1b-af14-e29669e1e42c",
-      "report_file_name": "TCGA-AD-6965.AF7B6E8C-CCE1-4D7E-884C-5475D6182EB2.PDF",
+      "submitter_id": "TCGA-5M-AAT6",
+      "case_id": "ce00896a-f7d2-4123-bb95-24cb6e53fc32",
+      "report_file_id": "4328dc1f-55f1-48ca-8e37-9bdd266d7da3",
+      "report_file_name": "TCGA-5M-AAT6.B25D2818-B3C6-49F0-81E6-224488C1E926.PDF",
       "gt": {
         "primary_diagnosis": "Not Reported",
         "tumor_grade": null,
@@ -221,62 +51,868 @@
       },
       "slides": [
         {
-          "file_id": "576adc09-b755-4932-b7a3-6f55c4a41c22",
-          "file_name": "TCGA-AD-6965-01A-01-TS1.18836918-906c-4bd3-8549-f2a627bcdcb3.svs",
-          "size_mb": 70.5
+          "file_id": "fd340068-af5b-4870-88fa-5983d5cbd698",
+          "file_name": "TCGA-5M-AAT6-01A-01-TS1.60D71ED8-276C-4C78-B2CC-C2503A37AE58.svs",
+          "size_mb": 204.8
         },
         {
-          "file_id": "5d81b516-5406-489b-88c1-e5972449a131",
-          "file_name": "TCGA-AD-6965-01A-01-BS1.c742cdfe-0491-4f97-936e-106d00aaec16.svs",
-          "size_mb": 56.0
-        },
-        {
-          "file_id": "56b13994-61dd-4f3b-b26f-faacf93a339d",
-          "file_name": "TCGA-AD-6965-01Z-00-DX1.0330727c-42f5-4a08-a35d-af81eda1d0f1.svs",
-          "size_mb": 77.9
+          "file_id": "e5d2f743-a51f-4ba7-a23d-e87a069a7ee1",
+          "file_name": "TCGA-5M-AAT6-01Z-00-DX1.8834C952-14E3-4491-8156-52FC917BB014.svs",
+          "size_mb": 1684.3
         }
       ],
-      "total_size_gb": 0.2
+      "total_size_gb": 1.84
     },
     {
-      "submitter_id": "TCGA-CA-6716",
-      "case_id": "95a54459-3fac-42d5-8ec1-ed66d971d64d",
-      "report_file_id": "498af998-7ab5-4fb1-9d74-611a86cbc0fd",
-      "report_file_name": "TCGA-CA-6716.C0C68CB6-C411-42E9-A5BC-F05A58F101F3.PDF",
+      "submitter_id": "TCGA-CK-4950",
+      "case_id": "c293a148-a88c-4fb3-b2f4-e64e918044f9",
+      "report_file_id": "a25f2fea-4e60-4c8e-be86-4b4b3db78169",
+      "report_file_name": "TCGA-CK-4950.03D5DD22-A6DD-45BE-BFFF-FB5B64D09796.PDF",
       "gt": {
-        "primary_diagnosis": "Papillary adenocarcinoma, NOS",
+        "primary_diagnosis": "Mucinous adenocarcinoma",
+        "tumor_grade": null,
+        "stage": "Stage IIIB",
+        "pT": "T3",
+        "pN": "N1",
+        "pM": "M0",
+        "morphology": "8480/3",
+        "site": "Cecum"
+      },
+      "slides": [
+        {
+          "file_id": "5b66d980-80c2-430c-a255-8742eee3b9ab",
+          "file_name": "TCGA-CK-4950-01A-01-TS1.c1e83666-3257-4b11-8993-916f7fa09536.svs",
+          "size_mb": 38.6
+        },
+        {
+          "file_id": "722ba6c1-02ef-4edd-aaea-263617fa8dad",
+          "file_name": "TCGA-CK-4950-01A-01-BS1.86d4eb1d-b2ff-4ebb-808b-f2f3983e1855.svs",
+          "size_mb": 18.6
+        },
+        {
+          "file_id": "03e74334-057d-47f1-9651-4a270ca1f943",
+          "file_name": "TCGA-CK-4950-01Z-00-DX1.03dcc4c2-2b63-45a2-8561-bf18193202b5.svs",
+          "size_mb": 652.9
+        }
+      ],
+      "total_size_gb": 0.69
+    },
+    {
+      "submitter_id": "TCGA-DM-A28A",
+      "case_id": "9b2c325c-1f03-43c7-ad5c-b49c6d205635",
+      "report_file_id": "c2ee198f-a751-43c0-a422-ae41c02504f6",
+      "report_file_name": "TCGA-DM-A28A.66BF2525-B76A-4BE5-8FDF-EAE8334F384E.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIIC",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "slides": [
+        {
+          "file_id": "5cbc8262-ce1e-425c-8ba4-b767f99a23b8",
+          "file_name": "TCGA-DM-A28A-01A-02-TSB.51E27FA5-4B0A-43C6-B15D-C4B500FAD419.svs",
+          "size_mb": 198.6
+        },
+        {
+          "file_id": "86baacba-f6e0-45fa-a355-7213b35cab64",
+          "file_name": "TCGA-DM-A28A-01Z-00-DX1.05b565c5-efa0-41be-a7e3-46f9166ddb7b.svs",
+          "size_mb": 1447.0
+        }
+      ],
+      "total_size_gb": 1.61
+    },
+    {
+      "submitter_id": "TCGA-DM-A0XF",
+      "case_id": "b823d6e5-54b0-43d3-95e2-9be33dc6f734",
+      "report_file_id": "0935bed0-b479-4927-ba9e-7e13ca1d3e21",
+      "report_file_name": "TCGA-DM-A0XF.2E442714-A485-48C1-80FD-9418ABD94D9C.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIIC",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Colon, NOS"
+      },
+      "slides": [
+        {
+          "file_id": "3f582038-6f0c-460b-9ff5-d0a46282e31d",
+          "file_name": "TCGA-DM-A0XF-01Z-00-DX1.6FD3D3CF-A1E2-4F4E-BF02-F81B1A1061CC.svs",
+          "size_mb": 1142.8
+        },
+        {
+          "file_id": "00c08e0e-4798-49e1-80ed-6047dd68366b",
+          "file_name": "TCGA-DM-A0XF-01A-01-TSA.5e80fdbf-254c-4aa7-abd8-0756e4ad39e0.svs",
+          "size_mb": 286.9
+        },
+        {
+          "file_id": "978ba9fb-064c-4708-a83e-aa648789bb3c",
+          "file_name": "TCGA-DM-A0XF-01A-01-BSA.3aa1e645-d7a7-4258-8728-4d9f49539414.svs",
+          "size_mb": 185.8
+        }
+      ],
+      "total_size_gb": 1.58
+    },
+    {
+      "submitter_id": "TCGA-A6-6653",
+      "case_id": "68801d41-535f-4b38-989b-ef4fe5f00039",
+      "report_file_id": "a72a1c5a-0590-4195-ae9e-7f9225acf97e",
+      "report_file_name": "TCGA-A6-6653.8360924D-CE15-4713-82D3-F8F8932B1DFB.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage I",
+        "pT": "T2",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Ascending colon"
+      },
+      "slides": [
+        {
+          "file_id": "ea019759-a31d-4898-bc7a-c623e72a4ad6",
+          "file_name": "TCGA-A6-6653-01A-01-TS1.6b4a6b45-ba17-4c2d-bf8c-c0c72bb49d44.svs",
+          "size_mb": 112.9
+        },
+        {
+          "file_id": "6e0813a9-1feb-4448-a0b6-5d8c962f8e28",
+          "file_name": "TCGA-A6-6653-01A-01-BS1.1fb93714-513d-44d2-925f-5073f1007017.svs",
+          "size_mb": 95.3
+        },
+        {
+          "file_id": "023ca8d1-d8ef-492e-b542-e5e16e1ded09",
+          "file_name": "TCGA-A6-6653-01Z-00-DX1.e130666d-2681-4382-9e7a-4a4d27cb77a4.svs",
+          "size_mb": 233.4
+        }
+      ],
+      "total_size_gb": 0.43
+    },
+    {
+      "submitter_id": "TCGA-QG-A5Z1",
+      "case_id": "9c45eaec-d854-4f51-80a3-2d80d6b4aebc",
+      "report_file_id": "da46a7d8-2b2c-4707-91be-3736e185ab8c",
+      "report_file_name": "TCGA-QG-A5Z1.63266BCF-52D2-4EFC-ADD4-B7728BD8101E.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIIB",
+        "pT": "T3",
+        "pN": "N1b",
+        "pM": "MX",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "slides": [
+        {
+          "file_id": "fab7ca32-6b16-42b0-98ff-9e8f6940d37e",
+          "file_name": "TCGA-QG-A5Z1-01A-01-TS1.3AD35E0F-972E-4629-BF87-22738233B0B7.svs",
+          "size_mb": 361.0
+        },
+        {
+          "file_id": "3f7b713c-e8b9-480d-a006-69ff3df858ff",
+          "file_name": "TCGA-QG-A5Z1-01Z-00-DX2.2CE72B6A-557F-43BD-BA4C-B252E14E46EF.svs",
+          "size_mb": 1442.7
+        },
+        {
+          "file_id": "a661753c-59b0-4e68-87c9-ac2dd5d17051",
+          "file_name": "TCGA-QG-A5Z1-01Z-00-DX1.F3157C57-0F35-42D3-9CA5-C72D93F1BF89.svs",
+          "size_mb": 837.0
+        }
+      ],
+      "total_size_gb": 2.58
+    },
+    {
+      "submitter_id": "TCGA-F4-6570",
+      "case_id": "eeb42912-0c7a-46bb-bd95-369b2b425727",
+      "report_file_id": "5b9756cc-4a15-41eb-820d-5d19a33fe053",
+      "report_file_name": "TCGA-F4-6570.2DB5FC84-1782-4C79-9179-11988DD8BA01.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
         "tumor_grade": null,
         "stage": "Stage IIA",
         "pT": "T3",
         "pN": "N0",
         "pM": "M0",
-        "morphology": "8260/3",
+        "morphology": "8140/3",
+        "site": "Transverse colon"
+      },
+      "slides": [
+        {
+          "file_id": "7e274fb1-5733-46f5-8c44-25486a174892",
+          "file_name": "TCGA-F4-6570-01A-01-TS1.1fd11966-a90a-466a-a1e1-57a2fe1bfc64.svs",
+          "size_mb": 510.1
+        },
+        {
+          "file_id": "592d363f-5016-4fd1-82c2-663325faaa5d",
+          "file_name": "TCGA-F4-6570-01A-01-BS1.cec0d32b-f66a-4e89-a926-0d1e885439ce.svs",
+          "size_mb": 444.7
+        },
+        {
+          "file_id": "ca33b5ee-d075-4ea9-8490-3167beedd69b",
+          "file_name": "TCGA-F4-6570-01Z-00-DX1.57a15bf3-d9a1-4da7-b71a-7b992a275bdf.svs",
+          "size_mb": 550.9
+        }
+      ],
+      "total_size_gb": 1.47
+    },
+    {
+      "submitter_id": "TCGA-AA-3975",
+      "case_id": "a9cb21d1-4c4a-4f30-ad4d-c54bed26f187",
+      "report_file_id": "a665591d-3fb3-4a8d-b6e9-70bb4000d431",
+      "report_file_name": "TCGA-AA-3975.2EA60AAB-1F16-4DD6-9F73-39103A726D83.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage I",
+        "pT": "T2",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "slides": [
+        {
+          "file_id": "371ab573-005a-4a45-b803-818587949c2b",
+          "file_name": "TCGA-AA-3975-01A-01-BS1.12f18ef4-4e3c-4f62-99db-9672c6ad79ba.svs",
+          "size_mb": 109.7
+        },
+        {
+          "file_id": "7fe47f9f-3250-4e29-ac95-42fb09bc3a53",
+          "file_name": "TCGA-AA-3975-01Z-00-DX1.e73492da-b6fb-4c56-ab30-53b0b7041e04.svs",
+          "size_mb": 368.1
+        },
+        {
+          "file_id": "3ae2df00-0ce9-438f-961e-60925e0f5484",
+          "file_name": "TCGA-AA-3975-01A-01-TS1.e1054c8a-3f00-4afc-856d-4ab27e04d2d3.svs",
+          "size_mb": 105.4
+        }
+      ],
+      "total_size_gb": 0.57
+    },
+    {
+      "submitter_id": "TCGA-D5-6920",
+      "case_id": "dc22eba5-6fb7-4875-b30a-99fa00758301",
+      "report_file_id": "3cd8c8de-2529-4c11-95bf-6d450a8ad959",
+      "report_file_name": "TCGA-D5-6920.785F1166-6B98-497A-9546-75CE66337309.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "slides": [
+        {
+          "file_id": "73148461-ae00-47c2-802b-e8eb821a34bf",
+          "file_name": "TCGA-D5-6920-01A-01-BS1.362f67d0-6a91-421c-83e8-748c3d38ded5.svs",
+          "size_mb": 150.9
+        },
+        {
+          "file_id": "c278e965-d5e0-49bf-87f5-a9257b2b702c",
+          "file_name": "TCGA-D5-6920-01Z-00-DX1.e184673f-e7e9-44aa-9dae-7054bd1d0d00.svs",
+          "size_mb": 117.4
+        },
+        {
+          "file_id": "af8ca88b-e825-44b7-a2ee-2d1dd6f3c3f8",
+          "file_name": "TCGA-D5-6920-01A-01-TS1.f2c8fc67-ca4e-453c-a2dd-6ced42a4fc5d.svs",
+          "size_mb": 28.1
+        }
+      ],
+      "total_size_gb": 0.29
+    },
+    {
+      "submitter_id": "TCGA-AA-3560",
+      "case_id": "2d02bd7a-5beb-4e43-9ccb-18d89c9d5ca2",
+      "report_file_id": "45dadf2a-1b96-4154-a0a0-dfb43992af0a",
+      "report_file_name": "TCGA-AA-3560.51DACDFD-6FD2-472D-89C3-A46FD0A50084.PDF",
+      "gt": {
+        "primary_diagnosis": "Not Reported",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "Not Reported",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "e26276d0-bac9-4fb1-af94-718158145108",
+          "file_name": "TCGA-AA-3560-01A-01-TS1.e28f2269-e4c4-4d22-8c8b-59c650db215d.svs",
+          "size_mb": 77.7
+        },
+        {
+          "file_id": "5aeac8b8-2308-441b-9986-281b385c0de5",
+          "file_name": "TCGA-AA-3560-01A-01-BS1.55bdf493-a89e-4342-913c-f117c75e3f21.svs",
+          "size_mb": 104.8
+        },
+        {
+          "file_id": "20c54d6e-a4cb-4503-aafb-a70b8c342b9a",
+          "file_name": "TCGA-AA-3560-01Z-00-DX1.7ca786bd-777e-4b33-8778-fc5e2b061ff1.svs",
+          "size_mb": 189.6
+        }
+      ],
+      "total_size_gb": 0.36
+    },
+    {
+      "submitter_id": "TCGA-AA-3695",
+      "case_id": "23d0681a-912a-408f-b19a-0bbcf5ffc2f3",
+      "report_file_id": "39300b12-da35-4151-9948-658331239d1d",
+      "report_file_name": "TCGA-AA-3695.2589F145-0F8D-4C7C-BDB8-A2C1843D1548.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IV",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M1",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "slides": [
+        {
+          "file_id": "337025b3-97a6-4913-a4d2-3494f810884d",
+          "file_name": "TCGA-AA-3695-01Z-00-DX1.be93a101-7b57-4140-bd82-86c65e65ca27.svs",
+          "size_mb": 393.3
+        },
+        {
+          "file_id": "6857d0bb-13ef-4fa0-a42d-ca33b5323b0e",
+          "file_name": "TCGA-AA-3695-01A-01-BS1.32595f69-80cb-4681-b304-bb6ca4c15b37.svs",
+          "size_mb": 151.6
+        },
+        {
+          "file_id": "a035ba89-2d71-47f8-8e0f-fab20a863562",
+          "file_name": "TCGA-AA-3695-01A-01-TS1.d3cac7a9-93dc-4f17-9e9f-ff8d3600d097.svs",
+          "size_mb": 97.8
+        }
+      ],
+      "total_size_gb": 0.63
+    },
+    {
+      "submitter_id": "TCGA-CK-5912",
+      "case_id": "c085da47-d634-491a-80ea-514e5a231f70",
+      "report_file_id": "c473cacd-9593-47a4-9761-fd0bd61f64f6",
+      "report_file_name": "TCGA-CK-5912.2C2D886B-8D41-44A3-B1A2-18BEFB07D126.PDF",
+      "gt": {
+        "primary_diagnosis": "Not Reported",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "Not Reported",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "0dc16a72-93b4-4c47-b58b-dec3979085b9",
+          "file_name": "TCGA-CK-5912-01Z-00-DX1.23a955f3-a1ed-4cb3-8e49-cbb3f789f3f5.svs",
+          "size_mb": 1031.4
+        },
+        {
+          "file_id": "3af6b27f-4667-408a-b26d-db840b8db57d",
+          "file_name": "TCGA-CK-5912-01A-01-TS1.af766a5b-9b1b-459d-9795-415562415682.svs",
+          "size_mb": 27.9
+        }
+      ],
+      "total_size_gb": 1.03
+    },
+    {
+      "submitter_id": "TCGA-D5-6534",
+      "case_id": "d259eeb2-d15e-436d-9d37-2d0b7658bc91",
+      "report_file_id": "b872ecdb-047a-4cb4-ae2b-07469c0b543e",
+      "report_file_name": "TCGA-D5-6534.637C02FE-9238-4474-BA5B-15719353895B.PDF",
+      "gt": {
+        "primary_diagnosis": "Mucinous adenocarcinoma",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8480/3",
         "site": "Ascending colon"
       },
       "slides": [
         {
-          "file_id": "bd0e5749-35b1-46ef-9cae-003238f05ea0",
-          "file_name": "TCGA-CA-6716-01A-01-TS1.966b0540-ff37-454b-8e76-c15eb21168fe.svs",
-          "size_mb": 170.0
+          "file_id": "8718de54-b882-456e-b7fd-53f2d013cd93",
+          "file_name": "TCGA-D5-6534-01A-01-BS1.dad0cdbc-a989-4971-bebe-1b9ba711a1d8.svs",
+          "size_mb": 77.3
         },
         {
-          "file_id": "c78c413d-d6e8-434f-811c-069ce6162bf1",
-          "file_name": "TCGA-CA-6716-01Z-00-DX1.fd53102c-7f2b-47f1-b4d1-5693e81a0478.svs",
-          "size_mb": 653.5
-        },
-        {
-          "file_id": "240e498d-290f-400f-a900-f94e194eb6da",
-          "file_name": "TCGA-CA-6716-01A-01-BS1.bea762a4-33ec-4ee4-9858-69a04ccfa023.svs",
-          "size_mb": 249.4
+          "file_id": "cea3184b-c890-49d5-b1f8-8fca4ca145dc",
+          "file_name": "TCGA-D5-6534-01Z-00-DX1.eb7b12b8-ad31-438f-8e1d-9bb76a560c86.svs",
+          "size_mb": 706.3
         }
       ],
-      "total_size_gb": 1.05
+      "total_size_gb": 0.77
     },
     {
-      "submitter_id": "TCGA-A6-2678",
-      "case_id": "3a785e32-7960-4c72-84c4-fb42c4dd86f1",
-      "report_file_id": "d03511ec-d026-4e9c-be31-70004648c964",
-      "report_file_name": "TCGA-A6-2678.4C0861D1-A3B9-45CF-B0AC-EE9ADB748E55.PDF",
+      "submitter_id": "TCGA-AA-3986",
+      "case_id": "04d7a52f-a89b-4114-a608-a6254b4d604f",
+      "report_file_id": "dfc1627a-b442-4ab7-befd-f3066d5df929",
+      "report_file_name": "TCGA-AA-3986.5CA738D3-2A5E-4DB2-A064-FE61A9CEC8B3.PDF",
+      "gt": {
+        "primary_diagnosis": "Not Reported",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "Not Reported",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "6d82626b-ca85-4a6c-ad54-487ed205edfb",
+          "file_name": "TCGA-AA-3986-01A-02-BS2.875d87b2-3941-4c43-960b-ab762f3cdc5f.svs",
+          "size_mb": 177.6
+        },
+        {
+          "file_id": "13ea8b59-6628-4faa-8047-6628704c4636",
+          "file_name": "TCGA-AA-3986-01Z-00-DX1.db60e495-c0eb-416c-b65b-55ce62ed10b0.svs",
+          "size_mb": 637.5
+        },
+        {
+          "file_id": "9da5c0c5-b545-4540-9124-7db0932fc976",
+          "file_name": "TCGA-AA-3986-01A-01-BS1.d7147f1a-897d-440f-85cd-8597ed7ae300.svs",
+          "size_mb": 208.4
+        }
+      ],
+      "total_size_gb": 1.0
+    },
+    {
+      "submitter_id": "TCGA-A6-5665",
+      "case_id": "4c6c8d3d-e4a3-490a-9211-cfbe7e6ee25b",
+      "report_file_id": "866e0c45-9c3f-43f8-818c-947f3e250206",
+      "report_file_name": "TCGA-A6-5665.814C8056-1298-4941-9FDE-C660DAE23C0E.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Ascending colon"
+      },
+      "slides": [
+        {
+          "file_id": "a0a714de-b055-48e5-bca7-99611103e4de",
+          "file_name": "TCGA-A6-5665-11A-01-TS1.c0403633-10ec-4131-9c03-fd67c30ac5a7.svs",
+          "size_mb": 85.2
+        },
+        {
+          "file_id": "f50e4c98-6b6e-4095-b191-c428e6544d5b",
+          "file_name": "TCGA-A6-5665-01A-01-BS1.c4a8294c-9a06-4981-9d2c-2539557e6c8e.svs",
+          "size_mb": 60.5
+        },
+        {
+          "file_id": "1fb8f271-2015-4d94-83fb-aadc868bba4e",
+          "file_name": "TCGA-A6-5665-01A-01-TS1.920586c4-3ad8-4b0a-9042-814b98a42e33.svs",
+          "size_mb": 193.6
+        },
+        {
+          "file_id": "103810e8-c721-4242-b729-270097a23469",
+          "file_name": "TCGA-A6-5665-01Z-00-DX1.3ad2c249-d138-4037-a59b-4747ce2b789a.svs",
+          "size_mb": 160.9
+        }
+      ],
+      "total_size_gb": 0.49
+    },
+    {
+      "submitter_id": "TCGA-AA-3812",
+      "case_id": "4563e4e0-a661-46de-ad25-9c86a621e147",
+      "report_file_id": "cafa497d-3987-42dc-ac87-de4d7dbd2d97",
+      "report_file_name": "TCGA-AA-3812.4393113D-6C83-4763-A258-96AB9B8F604D.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "slides": [
+        {
+          "file_id": "a3969b83-df28-48cf-9153-e455e43b4419",
+          "file_name": "TCGA-AA-3812-01A-01-TS1.a7fe5a2f-9268-497e-84a8-7fe357f565ff.svs",
+          "size_mb": 158.7
+        },
+        {
+          "file_id": "a7275cfe-0717-4145-bba5-4fe56479b8d1",
+          "file_name": "TCGA-AA-3812-01A-01-BS1.939e5f0f-00eb-4b14-bca6-ee182af13e77.svs",
+          "size_mb": 119.3
+        },
+        {
+          "file_id": "df7eff22-a7b7-470a-877b-c4cbbc7020fe",
+          "file_name": "TCGA-AA-3812-01Z-00-DX1.c501fc71-8370-4034-b32a-1bb7cd846881.svs",
+          "size_mb": 305.8
+        }
+      ],
+      "total_size_gb": 0.57
+    },
+    {
+      "submitter_id": "TCGA-CK-4947",
+      "case_id": "73f9681a-f9ef-4880-bd16-93624fd117c6",
+      "report_file_id": "4a9123a1-9ff0-4a7a-9f8c-34b26d5d6fd9",
+      "report_file_name": "TCGA-CK-4947.A9E32496-0ECB-4C68-963C-FF8FE4AAA62E.PDF",
+      "gt": {
+        "primary_diagnosis": "Not Reported",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "Not Reported",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "bc13fd09-29f5-463c-9148-e0fbacbfbc00",
+          "file_name": "TCGA-CK-4947-01B-01-BS1.baf22cfe-32de-48e4-8e04-46c3a5511241.svs",
+          "size_mb": 83.5
+        },
+        {
+          "file_id": "88e5ebdd-eb58-479d-8011-b7e67fbfa893",
+          "file_name": "TCGA-CK-4947-01B-01-TS1.af4c4f0e-2727-4ceb-8681-55baa4bd92c4.svs",
+          "size_mb": 81.5
+        },
+        {
+          "file_id": "16a5bceb-dba9-4c63-92bf-a63c5901d0b6",
+          "file_name": "TCGA-CK-4947-01Z-00-DX1.b257d5fd-b97b-4987-b088-77f044ca7fe2.svs",
+          "size_mb": 864.6
+        }
+      ],
+      "total_size_gb": 1.01
+    },
+    {
+      "submitter_id": "TCGA-AA-3966",
+      "case_id": "bc42fe2d-1a33-428d-a601-b1871f4c8d9b",
+      "report_file_id": "64a437f3-ad54-4197-9c91-5549a61cd479",
+      "report_file_name": "TCGA-AA-3966.D2C3087B-9B52-4958-859A-F2EE18FFE6A3.PDF",
+      "gt": {
+        "primary_diagnosis": "Mucinous adenocarcinoma",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8480/3",
+        "site": "Hepatic flexure of colon"
+      },
+      "slides": [
+        {
+          "file_id": "e7bc1f07-535d-43bf-bd77-75132173ed60",
+          "file_name": "TCGA-AA-3966-01A-01-TS1.129a34e4-6770-4f97-b47a-8a5e27c04007.svs",
+          "size_mb": 69.7
+        },
+        {
+          "file_id": "3918b8a1-e2d2-4ecc-97ea-a8ad81474088",
+          "file_name": "TCGA-AA-3966-01Z-00-DX1.7bc0c76e-f2d9-4abd-b63c-dad01aa4b1f7.svs",
+          "size_mb": 420.3
+        },
+        {
+          "file_id": "7c1788fc-daa0-40c8-91e9-002795f917ee",
+          "file_name": "TCGA-AA-3966-01A-01-BS1.6238c7ab-0ae6-43da-af73-2db2d2c98b1b.svs",
+          "size_mb": 72.6
+        }
+      ],
+      "total_size_gb": 0.55
+    },
+    {
+      "submitter_id": "TCGA-D5-6537",
+      "case_id": "ebc5a6f8-34fd-48c1-a2b9-7f60f45fbf27",
+      "report_file_id": "092a188c-c3d2-4ec1-a22e-ffde60a8ec35",
+      "report_file_name": "TCGA-D5-6537.F05F81CD-FC57-4BE5-A21D-F41E00449893.PDF",
+      "gt": {
+        "primary_diagnosis": "Not Reported",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "Not Reported",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "bd122923-8d8a-42a4-b651-d0e9c2ac9b36",
+          "file_name": "TCGA-D5-6537-01A-01-TS1.a0c564bd-1eef-4d69-8290-b19e1b699139.svs",
+          "size_mb": 48.5
+        },
+        {
+          "file_id": "4df93b89-bce1-4ad6-adcb-b766ccf25bd8",
+          "file_name": "TCGA-D5-6537-01A-01-BS1.72989d79-fe95-4d25-8b1a-539a1a137508.svs",
+          "size_mb": 122.7
+        },
+        {
+          "file_id": "bcc16f92-3489-4c23-a8de-3a79fab77086",
+          "file_name": "TCGA-D5-6537-01Z-00-DX1.f81ccf91-7ce6-4ccc-8278-cc05f639aca7.svs",
+          "size_mb": 684.1
+        }
+      ],
+      "total_size_gb": 0.84
+    },
+    {
+      "submitter_id": "TCGA-CM-5868",
+      "case_id": "4aadf2a2-ce1e-4f94-b146-59292e83e7fd",
+      "report_file_id": "99f33172-22ac-4954-a73c-0fcecafc1628",
+      "report_file_name": "TCGA-CM-5868.F5259A76-974F-483B-A980-CB39B45FD791.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IVA",
+        "pT": "T4a",
+        "pN": "N1a",
+        "pM": "M1a",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "slides": [
+        {
+          "file_id": "d4ac3319-c075-4f7c-9649-d215c87d5274",
+          "file_name": "TCGA-CM-5868-01A-01-BS1.7c93acf9-891f-4333-b6d2-12243878fa84.svs",
+          "size_mb": 205.4
+        },
+        {
+          "file_id": "7ac7fa7c-0edc-420a-a11d-9906ad64ac24",
+          "file_name": "TCGA-CM-5868-01A-01-TS1.ef03933f-3d75-413d-ba1f-ccfb23dc6ac1.svs",
+          "size_mb": 94.9
+        },
+        {
+          "file_id": "21471300-f78e-4174-bdc9-7a4076c5f1b7",
+          "file_name": "TCGA-CM-5868-01Z-00-DX1.70f2e193-248d-4bf9-a875-49c314223f70.svs",
+          "size_mb": 858.9
+        }
+      ],
+      "total_size_gb": 1.13
+    },
+    {
+      "submitter_id": "TCGA-D5-6926",
+      "case_id": "3a8ca50f-bc9f-4250-8c8d-22893763ea46",
+      "report_file_id": "668c39b3-1a2a-4f84-a07b-2b2a872c72e7",
+      "report_file_name": "TCGA-D5-6926.E5257AC1-CDA4-460E-8959-BC4F221E2C6E.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIIB",
+        "pT": "T4a",
+        "pN": "N1",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "slides": [
+        {
+          "file_id": "135b18d4-1d28-4968-bf33-e08b212b4524",
+          "file_name": "TCGA-D5-6926-01A-01-BS1.f5de9ed0-abe7-46c4-8121-d0a13f443434.svs",
+          "size_mb": 60.6
+        },
+        {
+          "file_id": "11489c71-5516-4ca3-8256-4c91ac223e20",
+          "file_name": "TCGA-D5-6926-01Z-00-DX1.3830423a-3587-432b-9a6c-84f838e49fe6.svs",
+          "size_mb": 228.2
+        },
+        {
+          "file_id": "ba36694b-2e40-45cc-8997-745f6742aee9",
+          "file_name": "TCGA-D5-6926-01A-01-TS1.55dd0e56-dec5-49ed-86a0-2fd1ca252aab.svs",
+          "size_mb": 65.3
+        }
+      ],
+      "total_size_gb": 0.35
+    },
+    {
+      "submitter_id": "TCGA-AA-3973",
+      "case_id": "e8841edf-e070-425b-b4d4-bbb2115f9dbd",
+      "report_file_id": "fe40fd05-06d6-452b-b9ca-5a4fcc55be1f",
+      "report_file_name": "TCGA-AA-3973.9E835A08-C992-405B-A4AA-BE4C570A695C.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IV",
+        "pT": "T4",
+        "pN": "N1",
+        "pM": "M1",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "slides": [
+        {
+          "file_id": "4c73e391-7f84-46ed-bc2a-ec0f771d0e73",
+          "file_name": "TCGA-AA-3973-01A-01-BS1.a7fedbf4-9afa-44af-aeb5-ff949a13fc2b.svs",
+          "size_mb": 50.3
+        },
+        {
+          "file_id": "f2ced6c8-9c9e-4356-a550-0609d2c7ebac",
+          "file_name": "TCGA-AA-3973-01A-01-TS1.75ad0c80-1431-4438-b6e7-6e02c547217e.svs",
+          "size_mb": 44.2
+        },
+        {
+          "file_id": "79aa3803-9a5f-4589-942c-156b3fd2a62c",
+          "file_name": "TCGA-AA-3973-01Z-00-DX1.05cee752-3f4e-442d-a093-dcfb2b6130f0.svs",
+          "size_mb": 270.2
+        }
+      ],
+      "total_size_gb": 0.36
+    },
+    {
+      "submitter_id": "TCGA-AA-3688",
+      "case_id": "2c9996bb-af6e-4424-881a-e81b9c9aeb78",
+      "report_file_id": "3b10abd0-6b10-43e3-b516-f3882bbc5b59",
+      "report_file_name": "TCGA-AA-3688.311A81E8-9561-46C9-BD1A-D8C7E2A178D8.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IV",
+        "pT": "T3",
+        "pN": "N1",
+        "pM": "M1",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "slides": [
+        {
+          "file_id": "63d2705e-139c-4068-98f3-501646e3ce43",
+          "file_name": "TCGA-AA-3688-01A-01-BS1.cd5c4d75-aa84-455a-becc-06b04f8978a0.svs",
+          "size_mb": 99.6
+        },
+        {
+          "file_id": "69b4eafa-a83c-4e5a-8855-95de51585362",
+          "file_name": "TCGA-AA-3688-01Z-00-DX1.642ce194-6dc0-4a96-aa79-674f48966df3.svs",
+          "size_mb": 292.5
+        },
+        {
+          "file_id": "3862a74b-3485-44b6-a67e-1a5d723d18fe",
+          "file_name": "TCGA-AA-3688-01A-01-TS1.90615e6d-6dbf-4d4e-aea5-21ec1bbb67ed.svs",
+          "size_mb": 82.1
+        }
+      ],
+      "total_size_gb": 0.46
+    },
+    {
+      "submitter_id": "TCGA-G4-6298",
+      "case_id": "ab9cc98a-86ae-4913-bcb2-cc3aeff8abb1",
+      "report_file_id": "eb9abc28-d650-46fb-b556-dc83474b67a9",
+      "report_file_name": "TCGA-G4-6298.BF7B5BF6-9223-412A-B98F-5E89761C5C8A.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIIB",
+        "pT": "T4a",
+        "pN": "N1",
+        "pM": "MX",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "slides": [
+        {
+          "file_id": "1e1d8d98-9965-4c8d-92dd-c88cfc6cce2c",
+          "file_name": "TCGA-G4-6298-01Z-00-DX1.83055d52-71f7-46ec-be53-11d86b19b4cf.svs",
+          "size_mb": 1099.3
+        },
+        {
+          "file_id": "272b3170-f743-4422-a256-ec9efa2af574",
+          "file_name": "TCGA-G4-6298-11A-01-TS1.5329dea8-06da-4ca7-9eff-bdcb7e082e44.svs",
+          "size_mb": 126.6
+        },
+        {
+          "file_id": "a4161fc1-5243-4323-962c-41f492ef95c7",
+          "file_name": "TCGA-G4-6298-01A-01-BS1.5ae38483-8025-48ff-8dc3-22893670deae.svs",
+          "size_mb": 72.4
+        },
+        {
+          "file_id": "8e4df0c7-2dff-4c73-816e-96856ca163b5",
+          "file_name": "TCGA-G4-6298-01A-01-TS1.efbb1741-99fd-4c0d-898a-07d4655f20bd.svs",
+          "size_mb": 311.3
+        }
+      ],
+      "total_size_gb": 1.57
+    },
+    {
+      "submitter_id": "TCGA-AA-3530",
+      "case_id": "1ad0b9b9-7ded-4281-b114-9dcc6138c037",
+      "report_file_id": "ce056aed-7669-4884-880b-895c9d15ce69",
+      "report_file_name": "TCGA-AA-3530.76035D5D-D2BB-4616-A9A2-5794A6F1373D.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage I",
+        "pT": "T2",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "slides": [
+        {
+          "file_id": "7a6f554f-2146-4ea8-b62c-f81ea692def7",
+          "file_name": "TCGA-AA-3530-11A-01-TS1.3b73bc40-3151-467f-bb0f-d872dd7911d2.svs",
+          "size_mb": 80.2
+        },
+        {
+          "file_id": "ac607e67-1922-4ebd-bd2b-1b212065acba",
+          "file_name": "TCGA-AA-3530-01A-01-TS1.c37df755-5988-406b-8cc9-423a3460d2d6.svs",
+          "size_mb": 98.4
+        },
+        {
+          "file_id": "33740a11-a90b-4ef6-8bac-547093076ff3",
+          "file_name": "TCGA-AA-3530-01A-01-BS1.7d1c4f63-aede-410d-b027-e98c289aa8a2.svs",
+          "size_mb": 125.3
+        },
+        {
+          "file_id": "3b88b579-a27a-4ac4-8533-48dded7d11c7",
+          "file_name": "TCGA-AA-3530-01Z-00-DX1.298325a7-f5f8-4b5e-b3da-dd9dab6e4820.svs",
+          "size_mb": 468.1
+        }
+      ],
+      "total_size_gb": 0.75
+    },
+    {
+      "submitter_id": "TCGA-G4-6294",
+      "case_id": "41f8c9fd-ae52-4458-886b-faf37de77dd0",
+      "report_file_id": "67435622-6675-4cfb-9ef8-10532de933fd",
+      "report_file_name": "TCGA-G4-6294.42CC13EA-0257-453D-8CC0-5AF79D8EB6A0.PDF",
+      "gt": {
+        "primary_diagnosis": "Not Reported",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "Not Reported",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "b21d733c-ab58-46ad-988e-3a9b642c9852",
+          "file_name": "TCGA-G4-6294-01A-01-TS1.6c572968-26ba-4cec-ad50-5128edc91b05.svs",
+          "size_mb": 95.6
+        },
+        {
+          "file_id": "2d08a6f8-70b3-4c3e-aa8f-1bc325f37282",
+          "file_name": "TCGA-G4-6294-01Z-00-DX1.29a1716d-8875-49f0-8a83-f416221623b3.svs",
+          "size_mb": 759.9
+        }
+      ],
+      "total_size_gb": 0.84
+    },
+    {
+      "submitter_id": "TCGA-AA-3967",
+      "case_id": "86a9e44f-728e-48e4-9e1b-682b023f7c0a",
+      "report_file_id": "19dcee72-b1a1-4fab-85ff-4873213f1317",
+      "report_file_name": "TCGA-AA-3967.B47A1EB7-36F7-4203-BFCC-C8BCA5551358.PDF",
       "gt": {
         "primary_diagnosis": "Adenocarcinoma, NOS",
         "tumor_grade": null,
@@ -285,42 +921,620 @@
         "pN": "N1",
         "pM": "M0",
         "morphology": "8140/3",
-        "site": "Transverse colon"
+        "site": "Sigmoid colon"
       },
       "slides": [
         {
-          "file_id": "cae1a4a2-e46d-4561-98b1-3260dd254405",
-          "file_name": "TCGA-A6-2678-01A-01-BS1.94039d71-9104-4012-9038-76b19560725f.svs",
-          "size_mb": 144.9
+          "file_id": "63112adc-b10b-4d32-b1fe-84fb13e87c0b",
+          "file_name": "TCGA-AA-3967-01A-01-TS1.f22d0cee-6c51-4f89-8e27-72fb26537808.svs",
+          "size_mb": 43.3
         },
         {
-          "file_id": "a4469cdf-0941-4b97-857d-72806a5ba249",
-          "file_name": "TCGA-A6-2678-11A-01-TS1.5a5a17ec-30d4-404a-a0a7-d8a9eeadc127.svs",
-          "size_mb": 65.6
+          "file_id": "515ba942-a45e-4e58-93a9-8f6c0c21ccc6",
+          "file_name": "TCGA-AA-3967-01A-01-BS1.0560afc3-3ad0-471a-afc1-c170875d8ab8.svs",
+          "size_mb": 53.4
         },
         {
-          "file_id": "ace9aef0-0144-4e2b-b5d5-454024a7c591",
-          "file_name": "TCGA-A6-2678-01Z-00-DX1.bded5c5c-555a-492a-91c7-151492d0ee5e.svs",
-          "size_mb": 170.7
-        },
-        {
-          "file_id": "7d2f9d68-317c-4875-aab7-b13690790c13",
-          "file_name": "TCGA-A6-2678-01A-01-TS1.74cade3f-41fd-4358-a6a5-25f779b201dc.svs",
-          "size_mb": 167.8
+          "file_id": "325ffce4-1a0e-4bcc-bfc3-1a9959c26aee",
+          "file_name": "TCGA-AA-3967-01Z-00-DX1.b80c87c9-00f4-44f6-bc59-19d2b94942ac.svs",
+          "size_mb": 251.6
         }
       ],
-      "total_size_gb": 0.54
+      "total_size_gb": 0.34
     },
     {
-      "submitter_id": "TCGA-AZ-6599",
-      "case_id": "fbb69964-f962-4b89-b59b-dd05f8faf61a",
-      "report_file_id": "9543fd41-1d60-46e9-92f6-eefc7c904664",
-      "report_file_name": "TCGA-AZ-6599.6FF86694-0E1F-4119-9FA2-36789C237D74.PDF",
+      "submitter_id": "TCGA-G4-6588",
+      "case_id": "93690a96-421c-4c59-85ba-fa6dd538c721",
+      "report_file_id": "82c0b149-68ae-403a-adee-2c5763c67ca8",
+      "report_file_name": "TCGA-G4-6588.282B7FFE-90F7-4976-BA97-537773193ACD.PDF",
+      "gt": {
+        "primary_diagnosis": "Squamous cell carcinoma, NOS",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "8070/3",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "0eced714-3cec-43d5-a956-72f7ab15cb94",
+          "file_name": "TCGA-G4-6588-01Z-00-DX1.0747172e-f630-4b7c-9341-55078585ae00.svs",
+          "size_mb": 771.8
+        },
+        {
+          "file_id": "8333b597-154c-4b86-ad85-415d8fd94507",
+          "file_name": "TCGA-G4-6588-01A-01-BS1.64b848e3-100a-4f3b-9034-3b3e810b31fd.svs",
+          "size_mb": 320.3
+        },
+        {
+          "file_id": "8a813eb0-e6dc-4af4-87fd-06598765a2ed",
+          "file_name": "TCGA-G4-6588-01A-01-TS1.08fa396f-e612-46d2-a501-405280700d23.svs",
+          "size_mb": 137.1
+        }
+      ],
+      "total_size_gb": 1.2
+    },
+    {
+      "submitter_id": "TCGA-DM-A285",
+      "case_id": "99c532b0-6b42-4925-a344-fc7262c415ee",
+      "report_file_id": "5f40c5c0-c7c4-4887-8f99-7b4d576e4deb",
+      "report_file_name": "TCGA-DM-A285.1B9E9C45-C8A3-4CFA-AB47-965056517D4D.PDF",
+      "gt": {
+        "primary_diagnosis": "Mucinous adenocarcinoma",
+        "tumor_grade": null,
+        "stage": "Stage IV",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M1",
+        "morphology": "8480/3",
+        "site": "Ascending colon"
+      },
+      "slides": [
+        {
+          "file_id": "0e5316aa-c726-46e3-881b-c2bf918c1231",
+          "file_name": "TCGA-DM-A285-01Z-00-DX1.219e2829-8ffd-4b51-adce-cfd48293191b.svs",
+          "size_mb": 1443.7
+        },
+        {
+          "file_id": "77cd46d0-c233-4b62-a011-10638fba0a65",
+          "file_name": "TCGA-DM-A285-01A-01-TS1.FE8121D4-EFCF-4C9F-8DEB-53617D3A6973.svs",
+          "size_mb": 211.0
+        }
+      ],
+      "total_size_gb": 1.62
+    },
+    {
+      "submitter_id": "TCGA-AA-3562",
+      "case_id": "127f738d-afa1-42f6-a9a0-f33806667b84",
+      "report_file_id": "2205eb6d-137d-4dcd-8486-4ce996bac67d",
+      "report_file_name": "TCGA-AA-3562.98738F18-85BD-4AA9-887D-443A1BC00694.PDF",
+      "gt": {
+        "primary_diagnosis": "Carcinoma in situ, NOS",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "8010/2",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "e0057043-fae2-4b6b-8298-1d06e48100e3",
+          "file_name": "TCGA-AA-3562-01Z-00-DX1.e07893e6-646d-41b5-be51-9c19d51f6743.svs",
+          "size_mb": 483.6
+        },
+        {
+          "file_id": "24e85993-3c0f-474d-86ad-262aa642de6e",
+          "file_name": "TCGA-AA-3562-01A-01-BS1.2bc37a71-647d-4e7e-9e3a-12191942a051.svs",
+          "size_mb": 225.9
+        },
+        {
+          "file_id": "3eda8417-5b10-4d1f-b213-e22cd27e50f1",
+          "file_name": "TCGA-AA-3562-01A-02-BS2.545d3c6e-ca91-4f6a-9011-0bdbd41ef0cb.svs",
+          "size_mb": 59.3
+        }
+      ],
+      "total_size_gb": 0.75
+    },
+    {
+      "submitter_id": "TCGA-A6-2682",
+      "case_id": "77a44132-af22-4115-9fa2-78f2f74bf687",
+      "report_file_id": "d3f4dd54-028f-4b85-9cb0-a53eba6d1d3a",
+      "report_file_name": "TCGA-A6-2682.B6280ABB-7CCF-4FDB-AD83-65D8B98DFBBA.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage II",
+        "pT": "T2c",
+        "pN": "NX",
+        "pM": "MX",
+        "morphology": "8140/3",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "2d3b690e-06a8-43ad-9235-dc5eef98dd19",
+          "file_name": "TCGA-A6-2682-01Z-00-DX1.be71dca0-b9b7-40be-a6c6-9d053c7886a6.svs",
+          "size_mb": 301.7
+        },
+        {
+          "file_id": "283ee604-b478-4826-8148-8bcb7e4575d6",
+          "file_name": "TCGA-A6-2682-11A-01-TS1.1d712478-2b28-4241-bcec-f337d8112446.svs",
+          "size_mb": 112.6
+        },
+        {
+          "file_id": "d83dcf61-4ace-49a2-b97e-fcfd047fa492",
+          "file_name": "TCGA-A6-2682-01A-01-TS1.31a3cb2c-2afa-4469-83a5-47db8ec54238.svs",
+          "size_mb": 117.9
+        },
+        {
+          "file_id": "60a5cd68-ffe0-4e80-b313-14fa0df7399b",
+          "file_name": "TCGA-A6-2682-01A-01-BS1.edea8316-51c4-440c-b915-61bbe48741e1.svs",
+          "size_mb": 284.3
+        }
+      ],
+      "total_size_gb": 0.8
+    },
+    {
+      "submitter_id": "TCGA-AZ-4681",
+      "case_id": "6fbc2b46-6762-4778-aa7e-782162c5397c",
+      "report_file_id": "5b5d6c6e-3057-4ff7-bb39-4a38d00e568e",
+      "report_file_name": "TCGA-AZ-4681.F93F6D03-DDBC-4399-B896-88AD92B285E6.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "MX",
+        "morphology": "8140/3",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "1a3c736a-05c7-44fc-a9c1-1ab8659033c2",
+          "file_name": "TCGA-AZ-4681-01A-01-BS1.479f4bfa-83d7-4041-8345-1b39424b8c36.svs",
+          "size_mb": 107.0
+        },
+        {
+          "file_id": "23055574-65ae-4a76-9968-7dfcb5336cf7",
+          "file_name": "TCGA-AZ-4681-01Z-00-DX1.e468c1a1-e251-4521-82fe-526c9c5f8190.svs",
+          "size_mb": 588.5
+        },
+        {
+          "file_id": "3ec3d091-9a42-4621-aef4-05fda584dd82",
+          "file_name": "TCGA-AZ-4681-01A-01-TS1.2f4d75b7-7f53-4934-bb56-d3c152ac4ba8.svs",
+          "size_mb": 134.4
+        }
+      ],
+      "total_size_gb": 0.81
+    },
+    {
+      "submitter_id": "TCGA-A6-6649",
+      "case_id": "39b6ae01-c97b-4234-8a28-208fdf170432",
+      "report_file_id": "6a4f55bd-55a6-478d-9a1b-aea95d11e650",
+      "report_file_name": "TCGA-A6-6649.FEE7EE02-806C-463A-9841-5758C737207A.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIIB",
+        "pT": "T3",
+        "pN": "N1b",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Colon, NOS"
+      },
+      "slides": [
+        {
+          "file_id": "f82052fb-5f7b-4c61-9d1e-e7b80dba6fe7",
+          "file_name": "TCGA-A6-6649-01A-01-BS1.0f4eb363-401a-4017-abde-5c6a574e6092.svs",
+          "size_mb": 71.2
+        },
+        {
+          "file_id": "02e746ba-4b2e-463e-aae8-15a02d359e29",
+          "file_name": "TCGA-A6-6649-01A-01-TS1.615e0c77-8b46-45a2-8d56-702414d3c912.svs",
+          "size_mb": 74.7
+        },
+        {
+          "file_id": "9bf65c40-afed-49c7-9a5f-60309cd687c6",
+          "file_name": "TCGA-A6-6649-01Z-00-DX1.9439bce8-5715-4d76-a5d8-c6cbe1b79435.svs",
+          "size_mb": 142.9
+        }
+      ],
+      "total_size_gb": 0.28
+    },
+    {
+      "submitter_id": "TCGA-AD-6964",
+      "case_id": "5e7074a6-5011-4dc5-950c-41365dbc6d09",
+      "report_file_id": "21f86843-b9e7-413e-a467-697113dfd86c",
+      "report_file_name": "TCGA-AD-6964.E44F0CF3-E315-4305-9A95-DD8BC9CE7496.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "8140/3",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "be9fbacd-ec1b-400e-b927-0bce660e0d9c",
+          "file_name": "TCGA-AD-6964-01A-01-TS1.47b53680-a204-4be0-b871-d46886623f4c.svs",
+          "size_mb": 46.2
+        },
+        {
+          "file_id": "eb10274f-9337-4ef0-9762-5430ede6d6f9",
+          "file_name": "TCGA-AD-6964-01Z-00-DX1.83AF88B9-C59B-48C6-A739-85ACB8F8ECA9.svs",
+          "size_mb": 280.0
+        }
+      ],
+      "total_size_gb": 0.32
+    },
+    {
+      "submitter_id": "TCGA-AZ-6601",
+      "case_id": "7ad0617e-bc4a-4869-8419-744f04d9b7a3",
+      "report_file_id": "d67fa203-7472-426a-977f-4ecb2368db6f",
+      "report_file_name": "TCGA-AZ-6601.9F0F7A16-ACD5-46CC-9F83-B9F165380CA9.PDF",
+      "gt": {
+        "primary_diagnosis": "Not Reported",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "Not Reported",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "bb8e5989-3c4e-44cc-b1d8-825c1c9656e2",
+          "file_name": "TCGA-AZ-6601-01A-01-BS1.07de732f-f172-446d-b87b-249995224c22.svs",
+          "size_mb": 216.5
+        },
+        {
+          "file_id": "588d5512-9711-4285-83b4-14bb1c3b6514",
+          "file_name": "TCGA-AZ-6601-01Z-00-DX1.40681471-3104-48be-8b57-55dba1f432f8.svs",
+          "size_mb": 739.3
+        },
+        {
+          "file_id": "f203b818-3fbe-42bd-9543-1561316902c8",
+          "file_name": "TCGA-AZ-6601-11A-01-TS1.ecbf5417-4662-4f06-9214-1717777de41f.svs",
+          "size_mb": 242.9
+        },
+        {
+          "file_id": "817c32fb-0dad-4d7c-a771-6eb611dc1865",
+          "file_name": "TCGA-AZ-6601-01A-01-TS1.24c3239f-dfec-40e7-a9cf-782be535b998.svs",
+          "size_mb": 275.9
+        }
+      ],
+      "total_size_gb": 1.44
+    },
+    {
+      "submitter_id": "TCGA-AD-6548",
+      "case_id": "c113808a-773f-4179-82d6-9083518404b5",
+      "report_file_id": "0b1bb313-f682-4657-9092-caf2d716dd55",
+      "report_file_name": "TCGA-AD-6548.B2B633B9-BB9E-4320-BAC3-67C05313D7D3.PDF",
       "gt": {
         "primary_diagnosis": "Adenocarcinoma, NOS",
         "tumor_grade": null,
         "stage": "Stage I",
         "pT": "T2",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Splenic flexure of colon"
+      },
+      "slides": [
+        {
+          "file_id": "d5609bba-5096-42e3-9003-40a5f46cc0d5",
+          "file_name": "TCGA-AD-6548-01Z-00-DX1.4e047481-8926-48e6-9eba-46597c4cc396.svs",
+          "size_mb": 90.9
+        },
+        {
+          "file_id": "e008a0b7-b9ab-4336-ac75-f7bf192174be",
+          "file_name": "TCGA-AD-6548-01A-01-TS1.dd9e2df1-2ee6-4793-8d6b-753662c73cb9.svs",
+          "size_mb": 63.9
+        },
+        {
+          "file_id": "442cf527-43d9-45d1-a1c9-4378890253a4",
+          "file_name": "TCGA-AD-6548-01A-01-BS1.2ba5b178-770f-4502-9012-b2b382787413.svs",
+          "size_mb": 72.1
+        }
+      ],
+      "total_size_gb": 0.22
+    },
+    {
+      "submitter_id": "TCGA-AA-3950",
+      "case_id": "cc53bf9e-5e27-4305-a08b-552120c10aa5",
+      "report_file_id": "56f76785-9f47-48a4-9e7b-5b595cef14e5",
+      "report_file_name": "TCGA-AA-3950.0154AFCF-E516-4EAF-BDE1-92B7230DDF8A.PDF",
+      "gt": {
+        "primary_diagnosis": "Mucinous adenocarcinoma",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8480/3",
+        "site": "Ascending colon"
+      },
+      "slides": [
+        {
+          "file_id": "266cef8d-da8c-4cda-adb0-dc2e7f14c50c",
+          "file_name": "TCGA-AA-3950-01A-01-BS1.ebedc6f3-ee98-4d26-90e3-6e3b11ba6985.svs",
+          "size_mb": 92.1
+        },
+        {
+          "file_id": "df71bbed-6fa4-4197-bb6a-fe3fd532d64b",
+          "file_name": "TCGA-AA-3950-01A-02-BS2.9c0c8a89-1d69-4833-9dbb-4abe2c60ab2b.svs",
+          "size_mb": 33.4
+        },
+        {
+          "file_id": "83bfc9a9-7f16-493d-87bf-988dec60c82c",
+          "file_name": "TCGA-AA-3950-01Z-00-DX1.2a81cf11-4c16-4e9e-8809-6f63152060da.svs",
+          "size_mb": 256.4
+        }
+      ],
+      "total_size_gb": 0.37
+    },
+    {
+      "submitter_id": "TCGA-AA-3496",
+      "case_id": "639e1050-088a-48fe-a0ef-4a01a3468cac",
+      "report_file_id": "1affd6fe-2774-4de3-b1b5-935e11117399",
+      "report_file_name": "TCGA-AA-3496.0160BBA3-9274-4457-BF4A-CA77C8F050B8.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage II",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Ascending colon"
+      },
+      "slides": [
+        {
+          "file_id": "efd81ef1-0260-4e2c-ad3e-64733b3072a2",
+          "file_name": "TCGA-AA-3496-01Z-00-DX1.B109A6F3-02E0-4181-B69A-00CBA758C074.svs",
+          "size_mb": 8.2
+        },
+        {
+          "file_id": "bf2cd688-a75d-48c9-bbc7-967d6e43dac0",
+          "file_name": "TCGA-AA-3496-01A-01-BS1.d1f79702-bd8f-48a0-ae33-dd7329e06dce.svs",
+          "size_mb": 158.2
+        },
+        {
+          "file_id": "d2516450-6f3c-4d4f-8f69-239cda283489",
+          "file_name": "TCGA-AA-3496-11A-01-TS1.46bbaeba-bf6a-4082-9dd2-d88491639fc9.svs",
+          "size_mb": 71.9
+        },
+        {
+          "file_id": "91fa3c44-85c6-4acc-a300-e6b1198f6af4",
+          "file_name": "TCGA-AA-3496-01A-02-BS2.a1d5051e-bbb0-47bd-aa6b-7922dc8bdb1f.svs",
+          "size_mb": 81.9
+        }
+      ],
+      "total_size_gb": 0.31
+    },
+    {
+      "submitter_id": "TCGA-AA-3811",
+      "case_id": "d7ebd11a-1339-4b28-be90-a788d2cfa706",
+      "report_file_id": "cd74fc0c-e885-47be-a1d4-c64deacfc796",
+      "report_file_name": "TCGA-AA-3811.93E283A7-47DA-4EC0-ABA3-B63B20565EF4.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma with neuroendocrine differentiation",
+        "tumor_grade": null,
+        "stage": "Stage III",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M0",
+        "morphology": "8574/3",
+        "site": "Hepatic flexure of colon"
+      },
+      "slides": [
+        {
+          "file_id": "7c92721f-9d3b-42b2-b4a1-e5c1e9a10d33",
+          "file_name": "TCGA-AA-3811-01A-01-BS1.cf9b2d3c-9cab-40ee-968d-ea595846711c.svs",
+          "size_mb": 154.7
+        },
+        {
+          "file_id": "0f26f7da-ceab-40bb-9fb3-637a7861060e",
+          "file_name": "TCGA-AA-3811-01A-01-TS1.6dcefb95-754c-4ea5-9453-8f998a05a9da.svs",
+          "size_mb": 165.6
+        },
+        {
+          "file_id": "3da5c30e-042f-4dca-965e-0852ca2d8987",
+          "file_name": "TCGA-AA-3811-01Z-00-DX1.369d7946-911e-4e97-8ae7-32ef12b6b106.svs",
+          "size_mb": 287.0
+        }
+      ],
+      "total_size_gb": 0.59
+    },
+    {
+      "submitter_id": "TCGA-AA-3511",
+      "case_id": "93edb105-5dc9-4a4a-9fca-c91f0161fcc7",
+      "report_file_id": "093ae74c-710b-4d99-8473-06cfa6660477",
+      "report_file_name": "TCGA-AA-3511.D91B5111-C16E-4409-9381-40ABD88730A7.PDF",
+      "gt": {
+        "primary_diagnosis": "Not Reported",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "Not Reported",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "cdcd8072-7739-496e-ac05-6df73e3cd940",
+          "file_name": "TCGA-AA-3511-01Z-00-DX1.F66F89C7-147D-4EE9-A482-61C3033EF443.svs",
+          "size_mb": 10.0
+        },
+        {
+          "file_id": "154f89ad-f9ae-4b19-aede-6ea23008f020",
+          "file_name": "TCGA-AA-3511-11A-01-TS1.d4579cf2-9291-4a98-ac6a-21507b5cc161.svs",
+          "size_mb": 32.4
+        },
+        {
+          "file_id": "e29fb505-ffbd-44b8-963c-5815b4a68047",
+          "file_name": "TCGA-AA-3511-01A-02-BS2.62007e3d-31d3-4050-b9b5-89409559acc0.svs",
+          "size_mb": 45.8
+        },
+        {
+          "file_id": "0edec4ca-232f-46da-b2ab-cc8dfc69e1d0",
+          "file_name": "TCGA-AA-3511-01A-01-BS1.3290b921-43d6-44d6-b834-5787c8f5dd6a.svs",
+          "size_mb": 90.0
+        }
+      ],
+      "total_size_gb": 0.17
+    },
+    {
+      "submitter_id": "TCGA-AA-3561",
+      "case_id": "01ad5016-f691-4bca-82a0-910429d8d25b",
+      "report_file_id": "7860fdb5-f4ab-4d9f-824b-711f56d00ddd",
+      "report_file_name": "TCGA-AA-3561.6F8B8558-C90F-45FA-9A89-6F35B3C118A8.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Ascending colon"
+      },
+      "slides": [
+        {
+          "file_id": "42299afa-2ad2-4432-b935-b098f992a94b",
+          "file_name": "TCGA-AA-3561-01A-01-BS1.0ca8c00c-15d4-483c-a0eb-666960f7824f.svs",
+          "size_mb": 145.7
+        },
+        {
+          "file_id": "227fecea-0d2a-4eaf-b32a-1129887d6926",
+          "file_name": "TCGA-AA-3561-01Z-00-DX1.1b5a2925-53f9-470f-a62c-cc2e5d5abb58.svs",
+          "size_mb": 462.4
+        },
+        {
+          "file_id": "82ab624b-74b1-4fa2-a146-5f0fba7ea199",
+          "file_name": "TCGA-AA-3561-01A-01-TS1.438158ae-9be7-43d9-b73e-21e26eb876aa.svs",
+          "size_mb": 85.4
+        }
+      ],
+      "total_size_gb": 0.68
+    },
+    {
+      "submitter_id": "TCGA-AA-3554",
+      "case_id": "ba49b428-246d-46d2-b549-39a5fc8f7003",
+      "report_file_id": "004e158d-aac7-461f-be6e-f3bdcde20224",
+      "report_file_name": "TCGA-AA-3554.3769BE1D-4A1A-4279-A7E0-F4B828BCDDC1.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Ascending colon"
+      },
+      "slides": [
+        {
+          "file_id": "f42d95c6-a82d-41fe-a76e-3248592e0bc3",
+          "file_name": "TCGA-AA-3554-01Z-00-DX1.53ea377e-6671-47bb-a2b6-b136d9686144.svs",
+          "size_mb": 370.5
+        },
+        {
+          "file_id": "3cf49fba-8cd4-47f3-a664-26bbd049079b",
+          "file_name": "TCGA-AA-3554-01A-01-BS1.b9ec84f2-9fda-498e-844c-e0d0d831b372.svs",
+          "size_mb": 117.5
+        },
+        {
+          "file_id": "a11f4c86-287c-483a-a86f-e608d11368b0",
+          "file_name": "TCGA-AA-3554-01A-01-TS1.316371d2-28fc-4aee-8458-98601e4151ba.svs",
+          "size_mb": 59.1
+        }
+      ],
+      "total_size_gb": 0.53
+    },
+    {
+      "submitter_id": "TCGA-D5-5538",
+      "case_id": "0dacc5ce-498f-4c60-9f78-7a013ffaa9ce",
+      "report_file_id": "b5676c96-49d5-4329-8bc2-3284fc033592",
+      "report_file_name": "TCGA-D5-5538.A376C83C-0084-4006-9371-81088A09DB6B.PDF",
+      "gt": {
+        "primary_diagnosis": "Not Reported",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "Not Reported",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "aaeba14c-59c5-4123-bb25-e4d3d590bccf",
+          "file_name": "TCGA-D5-5538-01Z-00-DX1.7187bda7-9217-4395-a5e9-647357bc1c3a.svs",
+          "size_mb": 908.5
+        },
+        {
+          "file_id": "5bf40bac-0ca1-47a5-a35c-b77206707912",
+          "file_name": "TCGA-D5-5538-01A-01-TS1.b31a75dc-8855-458f-b966-58eaad90eb75.svs",
+          "size_mb": 122.5
+        }
+      ],
+      "total_size_gb": 1.01
+    },
+    {
+      "submitter_id": "TCGA-CM-6676",
+      "case_id": "4138aca8-e085-45fb-b353-74852efe61bf",
+      "report_file_id": "acdd6e9e-4ef0-46ea-913d-94b0066d094d",
+      "report_file_name": "TCGA-CM-6676.1D53F325-F6F5-474E-9B52-0B45AEF1DFF8.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage I",
+        "pT": "T2",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "slides": [
+        {
+          "file_id": "a56ed047-d15e-4281-82b5-b1ab6e75b3f3",
+          "file_name": "TCGA-CM-6676-01Z-00-DX1.dcc2bf23-ecaa-4952-8485-fc609af66298.svs",
+          "size_mb": 534.1
+        },
+        {
+          "file_id": "506fe288-b3dd-4065-a38a-6efd8adef4e7",
+          "file_name": "TCGA-CM-6676-01A-01-BS1.b41df16a-597d-4342-9507-6759d0e570ef.svs",
+          "size_mb": 158.7
+        },
+        {
+          "file_id": "27928c1b-e691-4559-9eee-1d6ce474ebf5",
+          "file_name": "TCGA-CM-6676-01A-01-TS1.f9f9b5af-5b40-4ea1-bbb3-88de20050c01.svs",
+          "size_mb": 153.8
+        }
+      ],
+      "total_size_gb": 0.83
+    },
+    {
+      "submitter_id": "TCGA-AD-A5EJ",
+      "case_id": "613aa3e8-a70b-45a9-9c08-0c2346c8bf00",
+      "report_file_id": "b0f8a78e-27f9-4a2e-9e1f-c6833c661b5b",
+      "report_file_name": "TCGA-AD-A5EJ.7C291BB4-B97B-4EE1-BEB2-3B05FABD24E2.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
         "pN": "N0",
         "pM": "MX",
         "morphology": "8140/3",
@@ -328,28 +1542,489 @@
       },
       "slides": [
         {
-          "file_id": "2feeef39-f389-4281-85e2-d89b5261c006",
-          "file_name": "TCGA-AZ-6599-11A-01-TS1.1661031b-85e0-4050-bfdc-34aa334ec820.svs",
-          "size_mb": 161.4
+          "file_id": "5fb8d491-f1b7-4284-b982-a965b12edcd3",
+          "file_name": "TCGA-AD-A5EJ-01Z-00-DX1.FA56CEAF-8B70-45EF-A2C9-8AA7BEB3D88A.svs",
+          "size_mb": 142.7
         },
         {
-          "file_id": "ea1e5b74-6a03-48dd-85a3-5af9f137eb6a",
-          "file_name": "TCGA-AZ-6599-01A-01-BS1.eaca8ac9-2c57-4631-a96f-e58540ae8f01.svs",
-          "size_mb": 269.7
-        },
-        {
-          "file_id": "15d3e243-669f-40e8-8c9c-8d039929172c",
-          "file_name": "TCGA-AZ-6599-01Z-00-DX1.9d6aae3d-6934-4e96-8699-db41e1194f29.svs",
-          "size_mb": 454.5
-        },
-        {
-          "file_id": "467b82fc-b109-4852-8598-b417565e96fa",
-          "file_name": "TCGA-AZ-6599-01A-01-TS1.97e6dd36-0ece-4a31-8af5-bac951d79ad1.svs",
-          "size_mb": 291.9
+          "file_id": "27b9c4b6-bfe6-4c1f-94d3-0bbea9a4016a",
+          "file_name": "TCGA-AD-A5EJ-01A-01-TS1.6606E358-74AA-428D-A8FD-6CCC89385628.svs",
+          "size_mb": 194.1
         }
       ],
-      "total_size_gb": 1.15
+      "total_size_gb": 0.33
+    },
+    {
+      "submitter_id": "TCGA-G4-6627",
+      "case_id": "19089ae0-b590-4649-9d94-a147fa506e32",
+      "report_file_id": "257a1397-f9fb-46f2-9267-22ed385e2c15",
+      "report_file_name": "TCGA-G4-6627.E8744B51-CCED-496B-9746-9F06FF93A01E.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Ascending colon"
+      },
+      "slides": [
+        {
+          "file_id": "ef497638-68a8-40f4-b321-61bd559c010b",
+          "file_name": "TCGA-G4-6627-01Z-00-DX1.f23c6977-d0cb-4bc8-b373-4b1b73c331cc.svs",
+          "size_mb": 858.9
+        },
+        {
+          "file_id": "3818e861-fc0c-4b00-ac2f-dccbd1e65b00",
+          "file_name": "TCGA-G4-6627-01A-01-BS1.a606d851-3a03-422f-a96c-84f9d1741278.svs",
+          "size_mb": 109.4
+        },
+        {
+          "file_id": "b635deeb-60ae-4b3a-ad40-052a1ed645c6",
+          "file_name": "TCGA-G4-6627-01A-01-TS1.245b22ce-3963-4b47-bb09-22425dc405c6.svs",
+          "size_mb": 89.0
+        }
+      ],
+      "total_size_gb": 1.03
+    },
+    {
+      "submitter_id": "TCGA-AA-A01C",
+      "case_id": "80809d79-92e1-4d6c-ba2e-0a9589997792",
+      "report_file_id": "9f30a93b-85bf-40e4-b41e-6bb9d91ca0ca",
+      "report_file_name": "TCGA-AA-A01C.DDD08E2A-031B-4488-B96B-74697603B470.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIIA",
+        "pT": "T2",
+        "pN": "N1",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Ascending colon"
+      },
+      "slides": [
+        {
+          "file_id": "83e92efd-308c-424d-a818-6400ff676b16",
+          "file_name": "TCGA-AA-A01C-01Z-00-DX1.C69C8FC3-04A2-46B8-8577-7A7F082248CB.svs",
+          "size_mb": 444.0
+        },
+        {
+          "file_id": "01f8035a-0d30-46d0-8d1e-a378c7e13060",
+          "file_name": "TCGA-AA-A01C-01A-01-TS1.e8b9f1f2-b9cd-4675-90bb-2a5c4c167832.svs",
+          "size_mb": 89.7
+        },
+        {
+          "file_id": "07409f77-2380-41c7-a17a-823ef6a1f141",
+          "file_name": "TCGA-AA-A01C-01A-01-MS1.e39692c8-adb3-4e4a-9e10-070b3d89cffe.svs",
+          "size_mb": 205.8
+        }
+      ],
+      "total_size_gb": 0.72
+    },
+    {
+      "submitter_id": "TCGA-AA-3672",
+      "case_id": "c46971a1-cbac-425d-bac2-f4142c92522e",
+      "report_file_id": "bc560667-11da-4a45-9654-d83d17d60cc9",
+      "report_file_name": "TCGA-AA-3672.72117EA9-8089-4922-9732-D532B6AC5D94.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage III",
+        "pT": "T3",
+        "pN": "N1",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Transverse colon"
+      },
+      "slides": [
+        {
+          "file_id": "27ac8b0a-9daa-4fe6-8bd7-067f18f4a389",
+          "file_name": "TCGA-AA-3672-01Z-00-DX1.6cc142eb-e77f-4c09-a6ac-e85470221812.svs",
+          "size_mb": 483.9
+        },
+        {
+          "file_id": "c870e832-73a7-4b5a-b1bd-c7aabb10dbf5",
+          "file_name": "TCGA-AA-3672-01A-01-BS1.a0ceb6c5-20ba-4a0b-a957-2079ee83adb9.svs",
+          "size_mb": 144.4
+        },
+        {
+          "file_id": "c262de8a-5c38-4557-86dc-0ae3ddd17b15",
+          "file_name": "TCGA-AA-3672-01A-01-TS1.ce1cd3ae-6c44-4f5c-ae3f-3cc69325702d.svs",
+          "size_mb": 70.1
+        }
+      ],
+      "total_size_gb": 0.68
+    },
+    {
+      "submitter_id": "TCGA-3L-AA1B",
+      "case_id": "a94e1279-a975-480a-93e9-7b1ff05cbcbf",
+      "report_file_id": "6372f4a0-b94f-4148-8e05-ef87878678ff",
+      "report_file_name": "TCGA-3L-AA1B.09A86147-EB23-489F-9849-9FDC91AC44A1.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage I",
+        "pT": "T2",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "slides": [
+        {
+          "file_id": "263abaf6-c5a1-4215-8dd5-a8b2a7bfd745",
+          "file_name": "TCGA-3L-AA1B-01Z-00-DX2.17CE3683-F4B1-4978-A281-8F620C4D77B4.svs",
+          "size_mb": 705.4
+        },
+        {
+          "file_id": "2603768a-e300-490d-98ca-25ead7be66bd",
+          "file_name": "TCGA-3L-AA1B-01A-01-TS1.9C415218-D5B4-4945-B243-F42A4C8C0484.svs",
+          "size_mb": 290.5
+        },
+        {
+          "file_id": "ed5f8c30-29e3-4144-948b-b8658564f2d6",
+          "file_name": "TCGA-3L-AA1B-01Z-00-DX1.8923A151-A690-40B7-9E5A-FCBEDFC2394F.svs",
+          "size_mb": 1171.5
+        }
+      ],
+      "total_size_gb": 2.12
+    },
+    {
+      "submitter_id": "TCGA-A6-6648",
+      "case_id": "65056295-8fcd-4f82-a3c9-a5acd79521fe",
+      "report_file_id": "88822fb8-e39f-4230-ba9a-da3be1ded97c",
+      "report_file_name": "TCGA-A6-6648.432DEC4F-B217-44BF-A559-1559FDCEB7BA.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IVA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M1a",
+        "morphology": "8140/3",
+        "site": "Colon, NOS"
+      },
+      "slides": [
+        {
+          "file_id": "363a0302-d11f-423a-adc6-e324dd65312b",
+          "file_name": "TCGA-A6-6648-01Z-00-DX1.88b9a490-0bed-43f3-bd74-1bf2810f6884.svs",
+          "size_mb": 88.5
+        },
+        {
+          "file_id": "d97f151f-0fe1-46f6-9014-dfc5f4da0de3",
+          "file_name": "TCGA-A6-6648-01A-01-BS1.0ec656d2-a1be-444f-af9b-183b136ed3a9.svs",
+          "size_mb": 114.4
+        },
+        {
+          "file_id": "c4846710-5a2e-4c60-a9fe-e42c9b68434e",
+          "file_name": "TCGA-A6-6648-01A-01-TS1.7dcc4daf-f6e1-422e-958c-00b7411922fd.svs",
+          "size_mb": 115.0
+        }
+      ],
+      "total_size_gb": 0.31
+    },
+    {
+      "submitter_id": "TCGA-AD-6895",
+      "case_id": "4f601d7b-8db1-4c6d-9374-21dcd804980d",
+      "report_file_id": "a73cf203-c35c-42bf-9a5b-c6defafb0045",
+      "report_file_name": "TCGA-AD-6895.84A1CC4E-7E89-4F7D-915A-59521640BB59.PDF",
+      "gt": {
+        "primary_diagnosis": "Basaloid squamous cell carcinoma",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "8083/3",
+        "site": "Not Reported"
+      },
+      "slides": [
+        {
+          "file_id": "f77be3ea-4595-49a6-b41c-de074b132bf8",
+          "file_name": "TCGA-AD-6895-01Z-00-DX1.7FB1FBC6-683B-4285-89D1-A7A20F07A9D4.svs",
+          "size_mb": 39.2
+        },
+        {
+          "file_id": "7d6e87b2-039a-4f6d-a0c1-4ba9b1f71c5a",
+          "file_name": "TCGA-AD-6895-01A-01-TS1.60e5a7e9-6a8d-47ae-8094-7429f03b42b3.svs",
+          "size_mb": 34.6
+        }
+      ],
+      "total_size_gb": 0.07
+    },
+    {
+      "submitter_id": "TCGA-CA-5256",
+      "case_id": "17633a60-e12b-4a7c-bd8a-c16341ddc606",
+      "report_file_id": "c64be79b-a70a-4c45-bddf-96e113c91802",
+      "report_file_name": "TCGA-CA-5256.88B57491-1B29-40E0-BB15-95ADBB9AEF9C.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Hepatic flexure of colon"
+      },
+      "slides": [
+        {
+          "file_id": "a72ffe1c-6ed9-4758-a99d-6f827df597a4",
+          "file_name": "TCGA-CA-5256-01A-01-BS1.c197358b-1b71-45c5-9732-6e538cc71835.svs",
+          "size_mb": 229.5
+        },
+        {
+          "file_id": "2c8b6894-a7b0-4a08-94ea-26bedbb0dffc",
+          "file_name": "TCGA-CA-5256-01Z-00-DX1.67cc2ca1-40df-4e76-be88-dfd93e20e017.svs",
+          "size_mb": 310.0
+        },
+        {
+          "file_id": "bfa45b60-e3d8-4e90-824c-bd44bf961611",
+          "file_name": "TCGA-CA-5256-01A-01-TS1.82b020e6-7b4d-4285-a7b5-f0368fb8256f.svs",
+          "size_mb": 192.0
+        }
+      ],
+      "total_size_gb": 0.71
+    },
+    {
+      "submitter_id": "TCGA-AZ-4684",
+      "case_id": "cac80259-3a26-4a99-b0d3-13454068e6ed",
+      "report_file_id": "9141f237-1671-4b17-ab8e-5f18049c4ed3",
+      "report_file_name": "TCGA-AZ-4684.3E3C0AA0-73DD-47F1-989B-2871336385AF.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IVA",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M1",
+        "morphology": "8140/3",
+        "site": "Colon, NOS"
+      },
+      "slides": [
+        {
+          "file_id": "95f9ca4b-edc6-43cd-8d05-ff92a4ddca49",
+          "file_name": "TCGA-AZ-4684-01Z-00-DX1.1c29deb2-b0e2-4788-a3e8-83ecab7f9208.svs",
+          "size_mb": 791.2
+        },
+        {
+          "file_id": "09d1c80d-819d-452d-a931-2529e5f28e51",
+          "file_name": "TCGA-AZ-4684-01A-01-TS1.6d9d6665-991c-42a1-aa37-3c27104cbd09.svs",
+          "size_mb": 112.0
+        },
+        {
+          "file_id": "be57888b-8a70-4378-b566-da9feb68a55a",
+          "file_name": "TCGA-AZ-4684-01A-01-BS1.1427f6b7-0342-4a14-9917-e336b0dc5c5e.svs",
+          "size_mb": 266.0
+        }
+      ],
+      "total_size_gb": 1.14
+    },
+    {
+      "submitter_id": "TCGA-AA-3970",
+      "case_id": "733d8b6a-ca9d-4a69-8c9c-1f88733e8b68",
+      "report_file_id": "b23495ab-8e61-45f1-b7a2-71ee73e3be01",
+      "report_file_name": "TCGA-AA-3970.72BFFE46-A121-4488-ACDC-0FFD4E57CABE.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "slides": [
+        {
+          "file_id": "6dd1fcad-9c3f-4f14-89da-d98a4742aa65",
+          "file_name": "TCGA-AA-3970-01A-01-BS1.19a2f754-912d-4597-900f-9374deea4846.svs",
+          "size_mb": 87.6
+        },
+        {
+          "file_id": "776eb2f6-2fbc-49e0-93a2-162528750d28",
+          "file_name": "TCGA-AA-3970-01Z-00-DX1.712c069a-aeaf-498b-80fa-7bb481b13825.svs",
+          "size_mb": 228.2
+        },
+        {
+          "file_id": "26320324-89df-48a4-90bf-cd30311e0548",
+          "file_name": "TCGA-AA-3970-01A-01-TS1.0dd7526b-284c-4185-81a8-e9290edecb71.svs",
+          "size_mb": 70.8
+        }
+      ],
+      "total_size_gb": 0.38
+    },
+    {
+      "submitter_id": "TCGA-CM-6170",
+      "case_id": "9d8c4693-8e36-473b-bb34-a7cdc04dd223",
+      "report_file_id": "94858094-89dc-4d92-b728-f0c6fa90bbcc",
+      "report_file_name": "TCGA-CM-6170.319E200A-D0C5-47B3-9432-1EB1404233FA.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage I",
+        "pT": "T2",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Descending colon"
+      },
+      "slides": [
+        {
+          "file_id": "39736cae-6d12-4c97-9e69-7b47cc2d8789",
+          "file_name": "TCGA-CM-6170-01A-01-TS1.5bad352a-2651-4825-a12e-6fc48d837007.svs",
+          "size_mb": 167.4
+        },
+        {
+          "file_id": "e6d009fe-b60f-471d-b680-f63b61dc7a79",
+          "file_name": "TCGA-CM-6170-01A-01-BS1.d9682a1f-ca43-45df-b188-c09d5e3e6a53.svs",
+          "size_mb": 201.7
+        },
+        {
+          "file_id": "63cf5b73-b605-4cee-b9dd-b92efbd00533",
+          "file_name": "TCGA-CM-6170-01Z-00-DX1.aa9c41ea-3894-4524-a94c-f44c6c53c2d0.svs",
+          "size_mb": 400.9
+        }
+      ],
+      "total_size_gb": 0.75
+    },
+    {
+      "submitter_id": "TCGA-AA-3984",
+      "case_id": "db246424-3979-4f23-b316-8d30c449ee15",
+      "report_file_id": "51fcd120-88ba-427c-94f4-65ac4abc76d3",
+      "report_file_name": "TCGA-AA-3984.A1027D0E-BF96-45B2-A762-E71F3A5563DD.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "slides": [
+        {
+          "file_id": "0a98d41d-d467-4581-9b36-49570149888e",
+          "file_name": "TCGA-AA-3984-01A-02-BS2.ea1f171d-2025-4efd-a9e6-27fff8e66427.svs",
+          "size_mb": 28.2
+        },
+        {
+          "file_id": "f2b5d4c5-3a7f-461a-a7a7-2ae8f2d83c27",
+          "file_name": "TCGA-AA-3984-01A-01-BS1.76d10aac-a86f-4ba7-9158-a14822662d60.svs",
+          "size_mb": 74.3
+        },
+        {
+          "file_id": "e2663d91-94f9-48dd-8680-3803ede25421",
+          "file_name": "TCGA-AA-3984-01Z-00-DX1.d0cb7571-c612-4410-ac03-ebe800ad6767.svs",
+          "size_mb": 365.6
+        }
+      ],
+      "total_size_gb": 0.46
+    },
+    {
+      "submitter_id": "TCGA-CM-6162",
+      "case_id": "ec3f3f11-75df-4fcc-ba03-f19aca907645",
+      "report_file_id": "c11d1d04-18c1-4fde-ab03-3343f2e9c9f8",
+      "report_file_name": "TCGA-CM-6162.E5B534C1-549F-4741-B763-3B1F5BE845A5.PDF",
+      "gt": {
+        "primary_diagnosis": "Mucinous adenocarcinoma",
+        "tumor_grade": null,
+        "stage": "Stage IIIB",
+        "pT": "T3",
+        "pN": "N1a",
+        "pM": "M0",
+        "morphology": "8480/3",
+        "site": "Ascending colon"
+      },
+      "slides": [
+        {
+          "file_id": "d7deb139-ed44-4433-9cfc-d1e0773c103e",
+          "file_name": "TCGA-CM-6162-01A-01-BS1.1b7d2e09-76f2-45a2-9b7f-6db9e228aab3.svs",
+          "size_mb": 358.8
+        },
+        {
+          "file_id": "da15fd05-3763-417e-b269-da9b819ea617",
+          "file_name": "TCGA-CM-6162-01Z-00-DX1.806a99a3-cda2-4dde-8d13-d22912b44d49.svs",
+          "size_mb": 699.3
+        },
+        {
+          "file_id": "9235fbcc-90c3-4a10-b1c6-dad7d21a3924",
+          "file_name": "TCGA-CM-6162-01A-01-TS1.91282f06-1c60-4e94-bd25-8fd7f6b06173.svs",
+          "size_mb": 184.6
+        }
+      ],
+      "total_size_gb": 1.21
+    },
+    {
+      "submitter_id": "TCGA-CM-5349",
+      "case_id": "227f945f-76fd-4a63-9609-d4e730a3d22a",
+      "report_file_id": "b7456c51-a0ea-4de0-b4c1-2842cba9b722",
+      "report_file_name": "TCGA-CM-5349.F4491D68-EC4B-45D7-BAB8-CF4ED1FFAF62.PDF",
+      "gt": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "slides": [
+        {
+          "file_id": "84edfa97-7fab-43e2-a16a-6f18db3e1fd9",
+          "file_name": "TCGA-CM-5349-01A-01-BS1.0b88e5ff-cc9d-4708-ac11-9730814fc2ae.svs",
+          "size_mb": 398.5
+        },
+        {
+          "file_id": "63e3bc91-c0d5-49f5-9d60-ca8bfb9ca288",
+          "file_name": "TCGA-CM-5349-01A-02-BS2.d6f6f4d6-fa30-4f3a-802f-62e5dc17dd28.svs",
+          "size_mb": 204.4
+        },
+        {
+          "file_id": "32268fd4-3c70-4906-97ac-c480f76fd00c",
+          "file_name": "TCGA-CM-5349-01Z-00-DX1.d893eb9a-0321-4052-acfc-8c9a6e463921.svs",
+          "size_mb": 680.3
+        }
+      ],
+      "total_size_gb": 1.25
+    },
+    {
+      "submitter_id": "TCGA-AA-3821",
+      "case_id": "0e87e5fd-d5bb-4c0d-952d-711a6abbf336",
+      "report_file_id": "367a621f-7ebb-473c-a8ba-1fd89b428ed6",
+      "report_file_name": "TCGA-AA-3821.F65818AC-707F-432E-B5F5-0BE1405074E3.PDF",
+      "gt": {
+        "primary_diagnosis": "Mucinous adenocarcinoma",
+        "tumor_grade": null,
+        "stage": "Stage I",
+        "pT": "T2",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8480/3",
+        "site": "Hepatic flexure of colon"
+      },
+      "slides": [
+        {
+          "file_id": "1fc53d2c-1945-4964-8b4c-4358572c522e",
+          "file_name": "TCGA-AA-3821-01A-01-TS1.3d67ff19-8a1d-4cad-bfcc-3d3c31288387.svs",
+          "size_mb": 115.8
+        },
+        {
+          "file_id": "b2cdcbeb-a7ab-4950-a41b-4747902feb56",
+          "file_name": "TCGA-AA-3821-01Z-00-DX1.019b3b1d-5c05-4be6-af25-6ee63475897e.svs",
+          "size_mb": 313.1
+        },
+        {
+          "file_id": "59d404c3-5c10-40de-bbb4-93d465a79075",
+          "file_name": "TCGA-AA-3821-01A-01-BS1.f6e30ce7-78fc-4375-8416-bd6135f3018b.svs",
+          "size_mb": 38.8
+        }
+      ],
+      "total_size_gb": 0.46
     }
   ],
-  "n": 10
+  "n": 60
 }
