@@ -696,16 +696,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* Clinical context strip at bottom of hero */}
-        {activeCase && (
-          <div className="absolute bottom-3 left-3 right-3 z-10 bg-[var(--paper)]/95 border border-[var(--rule-strong)] px-3.5 py-2 pointer-events-auto">
-            <span className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-[var(--accent)] mr-2.5">
-              Contexte
-            </span>
-            <span className="text-[12px] text-[var(--ink-soft)]">{activeCase.clinical_context}</span>
-          </div>
-        )}
-
         {/* Scroll-down hint */}
         <button
           type="button"
@@ -740,8 +730,76 @@ export default function Home() {
           />
         </div>
 
-        {/* Middle : interactive notes table */}
-        <div className="bg-[var(--paper-2)]/30 p-5">
+        {/* Middle : patient context + interactive notes table */}
+        <div className="bg-[var(--paper-2)]/30 p-5 space-y-5">
+          {/* Patient context panel */}
+          {activeCase ? (
+            <div className="border border-[var(--rule-strong)] bg-[var(--paper)]">
+              <div className="px-5 py-4 border-b border-[var(--rule-strong)] flex items-baseline justify-between gap-4">
+                <div>
+                  <div className="smcaps">Contexte patient</div>
+                  <div className="font-serif text-[18px] font-semibold tracking-tight">
+                    {activeCase.patient_label ?? activeCase.patient_id}
+                  </div>
+                </div>
+                <div className="font-mono text-[10px] uppercase tracking-widest text-[var(--muted)] text-right">
+                  {activeCase.case_id}
+                </div>
+              </div>
+
+              <dl className="grid grid-cols-2 gap-x-6 gap-y-3 px-5 py-4 text-[13px] border-b border-[var(--rule-strong)]">
+                {activeCase.age != null && activeCase.age > 0 && (
+                  <div>
+                    <dt className="font-mono text-[10px] uppercase tracking-widest text-[var(--muted)] mb-0.5">Âge</dt>
+                    <dd className="text-[var(--ink)]">{activeCase.age} ans</dd>
+                  </div>
+                )}
+                {activeCase.sex && (
+                  <div>
+                    <dt className="font-mono text-[10px] uppercase tracking-widest text-[var(--muted)] mb-0.5">Sexe</dt>
+                    <dd className="text-[var(--ink)]">{activeCase.sex === "M" ? "Masculin" : activeCase.sex === "F" ? "Féminin" : activeCase.sex}</dd>
+                  </div>
+                )}
+                {activeCase.site && (
+                  <div>
+                    <dt className="font-mono text-[10px] uppercase tracking-widest text-[var(--muted)] mb-0.5">Site</dt>
+                    <dd className="text-[var(--ink)]">{activeCase.site}</dd>
+                  </div>
+                )}
+                {activeCase.sample_type && (
+                  <div>
+                    <dt className="font-mono text-[10px] uppercase tracking-widest text-[var(--muted)] mb-0.5">Prélèvement</dt>
+                    <dd className="text-[var(--ink)]">{activeCase.sample_type}</dd>
+                  </div>
+                )}
+                {activeCase.prior_history && (
+                  <div className="col-span-2">
+                    <dt className="font-mono text-[10px] uppercase tracking-widest text-[var(--muted)] mb-0.5">Antécédents</dt>
+                    <dd className="text-[var(--ink-soft)] font-serif italic">{activeCase.prior_history}</dd>
+                  </div>
+                )}
+              </dl>
+
+              {activeCase.clinical_context && (
+                <div className="px-5 py-4">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[var(--accent)] mb-2">
+                    Demande clinique
+                  </div>
+                  <p className="font-serif text-[14px] leading-relaxed text-[var(--ink)]">
+                    {activeCase.clinical_context}
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="border border-[var(--rule-strong)] bg-[var(--paper)] px-5 py-6">
+              <div className="smcaps mb-1.5">Contexte patient</div>
+              <div className="text-sm text-[var(--muted)] font-serif italic">
+                Sélectionnez un cas pour afficher le contexte clinique.
+              </div>
+            </div>
+          )}
+
           <NotesTable
             caseId={caseId}
             caseLabel={activeCase?.patient_label}
