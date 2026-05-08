@@ -286,18 +286,10 @@ async def _chat_openai(messages, system, max_tokens, model_key: str = "default",
         "messages": full,
     }
     if json_schema is not None:
-        # vLLM 0.17 honours OpenAI-compat response_format with json_schema —
-        # constrains decoding via xgrammar so output is mathematically forced
-        # to match the schema. Failure mode: vLLM raises InvalidRequest if the
-        # schema is malformed; we surface that as [LLM error: ...].
-        kwargs["response_format"] = {
-            "type": "json_schema",
-            "json_schema": {
-                "name": (model_key or "agent") + "_output",
-                "schema": json_schema,
-                "strict": True,
-            },
-        }
+        # vLLM honours OpenAI json_object mode — forces valid JSON output
+        # without strict schema validation (xgrammar strict mode chokes on
+        # nested schemas without explicit required/additionalProperties).
+        kwargs["response_format"] = {"type": "json_object"}
 
     try:
         resp = await client.chat.completions.create(**kwargs)
