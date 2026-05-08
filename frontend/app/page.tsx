@@ -233,6 +233,7 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<"2d" | "3d">("2d")
   const [activeSlideIndex, setActiveSlideIndex] = useState<number>(0)
   const [activeVolumeSlide, setActiveVolumeSlide] = useState<number>(0)
+  const [boardMode, setBoardMode] = useState<boolean>(false)
   const [pinMode, setPinMode] = useState<boolean>(false)
   const [pendingPin, setPendingPin] = useState<{ x: number; y: number } | null>(null)
   const [pinDraft, setPinDraft] = useState("")
@@ -532,24 +533,50 @@ export default function Home() {
           </div>
 
           <div className="flex gap-2 pointer-events-auto">
-            {/* Pin mode toggle */}
+            {/* Board mode master toggle — default OFF (pure zoom/pan) */}
             <button
               type="button"
               onClick={() => {
-                setPinMode((v) => !v)
-                setPendingPin(null)
-                setPinDraft("")
+                const next = !boardMode
+                setBoardMode(next)
+                if (!next) {
+                  setTool("select")
+                  setPinMode(false)
+                  setPendingPin(null)
+                  setPinDraft("")
+                }
               }}
               disabled={!caseId}
               className={`h-8 px-3 text-xs font-mono uppercase tracking-widest border ${
-                pinMode
+                boardMode
                   ? "bg-[var(--accent)] text-[var(--paper)] border-[var(--accent)]"
                   : "bg-[var(--paper)]/95 text-[var(--ink-soft)] border-[var(--rule-strong)] hover:bg-[var(--paper-2)]"
               } disabled:opacity-40 disabled:cursor-not-allowed`}
-              title={caseId ? "Cliquez sur la lame pour épingler une note" : "Sélectionnez un cas d'abord"}
+              title={caseId ? (boardMode ? "Cliquez pour revenir en mode zoom" : "Activer le tableau d'annotations") : "Sélectionnez un cas d'abord"}
             >
-              {pinMode ? "Mode épingle ON" : "Épingler une note"}
+              {boardMode ? "Tableau ON" : "Activer le tableau"}
             </button>
+
+            {/* Pin sub-toggle — only available when board is ON */}
+            {boardMode && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPinMode((v) => !v)
+                  setPendingPin(null)
+                  setPinDraft("")
+                }}
+                disabled={!caseId}
+                className={`h-8 px-3 text-xs font-mono uppercase tracking-widest border ${
+                  pinMode
+                    ? "bg-[var(--accent)] text-[var(--paper)] border-[var(--accent)]"
+                    : "bg-[var(--paper)]/95 text-[var(--ink-soft)] border-[var(--rule-strong)] hover:bg-[var(--paper-2)]"
+                } disabled:opacity-40 disabled:cursor-not-allowed`}
+                title="Cliquez sur la lame pour épingler une note"
+              >
+                {pinMode ? "Épingle ON" : "Épingler"}
+              </button>
+            )}
 
             {slides.length >= 2 && (
               <div className="flex">
@@ -617,7 +644,7 @@ export default function Home() {
         )}
 
         {/* Annotation toolbar (floating bottom-center) */}
-        {viewMode === "2d" && caseId && (
+        {viewMode === "2d" && caseId && boardMode && (
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
             <AnnotationToolbar
               tool={tool}
