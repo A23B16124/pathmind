@@ -5,6 +5,7 @@ import dynamicImport from "next/dynamic"
 import { Slide, AgentState, WSEvent, Report, DemoCase, ROIOverlay, HistoFindings } from "@/lib/types"
 import { SlideUpload } from "@/components/upload/SlideUpload"
 import { ClinicalPanel } from "@/components/clinical/ClinicalPanel"
+import { NotesTable, useNotes, type Note } from "@/components/clinical/NotesTable"
 import { connectStream, startAnalysis } from "@/lib/ws"
 import { DEMO_CASES, demoSlides } from "@/lib/demo"
 import { GpuPanel } from "@/components/gpu/GpuPanel"
@@ -112,7 +113,6 @@ function RoiPanel({ findings, slideMeta, roiLabel, onClose }: {
       </div>
 
       <div className="px-4 py-4 space-y-5 text-sm">
-        {/* Tissues */}
         {tissues.length > 0 && (
           <div>
             <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-2">Tissu</div>
@@ -124,7 +124,6 @@ function RoiPanel({ findings, slideMeta, roiLabel, onClose }: {
           </div>
         )}
 
-        {/* Pattern */}
         {pattern && (
           <div>
             <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-1">Architecture</div>
@@ -132,7 +131,6 @@ function RoiPanel({ findings, slideMeta, roiLabel, onClose }: {
           </div>
         )}
 
-        {/* Grade row */}
         {(grade || mitotic != null || necro != null) && (
           <div>
             <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-2">Grade</div>
@@ -144,7 +142,6 @@ function RoiPanel({ findings, slideMeta, roiLabel, onClose }: {
           </div>
         )}
 
-        {/* Invasion flags */}
         {(lvi || pni) && (
           <div>
             <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-2">Invasion</div>
@@ -155,7 +152,6 @@ function RoiPanel({ findings, slideMeta, roiLabel, onClose }: {
           </div>
         )}
 
-        {/* Key findings */}
         {kf.length > 0 && (
           <div>
             <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-2">Findings</div>
@@ -170,7 +166,6 @@ function RoiPanel({ findings, slideMeta, roiLabel, onClose }: {
           </div>
         )}
 
-        {/* Slide-level synthesis (separate context) */}
         {slideMeta && slideMeta.dominant_pattern && (
           <div className="pt-3 border-t border-zinc-800/80">
             <div className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 mb-1.5">Synthese lame</div>
@@ -178,7 +173,6 @@ function RoiPanel({ findings, slideMeta, roiLabel, onClose }: {
           </div>
         )}
 
-        {/* Confidence */}
         {conf != null && (
           <div className="pt-2 border-t border-zinc-800">
             <div className="flex items-center justify-between text-xs font-mono">
@@ -210,7 +204,13 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<"2d" | "3d">("2d")
   const [activeSlideIndex, setActiveSlideIndex] = useState<number>(0)
   const [activeVolumeSlide, setActiveVolumeSlide] = useState<number>(0)
+  const [pinMode, setPinMode] = useState<boolean>(false)
+  const [pendingPin, setPendingPin] = useState<{ x: number; y: number } | null>(null)
+  const [pinDraft, setPinDraft] = useState("")
   const stopRef = useRef<(() => void) | null>(null)
+
+  const caseId = activeCase?.case_id
+  const { notes, add: addNote, update: updateNote, remove: removeNote } = useNotes(caseId)
 
   useEffect(() => () => stopRef.current?.(), [])
 
@@ -258,7 +258,6 @@ export default function Home() {
             if (rid) byRoi[rid] = entry
           }
         } else {
-          // Legacy: single-object output. Fan out to all ROIs as a fallback.
           byRoi["__slide__"] = parsed as HistoFindings
         }
         byRoi["__slide__"] = slideLevel
@@ -286,15 +285,13 @@ export default function Home() {
     setHistoFindingsBySlide({})
     setSelectedRoi(null)
 
-    const caseId = activeCase?.case_id ?? `case-${Date.now()}`
+    const cId = activeCase?.case_id ?? `case-${Date.now()}`
     const patientId = activeCase?.patient_id ?? "anonymous"
     const slidePaths = slides.map((s) => s.path ?? s.name)
 
-    // Always run the live pipeline.  Cache lookup is intentionally disabled
-    // so each click triggers a fresh dual-read with no replay of stale state.
     try {
       await startAnalysis({
-        case_id: caseId,
+        case_id: cId,
         patient_id: patientId,
         slide_paths: slidePaths,
         clinical_data: activeCase
@@ -313,12 +310,10 @@ export default function Home() {
     }
 
     stopRef.current?.()
-    stopRef.current = connectStream(caseId, onEvent)
+    stopRef.current = connectStream(cId, onEvent)
   }, [slides, activeCase, onEvent])
 
   const handleLoadDemo = useCallback((demo: DemoCase) => {
-    // Close any prior pipeline WebSocket — events from the previous case
-    // would otherwise mutate this case's state (cross-contamination bug).
     stopRef.current?.()
     stopRef.current = null
     setIsRunning(false)
@@ -331,9 +326,6 @@ export default function Home() {
     setSelectedRoi(null)
     setActiveSlideIndex(0)
     setActiveVolumeSlide(0)
-    // ROIs are populated only after the user clicks "Analyser" — when the
-    // tile-triage agent emits its event over the WebSocket. Keeps the viewer
-    // visually clean on case load: just the slide, no overlays yet.
   }, [])
 
   const handleSetSlides = useCallback((s: Slide[]) => {
@@ -350,21 +342,69 @@ export default function Home() {
     setActiveSlideIndex(0)
   }, [])
 
+  const handleViewerClick = useCallback(
+    (xNorm: number, yNorm: number) => {
+      if (!pinMode) return
+      setPendingPin({ x: xNorm, y: yNorm })
+    },
+    [pinMode]
+  )
+
+  const handleConfirmPin = useCallback(() => {
+    if (!pendingPin || !caseId || !pinDraft.trim()) return
+    addNote({
+      caseId,
+      slideIndex: activeSlideIndex,
+      slideName: slides[activeSlideIndex]?.name ?? `Lame ${activeSlideIndex + 1}`,
+      pinX: pendingPin.x,
+      pinY: pendingPin.y,
+      text: pinDraft.trim(),
+      author: "Praticien",
+      category: "observation",
+    })
+    setPendingPin(null)
+    setPinDraft("")
+    setPinMode(false)
+  }, [pendingPin, caseId, pinDraft, activeSlideIndex, slides, addNote])
+
+  const handleCancelPin = useCallback(() => {
+    setPendingPin(null)
+    setPinDraft("")
+  }, [])
+
+  const handleJumpToPin = useCallback(
+    (note: Note) => {
+      if (note.slideIndex !== activeSlideIndex) {
+        setActiveSlideIndex(note.slideIndex)
+      }
+      const heroSection = document.getElementById("hero-viewer")
+      if (heroSection) {
+        heroSection.scrollIntoView({ behavior: "smooth", block: "start" })
+      }
+    },
+    [activeSlideIndex]
+  )
+
   const slideOverlays = overlaysBySlide[activeSlideIndex] ?? []
   const liveOverlays = slideOverlays.length > 0
     ? slideOverlays
     : (isRunning || report ? FALLBACK_OVERLAYS : [])
 
+  const slideName = slides[activeSlideIndex]?.name ?? slides[0]?.name ?? "Aucune lame"
+  const pinsForSlide = notes.filter(
+    (n) => n.slideIndex === activeSlideIndex && n.pinX != null && n.pinY != null
+  )
+
   return (
-    <div className="grid grid-rows-[56px_1fr] grid-cols-[280px_1fr_400px] h-[100dvh] w-screen overflow-hidden">
-      {/* ── Top bar ── */}
-      <header className="col-span-3 flex items-stretch border-b border-[var(--rule-strong)] bg-[var(--paper)]">
+    <div className="min-h-screen w-full bg-[var(--paper)] text-[var(--ink)]">
+      {/* ── Sticky top bar ── */}
+      <header className="sticky top-0 z-40 flex items-stretch border-b border-[var(--rule-strong)] bg-[var(--paper)] h-[56px]">
         <div className="w-[280px] flex items-center gap-2.5 px-[18px] border-r border-[var(--rule-strong)]">
           <div className="w-7 h-7 border border-[var(--ink)] grid place-items-center font-serif italic font-semibold text-[var(--accent)]">
             P
           </div>
           <div className="font-serif text-[18px] font-semibold tracking-[-0.01em]">
-            PathMind <span className="font-mono text-[10px] text-[var(--muted)] ml-1">v0.2</span>
+            PathMind <span className="font-mono text-[10px] text-[var(--muted)] ml-1">v0.3</span>
           </div>
         </div>
         <div className="flex-1 flex items-center gap-3.5 px-[22px] border-r border-[var(--rule-strong)] min-w-0">
@@ -387,66 +427,83 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ── Left rail ── */}
-      <SlideUpload
-        slides={slides}
-        onSlides={handleSetSlides}
-        onAnalyze={handleAnalyze}
-        onLoadDemo={handleLoadDemo}
-        demoCases={DEMO_CASES}
-        activeCaseId={activeCase?.case_id}
-        isRunning={isRunning}
-      />
-
-      {/* ── Center: viewer ── */}
-      <main className="relative bg-[#1a1815] overflow-hidden">
+      {/* ── HERO : full-width slide viewer ── */}
+      <section
+        id="hero-viewer"
+        className="relative w-full bg-[#1a1815] overflow-hidden"
+        style={{ height: "calc(100vh - 56px)" }}
+      >
+        {/* Top toolbar */}
         <div className="absolute top-3 left-3 right-3 z-10 flex justify-between items-start gap-3 pointer-events-none">
           <div className="bg-[var(--paper)]/95 border border-[var(--rule-strong)] px-3.5 py-2 flex gap-3.5 items-center pointer-events-auto">
             <span className="font-mono text-[11px] text-[var(--muted)]">
               SP · {slides.length > 0 ? `${activeSlideIndex + 1}/${slides.length}` : "—"}
             </span>
             <span className="font-serif text-[14px] font-semibold truncate max-w-[260px]">
-              {slides[activeSlideIndex]?.name ?? slides[0]?.name ?? "Pas de lame chargée"}
+              {slideName}
             </span>
             <span className="text-[11px] text-[var(--ink-soft)] border-l border-[var(--rule)] pl-3.5">
               HES · 40× · 0,25 µm/px
             </span>
           </div>
-          {slides.length >= 2 && (
-            <div className="flex pointer-events-auto">
-              <button
-                type="button"
-                onClick={() => setViewMode("2d")}
-                className={`h-8 px-3 text-xs font-mono uppercase tracking-widest border border-[var(--rule-strong)] ${
-                  viewMode === "2d"
-                    ? "bg-[var(--accent)] text-black"
-                    : "bg-[var(--surface-2)] text-[var(--muted)]"
-                }`}
-              >
-                Vue 2D
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("3d")}
-                className={`h-8 px-3 text-xs font-mono uppercase tracking-widest border border-l-0 border-[var(--rule-strong)] ${
-                  viewMode === "3d"
-                    ? "bg-[var(--accent)] text-black"
-                    : "bg-[var(--surface-2)] text-[var(--muted)]"
-                }`}
-              >
-                Volume 3D
-              </button>
-            </div>
-          )}
+
+          <div className="flex gap-2 pointer-events-auto">
+            {/* Pin mode toggle */}
+            <button
+              type="button"
+              onClick={() => {
+                setPinMode((v) => !v)
+                setPendingPin(null)
+                setPinDraft("")
+              }}
+              disabled={!caseId}
+              className={`h-8 px-3 text-xs font-mono uppercase tracking-widest border ${
+                pinMode
+                  ? "bg-[var(--accent)] text-[var(--paper)] border-[var(--accent)]"
+                  : "bg-[var(--paper)]/95 text-[var(--ink-soft)] border-[var(--rule-strong)] hover:bg-[var(--paper-2)]"
+              } disabled:opacity-40 disabled:cursor-not-allowed`}
+              title={caseId ? "Cliquez sur la lame pour épingler une note" : "Sélectionnez un cas d'abord"}
+            >
+              {pinMode ? "Mode épingle ON" : "Épingler une note"}
+            </button>
+
+            {slides.length >= 2 && (
+              <div className="flex">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("2d")}
+                  className={`h-8 px-3 text-xs font-mono uppercase tracking-widest border border-[var(--rule-strong)] ${
+                    viewMode === "2d"
+                      ? "bg-[var(--accent)] text-black"
+                      : "bg-[var(--surface-2)] text-[var(--muted)]"
+                  }`}
+                >
+                  Vue 2D
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("3d")}
+                  className={`h-8 px-3 text-xs font-mono uppercase tracking-widest border border-l-0 border-[var(--rule-strong)] ${
+                    viewMode === "3d"
+                      ? "bg-[var(--accent)] text-black"
+                      : "bg-[var(--surface-2)] text-[var(--muted)]"
+                  }`}
+                >
+                  Volume 3D
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Slide selector — only in 2D when the case has multiple slides */}
+        {/* Slide selector */}
         {viewMode === "2d" && slides.length > 1 && (
           <div className="absolute top-[60px] left-3 right-3 z-10 flex justify-center pointer-events-none">
             <div className="bg-[var(--paper)]/95 border border-[var(--rule-strong)] px-1.5 py-1.5 flex gap-1 pointer-events-auto">
               {slides.map((s, i) => {
                 const isActive = i === activeSlideIndex
                 const hasROIs = (overlaysBySlide[i]?.length ?? 0) > 0
+                const slidePinCount = notes.filter((n) => n.slideIndex === i).length
                 return (
                   <button
                     key={s.id}
@@ -463,6 +520,11 @@ export default function Home() {
                     {hasROIs && (
                       <span className={`ml-2 inline-block w-1.5 h-1.5 rounded-full ${isActive ? "bg-black/40" : "bg-[var(--accent)]"}`} />
                     )}
+                    {slidePinCount > 0 && (
+                      <span className={`ml-1.5 text-[9px] ${isActive ? "text-black/60" : "text-[var(--ink-soft)]"}`}>
+                        ·{slidePinCount}
+                      </span>
+                    )}
                   </button>
                 )
               })}
@@ -470,81 +532,246 @@ export default function Home() {
           </div>
         )}
 
+        {/* Pin mode hint banner */}
+        {pinMode && !pendingPin && (
+          <div className="absolute top-[110px] left-1/2 -translate-x-1/2 z-20 bg-[var(--accent)] text-[var(--paper)] px-4 py-2 border border-[var(--accent)] pointer-events-none">
+            <div className="font-mono text-[11px] uppercase tracking-widest flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[var(--paper)] animate-pulse" />
+              Cliquez sur la zone à épingler
+            </div>
+          </div>
+        )}
+
         <div className="absolute inset-0 flex">
           {viewMode === "2d" ? (
             <div className="relative flex-1 h-full">
-            <WSIViewer
-              slideId={slides[activeSlideIndex]?.name ?? slides[0]?.name ?? "Aucune lame"}
-              slidePath={slides[activeSlideIndex]?.path ?? slides[0]?.path}
-              className="w-full h-full"
-              overlays={liveOverlays}
-              onRoiClick={(roiIndex, label) => setSelectedRoi({ roiIndex, label })}
-            />
-            {selectedRoi && (() => {
-              const roiId = selectedRoi.label.split(" ")[0] || ""
-              const slideMap = histoFindingsBySlide[activeSlideIndex]
-              const f = slideMap?.[roiId] ?? slideMap?.["__slide__"]
-              const slideMeta = slideMap?.["__slide__"]
-              return (
-                <RoiPanel
-                  findings={f}
-                  slideMeta={slideMeta}
-                  roiLabel={selectedRoi.label}
-                  onClose={() => setSelectedRoi(null)}
-                />
-              )
-            })()}
+              <WSIViewer
+                slideId={slides[activeSlideIndex]?.name ?? slides[0]?.name ?? "Aucune lame"}
+                slidePath={slides[activeSlideIndex]?.path ?? slides[0]?.path}
+                className="w-full h-full"
+                overlays={liveOverlays}
+                onRoiClick={(roiIndex, label) => setSelectedRoi({ roiIndex, label })}
+              />
+
+              {/* Pin overlay layer (existing notes + pending) */}
+              <div
+                className={`absolute inset-0 z-10 ${pinMode ? "cursor-crosshair" : "pointer-events-none"}`}
+                onClick={(e) => {
+                  if (!pinMode) return
+                  const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
+                  const x = (e.clientX - rect.left) / rect.width
+                  const y = (e.clientY - rect.top) / rect.height
+                  handleViewerClick(x, y)
+                }}
+              >
+                {pinsForSlide.map((n) => (
+                  <div
+                    key={n.id}
+                    className="absolute pointer-events-auto group"
+                    style={{
+                      left: `${(n.pinX ?? 0) * 100}%`,
+                      top: `${(n.pinY ?? 0) * 100}%`,
+                      transform: "translate(-50%, -100%)",
+                    }}
+                    title={n.text}
+                  >
+                    <div className="relative">
+                      <div className="w-6 h-6 rounded-full bg-[var(--accent)] border-2 border-[var(--paper)] shadow-lg flex items-center justify-center">
+                        <span className="font-mono text-[10px] font-bold text-[var(--paper)]">
+                          {notes.indexOf(n) + 1}
+                        </span>
+                      </div>
+                      <div className="w-0.5 h-3 bg-[var(--accent)] mx-auto" />
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-[var(--ink)] text-[var(--paper)] text-[11px] px-2 py-1 whitespace-nowrap max-w-[260px] truncate font-serif z-30">
+                        {n.text}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {pendingPin && (
+                  <div
+                    className="absolute pointer-events-auto"
+                    style={{
+                      left: `${pendingPin.x * 100}%`,
+                      top: `${pendingPin.y * 100}%`,
+                      transform: "translate(-50%, -100%)",
+                    }}
+                  >
+                    <div className="w-6 h-6 rounded-full bg-[var(--warn)] border-2 border-[var(--paper)] shadow-lg animate-pulse" />
+                    <div className="w-0.5 h-3 bg-[var(--warn)] mx-auto" />
+                  </div>
+                )}
+              </div>
+
+              {/* Pending pin composer */}
+              {pendingPin && (
+                <div className="absolute z-30 bottom-6 left-1/2 -translate-x-1/2 w-[420px] bg-[var(--paper)] border border-[var(--rule-strong)] shadow-2xl">
+                  <div className="px-4 py-2.5 border-b border-[var(--rule-strong)] flex items-center justify-between bg-[var(--paper-2)]">
+                    <div className="smcaps">Note épinglée — {slideName}</div>
+                    <button
+                      type="button"
+                      onClick={handleCancelPin}
+                      className="text-[var(--muted)] hover:text-[var(--ink)] text-sm"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <textarea
+                    value={pinDraft}
+                    onChange={(e) => setPinDraft(e.target.value)}
+                    placeholder="Décrivez votre observation à ce point précis..."
+                    rows={3}
+                    autoFocus
+                    className="w-full resize-none bg-[var(--paper)] px-4 py-2.5 text-[13px] font-serif text-[var(--ink)] placeholder:text-[var(--muted)] focus:outline-none"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                        e.preventDefault()
+                        handleConfirmPin()
+                      }
+                      if (e.key === "Escape") handleCancelPin()
+                    }}
+                  />
+                  <div className="px-4 py-2 border-t border-[var(--rule-strong)] flex justify-between items-center bg-[var(--paper-2)]">
+                    <span className="font-mono text-[10px] text-[var(--muted)]">⌘+Entrée pour valider</span>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handleCancelPin}
+                        className="h-7 px-3 text-[10px] font-mono uppercase tracking-widest border border-[var(--rule-strong)] text-[var(--muted)]"
+                      >
+                        Annuler
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleConfirmPin}
+                        disabled={!pinDraft.trim()}
+                        className="h-7 px-3 text-[10px] font-mono uppercase tracking-widest bg-[var(--accent)] text-[var(--paper)] disabled:opacity-30"
+                      >
+                        Épingler
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {selectedRoi && (() => {
+                const roiId = selectedRoi.label.split(" ")[0] || ""
+                const slideMap = histoFindingsBySlide[activeSlideIndex]
+                const f = slideMap?.[roiId] ?? slideMap?.["__slide__"]
+                const slideMeta = slideMap?.["__slide__"]
+                return (
+                  <RoiPanel
+                    findings={f}
+                    slideMeta={slideMeta}
+                    roiLabel={selectedRoi.label}
+                    onClose={() => setSelectedRoi(null)}
+                  />
+                )
+              })()}
             </div>
           ) : (
             <div className="relative flex-1 h-full">
-            <VolumeViewer
-              caseId={activeCase?.case_id}
-              slides={
-                activeCase
-                  ? undefined
-                  : slides.map((s, i) => ({
-                      id: s.id,
-                      index: i,
-                      name: s.name,
-                      rois: FALLBACK_OVERLAYS.slice(0, 4).map((r) => ({
-                        x: r.x,
-                        y: r.y,
-                        w: r.w,
-                        h: r.h,
-                        tissue: r.tissue ?? 0.7,
-                      })),
-                    }))
-              }
-              activeSlideIndex={activeVolumeSlide}
-              onSlideClick={(i) => setActiveVolumeSlide(i)}
-            />
+              <VolumeViewer
+                caseId={activeCase?.case_id}
+                slides={
+                  activeCase
+                    ? undefined
+                    : slides.map((s, i) => ({
+                        id: s.id,
+                        index: i,
+                        name: s.name,
+                        rois: FALLBACK_OVERLAYS.slice(0, 4).map((r) => ({
+                          x: r.x,
+                          y: r.y,
+                          w: r.w,
+                          h: r.h,
+                          tissue: r.tissue ?? 0.7,
+                        })),
+                      }))
+                }
+                activeSlideIndex={activeVolumeSlide}
+                onSlideClick={(i) => setActiveVolumeSlide(i)}
+              />
             </div>
           )}
         </div>
 
+        {/* Clinical context strip at bottom of hero */}
         {activeCase && (
-          <div className="absolute bottom-3 left-3 right-[200px] z-10 bg-[var(--paper)]/95 border border-[var(--rule-strong)] px-3.5 py-2 pointer-events-auto">
+          <div className="absolute bottom-3 left-3 right-3 z-10 bg-[var(--paper)]/95 border border-[var(--rule-strong)] px-3.5 py-2 pointer-events-auto">
             <span className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-[var(--accent)] mr-2.5">
               Contexte
             </span>
             <span className="text-[12px] text-[var(--ink-soft)]">{activeCase.clinical_context}</span>
           </div>
         )}
-        {/* Benchmark card — visible when no case running, collapses when running */}
-        {!isRunning && (
-          <div className="absolute bottom-3 right-3 z-10 w-[320px] pointer-events-auto">
-            <BenchmarkCard />
-          </div>
-        )}
-      </main>
 
-      {/* ── Right rail: clinical panel ── */}
-      <ClinicalPanel
-        agents={agents}
-        isRunning={isRunning}
-        report={report}
-        patientLabel={activeCase?.patient_label}
-      />
+        {/* Scroll-down hint */}
+        <button
+          type="button"
+          onClick={() => {
+            const el = document.getElementById("workspace-grid")
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
+          }}
+          className="absolute bottom-6 right-6 z-20 w-10 h-10 rounded-full bg-[var(--ink)] text-[var(--paper)] border border-[var(--paper)] hover:bg-[var(--accent)] transition-colors grid place-items-center shadow-xl"
+          title="Voir l'espace de travail"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </section>
+
+      {/* ── WORKSPACE : 3-col grid below the hero, scrollable ── */}
+      <section
+        id="workspace-grid"
+        className="grid grid-cols-[280px_1fr_400px] border-t border-[var(--rule-strong)] min-h-[600px]"
+      >
+        {/* Left rail : cases / upload */}
+        <div className="border-r border-[var(--rule-strong)] bg-[var(--paper)]">
+          <SlideUpload
+            slides={slides}
+            onSlides={handleSetSlides}
+            onAnalyze={handleAnalyze}
+            onLoadDemo={handleLoadDemo}
+            demoCases={DEMO_CASES}
+            activeCaseId={activeCase?.case_id}
+            isRunning={isRunning}
+          />
+        </div>
+
+        {/* Middle : interactive notes table */}
+        <div className="bg-[var(--paper-2)]/30 p-5">
+          <NotesTable
+            caseId={caseId}
+            caseLabel={activeCase?.patient_label}
+            slideIndex={activeSlideIndex}
+            slideName={slideName}
+            notes={notes}
+            onAdd={addNote}
+            onUpdate={updateNote}
+            onRemove={removeNote}
+            onJumpToPin={handleJumpToPin}
+          />
+
+          {/* Benchmark card */}
+          {!isRunning && (
+            <div className="mt-5">
+              <BenchmarkCard />
+            </div>
+          )}
+        </div>
+
+        {/* Right rail : clinical panel (agents + report) */}
+        <div className="border-l border-[var(--rule-strong)] bg-[var(--paper)]">
+          <ClinicalPanel
+            agents={agents}
+            isRunning={isRunning}
+            report={report}
+            patientLabel={activeCase?.patient_label}
+          />
+        </div>
+      </section>
     </div>
   )
 }
