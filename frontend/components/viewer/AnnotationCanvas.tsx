@@ -97,18 +97,20 @@ export function AnnotationCanvas({
   const [hoverShapeId, setHoverShapeId] = useState<string | null>(null)
   const [imageSize, setImageSize] = useState<{ w: number; h: number }>({ w: 1, h: 1 })
 
-  // Convert client (pointer) → image px
+  // Convert client (pointer) → image px.
+  // OSD's viewport.pointFromPixel / viewportToImageCoordinates only read .x / .y
+  // off their argument, so a plain {x, y} object works (no need for the
+  // OpenSeadragon.Point ctor — which lives on the imported module, not window).
   const clientToImage = useCallback(
     (clientX: number, clientY: number): { x: number; y: number } | null => {
       if (!viewer || !containerRef.current) return null
       const rect = containerRef.current.getBoundingClientRect()
-      const local = new (window as unknown as { OpenSeadragon: typeof OpenSeadragon }).OpenSeadragon.Point(
-        clientX - rect.left,
-        clientY - rect.top
-      )
+      const local = { x: clientX - rect.left, y: clientY - rect.top }
       try {
-        const vp = viewer.viewport.pointFromPixel(local)
-        const img = viewer.viewport.viewportToImageCoordinates(vp)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const vp = viewer.viewport.pointFromPixel(local as any)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const img = viewer.viewport.viewportToImageCoordinates(vp as any)
         return { x: img.x, y: img.y }
       } catch {
         return null
@@ -122,8 +124,10 @@ export function AnnotationCanvas({
     (pt: { x: number; y: number }): { x: number; y: number } | null => {
       if (!viewer) return null
       try {
-        const vp = viewer.viewport.imageToViewportCoordinates(pt.x, pt.y)
-        const px = viewer.viewport.pixelFromPoint(vp, true)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const vp = (viewer.viewport as any).imageToViewportCoordinates(pt.x, pt.y)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const px = (viewer.viewport as any).pixelFromPoint(vp, true)
         return { x: px.x, y: px.y }
       } catch {
         return null
