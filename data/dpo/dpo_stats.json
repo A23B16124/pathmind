@@ -1,0 +1,14 @@
+{
+  "total_pairs": 12,
+  "by_type": {
+    "histopathologist": 8,
+    "differential_dx": 4
+  },
+  "cases": {
+    "TCGA-NH-A5IV": 3,
+    "TCGA-AZ-4616": 2,
+    "TCGA-T9-A92H": 1,
+    "TCGA-AA-3712": 3,
+    "TCGA-AY-A71X": 3
+  }
+}

@@ -316,12 +316,25 @@ class ChiefAgent(BaseAgent):
         # QC verdict multiplier — revision_requested raised 0.85->0.92 (valid challenges still penalise but less)
         qc_mult = {"accepted": 1.00, "revision_requested": 0.92, "escalate": 0.60}.get(qc.verdict, 0.92)
 
+        # Organ hallucination penalty
+        # If DDX diagnosis mentions breast/ductal/IDC but clinical context or
+        # triage does not mention breast, penalize confidence heavily.
+        organ_penalty = 1.0
+        dx_lower = primary.lower() if primary else ""
+        breast_terms = {"ductal", "idc", "breast", "invasive ductal", "idc-nst", "lobular"}
+        clinical_str = str(input_data.clinical_data).lower()
+        if any(t in dx_lower for t in breast_terms):
+            breast_in_context = any(t in clinical_str for t in {"breast", "mammary"})
+            if not breast_in_context:
+                organ_penalty = 0.30  # hard penalty: organ hallucination
+        confidence_breakdown["organ_hallucination_penalty"] = round(organ_penalty, 2)
+
         composite = (
             0.35 * ddx_conf +
             0.25 * histo_proxy +
             0.20 * qc_conf +
             0.20 * report_conf
-        ) * qc_mult
+        ) * qc_mult * organ_penalty
         composite = max(0.0, min(1.0, composite))
         raw_conf = composite
 
@@ -332,7 +345,7 @@ class ChiefAgent(BaseAgent):
             "report_writer":   round(report_conf, 3),
             "qc_verdict_mult": round(qc_mult, 2),
             "composite":       round(composite, 3),
-            "formula":         "0.35·ddx + 0.25·histo + 0.20·qc + 0.20·report — × qc_verdict_mult",
+            "formula":         "0.35·ddx + 0.25·histo + 0.20·qc + 0.20·report × qc_verdict_mult × organ_penalty",
         }
 
         primary = (data or {}).get("primary_diagnosis") or ddx.primary_diagnosis or ""
