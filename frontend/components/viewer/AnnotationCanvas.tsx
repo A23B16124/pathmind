@@ -1,62 +1,16 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
-import type OpenSeadragon from "openseadragon"
+import OpenSeadragon from "openseadragon"
+import {
+  PATHMIND_SYMBOLS,
+  type ToolKind,
+  type PathMindSymbol,
+  type Shape,
+} from "./AnnotationTypes"
 
-// Coordinates are stored as FRACTIONS (0..1) of the viewer container box.
-// Rendering is just a multiply by canvas pixel dims — no OSD math needed,
-// so clicks/draws always work even if the OSD viewport state is unusual.
-// Trade-off: shapes are anchored to the viewer rectangle, not to the image
-// pixels, so they don't follow zoom/pan inside OSD. For the demo this is
-// the right call: bulletproof interaction beats imperfect zoom-tracking.
-
-export type ToolKind =
-  | "select"
-  | "pen"
-  | "arrow"
-  | "rect"
-  | "circle"
-  | "measure"
-  | "text"
-  | "symbol"
-  | "eraser"
-
-export interface PathMindSymbol {
-  id: string
-  label: string
-  glyph: string
-  color?: string
-  description: string
-}
-
-export const PATHMIND_SYMBOLS: PathMindSymbol[] = [
-  { id: "atypia", label: "Atypie", glyph: "!", color: "#a23939", description: "Atypie cellulaire à confirmer" },
-  { id: "mitose", label: "Mitose", glyph: "M", color: "#6b1d1d", description: "Mitose / activité mitotique" },
-  { id: "necrose", label: "Nécrose", glyph: "N", color: "#4a4538", description: "Foyer de nécrose" },
-  { id: "lvi", label: "LVI", glyph: "V", color: "#8a5a14", description: "Invasion lymphovasculaire" },
-  { id: "pni", label: "PNI", glyph: "P", color: "#8a5a14", description: "Invasion périnerveuse" },
-  { id: "marge", label: "Marge", glyph: "X", color: "#a23939", description: "Marge limite / atteinte" },
-  { id: "tumor", label: "Tumeur", glyph: "T", color: "#6b1d1d", description: "Foyer tumoral" },
-  { id: "stroma", label: "Stroma", glyph: "S", color: "#2f5d3a", description: "Stroma desmoplastique" },
-  { id: "ihc", label: "IHC", glyph: "I", color: "#1c1a16", description: "Cible pour IHC" },
-  { id: "review", label: "Revue", glyph: "?", color: "#8a5a14", description: "À discuter / second avis" },
-]
-
-export interface Shape {
-  id: string
-  caseId: string
-  slideIndex: number
-  type: ToolKind
-  // FRACTION coords (0..1) of the viewer container at draw time
-  points?: { x: number; y: number }[]
-  start?: { x: number; y: number }
-  end?: { x: number; y: number }
-  text?: string
-  symbol?: PathMindSymbol
-  color: string
-  strokeWidth: number
-  createdAt: number
-}
+export { PATHMIND_SYMBOLS }
+export type { ToolKind, PathMindSymbol, Shape }
 
 interface AnnotationCanvasProps {
   viewer: OpenSeadragon.Viewer | null
@@ -95,50 +49,68 @@ export function AnnotationCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [draft, setDraft] = useState<DraftShape | null>(null)
-  const [textInput, setTextInput] = useState<{ x: number; y: number; raw: string; client: { left: number; top: number } } | null>(null)
+  const [textInput, setTextInput] = useState<{
+    img: { x: number; y: number }
+    raw: string
+    client: { left: number; top: number }
+  } | null>(null)
   const [hoverShapeId, setHoverShapeId] = useState<string | null>(null)
-  const [imageSize, setImageSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 })
+  const [, forceTick] = useState(0)
 
-  // Pointer client coords → fraction (0..1) of the viewer container
-  const clientToFrac = useCallback((clientX: number, clientY: number): { x: number; y: number } | null => {
-    const c = containerRef.current
-    if (!c) return null
-    const rect = c.getBoundingClientRect()
-    if (rect.width <= 0 || rect.height <= 0) return null
-    return {
-      x: (clientX - rect.left) / rect.width,
-      y: (clientY - rect.top) / rect.height,
-    }
-  }, [])
-
-  // Fraction → canvas pixel
-  const fracToPx = useCallback((pt: { x: number; y: number }): { x: number; y: number } => {
-    const c = containerRef.current
-    if (!c) return { x: 0, y: 0 }
-    const rect = c.getBoundingClientRect()
-    return { x: pt.x * rect.width, y: pt.y * rect.height }
-  }, [])
-
-  // Read OSD image size for distance scale (fall back to a sane default)
-  useEffect(() => {
-    if (!viewer) return
-    const capture = () => {
+  // Pointer client coords → IMAGE pixel coords (via OSD)
+  const clientToImage = useCallback(
+    (clientX: number, clientY: number): { x: number; y: number } | null => {
+      if (!viewer) return null
+      const c = containerRef.current
+      if (!c) return null
+      const rect = c.getBoundingClientRect()
+      if (rect.width <= 0 || rect.height <= 0) return null
       try {
-        const item = viewer.world.getItemAt(0)
-        if (item) {
-          const sz = item.getContentSize()
-          if (sz.x > 0 && sz.y > 0) setImageSize({ w: sz.x, h: sz.y })
-        }
-      } catch {}
-    }
-    capture()
-    viewer.addHandler("open", capture)
-    return () => {
-      viewer.removeHandler("open", capture)
-    }
-  }, [viewer])
+        const px = clientX - rect.left
+        const py = clientY - rect.top
+        const vp = viewer.viewport.pointFromPixel(new OpenSeadragon.Point(px, py), true)
+        const ic = viewer.viewport.viewportToImageCoordinates(vp)
+        return { x: ic.x, y: ic.y }
+      } catch {
+        return null
+      }
+    },
+    [viewer]
+  )
 
-  // Redraw — uses canvas pixel coords directly from fractions, no OSD math
+  // IMAGE pixel coords → canvas/viewer pixel coords
+  const imageToPx = useCallback(
+    (pt: { x: number; y: number }): { x: number; y: number } => {
+      if (!viewer) return { x: 0, y: 0 }
+      try {
+        const vp = viewer.viewport.imageToViewportCoordinates(pt.x, pt.y)
+        const px = viewer.viewport.pixelFromPoint(vp, true)
+        return { x: px.x, y: px.y }
+      } catch {
+        return { x: 0, y: 0 }
+      }
+    },
+    [viewer]
+  )
+
+  // Image-pixel tolerance equivalent to ~12 viewer-pixels (for hit tests)
+  const pxToleranceInImage = useCallback(
+    (viewerPx: number): number => {
+      if (!viewer) return viewerPx
+      try {
+        const v0 = viewer.viewport.pointFromPixel(new OpenSeadragon.Point(0, 0), true)
+        const v1 = viewer.viewport.pointFromPixel(new OpenSeadragon.Point(viewerPx, 0), true)
+        const i0 = viewer.viewport.viewportToImageCoordinates(v0)
+        const i1 = viewer.viewport.viewportToImageCoordinates(v1)
+        return Math.abs(i1.x - i0.x)
+      } catch {
+        return viewerPx
+      }
+    },
+    [viewer]
+  )
+
+  // Redraw — converts IMAGE coords to viewer-pixels through OSD
   const redraw = useCallback(() => {
     const canvas = canvasRef.current
     const container = containerRef.current
@@ -160,11 +132,11 @@ export function AnnotationCanvas({
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, w, h)
 
-    const scaleW = imageSize.w > 0 ? imageSize.w : w / 0.25
-    // For distance: 1 fraction ≈ scaleW image px, so distUm = sqrt(dx² + dy²) × scaleW × mppx
+    if (!viewer) return
+
     for (const s of shapes) {
       if (s.slideIndex !== slideIndex) continue
-      drawShape(ctx, s, fracToPx, scaleW, micronsPerPixel, hoverShapeId === s.id)
+      drawShape(ctx, s, imageToPx, micronsPerPixel, hoverShapeId === s.id)
     }
     if (draft) {
       const draftShape: Shape = {
@@ -181,58 +153,65 @@ export function AnnotationCanvas({
       }
       ctx.save()
       ctx.globalAlpha = 0.85
-      drawShape(ctx, draftShape, fracToPx, scaleW, micronsPerPixel, true)
+      drawShape(ctx, draftShape, imageToPx, micronsPerPixel, true)
       ctx.restore()
     }
-  }, [shapes, slideIndex, draft, color, strokeWidth, fracToPx, imageSize, micronsPerPixel, hoverShapeId, caseId])
+  }, [shapes, slideIndex, draft, color, strokeWidth, imageToPx, micronsPerPixel, hoverShapeId, caseId, viewer])
 
-  // Re-render on shape / draft / size changes
   useEffect(() => {
     redraw()
   }, [redraw])
 
-  // Window resize → redraw
   useEffect(() => {
     const onR = () => redraw()
     window.addEventListener("resize", onR)
     return () => window.removeEventListener("resize", onR)
   }, [redraw])
 
-  // OSD viewport changes → redraw (so the canvas re-sizes if the viewer does)
+  // OSD events → redraw on every viewport change so annotations follow zoom/pan
   useEffect(() => {
     if (!viewer) return
-    const handler = () => redraw()
+    const handler = () => {
+      forceTick((t) => t + 1)
+    }
     viewer.addHandler("update-viewport", handler)
     viewer.addHandler("animation", handler)
+    viewer.addHandler("animation-finish", handler)
+    viewer.addHandler("zoom", handler)
+    viewer.addHandler("pan", handler)
     viewer.addHandler("resize", handler)
+    viewer.addHandler("open", handler)
     return () => {
       viewer.removeHandler("update-viewport", handler)
       viewer.removeHandler("animation", handler)
+      viewer.removeHandler("animation-finish", handler)
+      viewer.removeHandler("zoom", handler)
+      viewer.removeHandler("pan", handler)
       viewer.removeHandler("resize", handler)
+      viewer.removeHandler("open", handler)
     }
-  }, [viewer, redraw])
+  }, [viewer])
 
   const isDrawing = tool !== "select"
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (!isDrawing || !caseId) return
-    const frac = clientToFrac(e.clientX, e.clientY)
-    if (!frac) return
+    const img = clientToImage(e.clientX, e.clientY)
+    if (!img) return
     e.preventDefault()
     try {
       ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
     } catch {}
 
     if (tool === "pen") {
-      setDraft({ type: "pen", points: [frac] })
+      setDraft({ type: "pen", points: [img] })
     } else if (tool === "arrow" || tool === "rect" || tool === "circle" || tool === "measure") {
-      setDraft({ type: tool, start: frac, end: frac })
+      setDraft({ type: tool, start: img, end: img })
     } else if (tool === "text") {
       const rect = containerRef.current?.getBoundingClientRect()
       if (!rect) return
       setTextInput({
-        x: frac.x,
-        y: frac.y,
+        img,
         raw: "",
         client: { left: e.clientX - rect.left, top: e.clientY - rect.top },
       })
@@ -242,7 +221,7 @@ export function AnnotationCanvas({
         caseId,
         slideIndex,
         type: "symbol",
-        start: frac,
+        start: img,
         symbol: selectedSymbol,
         text: selectedSymbol.label,
         color: selectedSymbol.color ?? color,
@@ -251,26 +230,28 @@ export function AnnotationCanvas({
       }
       onAddShape(newShape)
     } else if (tool === "eraser") {
-      const hit = hitTestShape(frac, shapes, slideIndex)
+      const tol = pxToleranceInImage(14)
+      const hit = hitTestShape(img, shapes, slideIndex, tol)
       if (hit) onRemoveShape(hit.id)
     }
   }
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (tool === "eraser") {
-      const frac = clientToFrac(e.clientX, e.clientY)
-      if (frac) {
-        const hit = hitTestShape(frac, shapes, slideIndex)
+      const img = clientToImage(e.clientX, e.clientY)
+      if (img) {
+        const tol = pxToleranceInImage(14)
+        const hit = hitTestShape(img, shapes, slideIndex, tol)
         setHoverShapeId(hit?.id ?? null)
       }
     }
     if (!draft) return
-    const frac = clientToFrac(e.clientX, e.clientY)
-    if (!frac) return
+    const img = clientToImage(e.clientX, e.clientY)
+    if (!img) return
     if (draft.type === "pen") {
-      setDraft({ ...draft, points: [...(draft.points ?? []), frac] })
+      setDraft({ ...draft, points: [...(draft.points ?? []), img] })
     } else {
-      setDraft({ ...draft, end: frac })
+      setDraft({ ...draft, end: img })
     }
   }
 
@@ -286,28 +267,27 @@ export function AnnotationCanvas({
 
     const id = `s-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
     const base = { id, caseId, slideIndex, color, strokeWidth, createdAt: Date.now() }
+    const movedThresh = pxToleranceInImage(6)
 
     if (draft.type === "pen") {
       if (draft.points && draft.points.length >= 2) {
         onAddShape({ ...base, type: "pen", points: draft.points })
       } else if (draft.points && draft.points.length === 1) {
         const p = draft.points[0]
-        onAddShape({ ...base, type: "pen", points: [p, { x: p.x + 0.005, y: p.y + 0.005 }] })
+        const off = pxToleranceInImage(2)
+        onAddShape({ ...base, type: "pen", points: [p, { x: p.x + off, y: p.y + off }] })
       }
     } else if (
       (draft.type === "arrow" || draft.type === "rect" || draft.type === "circle" || draft.type === "measure") &&
       draft.start &&
       draft.end
     ) {
-      const dx = draft.end.x - draft.start.x
-      const dy = draft.end.y - draft.start.y
-      const moved = Math.hypot(dx, dy)
-      // moved is in fraction units; threshold = ~0.5% of viewer
-      if (moved > 0.005) {
+      const moved = Math.hypot(draft.end.x - draft.start.x, draft.end.y - draft.start.y)
+      if (moved > movedThresh) {
         onAddShape({ ...base, type: draft.type, start: draft.start, end: draft.end })
       } else {
-        // Single click → place a default-sized shape (~10% of viewer width)
-        const def = 0.08
+        // Single click → place a default-sized shape (~80 viewer-px wide, expressed in image px)
+        const def = pxToleranceInImage(80)
         const a = draft.start
         let endPt = draft.end
         if (draft.type === "arrow") {
@@ -335,7 +315,7 @@ export function AnnotationCanvas({
       caseId,
       slideIndex,
       type: "text",
-      start: { x: textInput.x, y: textInput.y },
+      start: textInput.img,
       text: textInput.raw.trim(),
       color,
       strokeWidth,
@@ -409,18 +389,21 @@ export function AnnotationCanvas({
 }
 
 // ──────────────────────────────────────────────────────────────────────────
-// Drawing helpers (input coords are FRACTIONS, converted to canvas px here)
+// Drawing — input coords are in IMAGE pixels, converted via imageToPx().
+// Visual sizes (stroke, glyph radius, label box) stay constant in viewer-px.
 // ──────────────────────────────────────────────────────────────────────────
 
 function drawShape(
   ctx: CanvasRenderingContext2D,
   s: Shape,
-  fracToPx: (pt: { x: number; y: number }) => { x: number; y: number },
-  imageWidthPx: number,
+  imageToPx: (pt: { x: number; y: number }) => { x: number; y: number },
   mppx: number,
   highlight: boolean
 ) {
   ctx.save()
+  // Soft dark halo so fluo strokes pop on the bright slide tissue
+  ctx.shadowColor = "rgba(0, 0, 0, 0.55)"
+  ctx.shadowBlur = 4
   ctx.strokeStyle = s.color
   ctx.fillStyle = s.color
   ctx.lineWidth = s.strokeWidth
@@ -428,36 +411,34 @@ function drawShape(
   ctx.lineCap = "round"
   if (highlight) {
     ctx.shadowColor = s.color
-    ctx.shadowBlur = 8
+    ctx.shadowBlur = 10
   }
 
   if (s.type === "pen" && s.points && s.points.length > 1) {
     ctx.beginPath()
     let first = true
     for (const p of s.points) {
-      const c = fracToPx(p)
+      const c = imageToPx(p)
       if (first) { ctx.moveTo(c.x, c.y); first = false }
       else ctx.lineTo(c.x, c.y)
     }
     ctx.stroke()
   } else if (s.type === "arrow" && s.start && s.end) {
-    const a = fracToPx(s.start), b = fracToPx(s.end)
+    const a = imageToPx(s.start), b = imageToPx(s.end)
     drawArrow(ctx, a.x, a.y, b.x, b.y)
   } else if (s.type === "rect" && s.start && s.end) {
-    const a = fracToPx(s.start), b = fracToPx(s.end)
+    const a = imageToPx(s.start), b = imageToPx(s.end)
     ctx.strokeRect(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.abs(b.x - a.x), Math.abs(b.y - a.y))
   } else if (s.type === "circle" && s.start && s.end) {
-    const a = fracToPx(s.start), b = fracToPx(s.end)
+    const a = imageToPx(s.start), b = imageToPx(s.end)
     const r = Math.hypot(b.x - a.x, b.y - a.y)
     ctx.beginPath()
     ctx.arc(a.x, a.y, r, 0, Math.PI * 2)
     ctx.stroke()
   } else if (s.type === "measure" && s.start && s.end) {
-    const a = fracToPx(s.start), b = fracToPx(s.end)
-    const dxFrac = s.end.x - s.start.x
-    const dyFrac = s.end.y - s.start.y
-    // distance in image px ≈ sqrt(dx² + dy²) × imageWidthPx (assuming square aspect for simplicity)
-    const distImagePx = Math.hypot(dxFrac, dyFrac) * imageWidthPx
+    const a = imageToPx(s.start), b = imageToPx(s.end)
+    // Distance is in IMAGE pixels regardless of zoom
+    const distImagePx = Math.hypot(s.end.x - s.start.x, s.end.y - s.start.y)
     const distUm = distImagePx * mppx
     const distLabel = distUm < 1000 ? `${distUm.toFixed(1)} µm` : `${(distUm / 1000).toFixed(2)} mm`
 
@@ -475,43 +456,46 @@ function drawShape(
       ctx.stroke()
     }
     const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+    ctx.shadowBlur = 0
     ctx.font = "600 12px JetBrains Mono, ui-monospace, monospace"
     const metrics = ctx.measureText(distLabel)
     const padX = 6
     const boxW = metrics.width + padX * 2
     const boxH = 18
     const offY = -boxH - 6
-    ctx.fillStyle = "rgba(244, 241, 234, 0.96)"
+    ctx.fillStyle = "rgba(28, 26, 22, 0.92)"
     ctx.strokeStyle = s.color
     ctx.lineWidth = 1
     ctx.fillRect(mid.x - boxW / 2, mid.y + offY, boxW, boxH)
     ctx.strokeRect(mid.x - boxW / 2, mid.y + offY, boxW, boxH)
-    ctx.fillStyle = "#1c1a16"
+    ctx.fillStyle = s.color
     ctx.textAlign = "center"
     ctx.textBaseline = "middle"
     ctx.fillText(distLabel, mid.x, mid.y + offY + boxH / 2)
   } else if (s.type === "text" && s.start && s.text) {
-    const a = fracToPx(s.start)
+    const a = imageToPx(s.start)
+    ctx.shadowBlur = 0
     ctx.font = "500 14px Newsreader, Georgia, serif"
     const metrics = ctx.measureText(s.text)
     const padX = 8
     const boxW = metrics.width + padX * 2
     const boxH = 24
-    ctx.fillStyle = "rgba(244, 241, 234, 0.96)"
+    ctx.fillStyle = "rgba(28, 26, 22, 0.92)"
     ctx.strokeStyle = s.color
     ctx.lineWidth = 1
     ctx.fillRect(a.x, a.y - boxH, boxW, boxH)
     ctx.strokeRect(a.x, a.y - boxH, boxW, boxH)
-    ctx.fillStyle = "#1c1a16"
+    ctx.fillStyle = s.color
     ctx.textAlign = "left"
     ctx.textBaseline = "middle"
     ctx.fillText(s.text, a.x + padX, a.y - boxH / 2)
   } else if (s.type === "symbol" && s.start && s.symbol) {
-    const a = fracToPx(s.start)
+    const a = imageToPx(s.start)
     const r = 14
+    ctx.shadowBlur = 0
     ctx.beginPath()
     ctx.arc(a.x, a.y, r, 0, Math.PI * 2)
-    ctx.fillStyle = "rgba(244, 241, 234, 0.95)"
+    ctx.fillStyle = "rgba(28, 26, 22, 0.92)"
     ctx.fill()
     ctx.lineWidth = 2
     ctx.strokeStyle = s.color
@@ -523,12 +507,12 @@ function drawShape(
     ctx.fillText(s.symbol.glyph, a.x, a.y + 1)
     ctx.font = "500 11px JetBrains Mono, monospace"
     const labelW = ctx.measureText(s.symbol.label).width + 8
-    ctx.fillStyle = "rgba(244, 241, 234, 0.95)"
+    ctx.fillStyle = "rgba(28, 26, 22, 0.92)"
     ctx.fillRect(a.x - labelW / 2, a.y + r + 2, labelW, 16)
     ctx.strokeStyle = s.color
     ctx.lineWidth = 1
     ctx.strokeRect(a.x - labelW / 2, a.y + r + 2, labelW, 16)
-    ctx.fillStyle = "#1c1a16"
+    ctx.fillStyle = s.color
     ctx.fillText(s.symbol.label, a.x, a.y + r + 11)
   }
   ctx.restore()
@@ -549,13 +533,17 @@ function drawArrow(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: nu
   ctx.fill()
 }
 
-// Hit test in fraction space (tolerance ~1% of viewer)
-function hitTestShape(frac: { x: number; y: number }, shapes: Shape[], slideIndex: number): Shape | null {
-  const tol = 0.012
+// Hit test in IMAGE pixel space (tol comes from caller, derived from viewer-px)
+function hitTestShape(
+  img: { x: number; y: number },
+  shapes: Shape[],
+  slideIndex: number,
+  tol: number
+): Shape | null {
   for (let i = shapes.length - 1; i >= 0; i--) {
     const s = shapes[i]
     if (s.slideIndex !== slideIndex) continue
-    if (isInsideShape(s, frac.x, frac.y, tol)) return s
+    if (isInsideShape(s, img.x, img.y, tol)) return s
   }
   return null
 }
@@ -582,8 +570,10 @@ function isInsideShape(s: Shape, x: number, y: number, tol: number): boolean {
     const d = Math.hypot(x - s.start.x, y - s.start.y)
     if (Math.abs(d - r) < tol) return true
   } else if ((s.type === "text" || s.type === "symbol") && s.start) {
+    // Slightly larger box (text/symbol stay constant in viewer-px so tol scales)
+    const box = tol * 6
     const dx = x - s.start.x, dy = y - s.start.y
-    if (Math.abs(dx) < 0.06 && Math.abs(dy) < 0.04) return true
+    if (Math.abs(dx) < box && Math.abs(dy) < box) return true
   }
   return false
 }

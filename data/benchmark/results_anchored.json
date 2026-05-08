@@ -1,0 +1,363 @@
+{
+  "summary": {
+    "n_cases": 5,
+    "diagnosis_concordance": "5/5",
+    "histologic_type_concordance": "5/5",
+    "grade_concordance": "0/0",
+    "pT_concordance": "1/5",
+    "stage_concordance": "0/5",
+    "avg_biomarker_recall": 0.0
+  },
+  "cases": {
+    "TCGA-NH-A5IV": {
+      "pred": {
+        "diagnosis": "Colorectal adenocarcinoma",
+        "diagnosis_line": "TRANSVERSE COLON, SEGMENTAL RESECTION: ADENOCARCINOMA, MODERATELY DIFFERENTIATED (WHO G2), WITH SUSPECTED LYMPHOVASCULAR INVASION; MARGINS NOT DEFINITIVELY ASSESSED ON SUBMITTED SLIDES",
+        "specimen_type": "Transverse colon, segmental resection",
+        "histologic_type": "Adenocarcinoma, NOS, conventional glandular type with focal acinar architectural features (8140/3)",
+        "grade": "WHO G2 — moderately differentiated (consolidated across both slides; no significant grade heterogeneity identified, though focal subtle acinar variant architecture noted)",
+        "pt": "pT3 suspected (tumor invades through muscularis propria into pericolorectal tissues based on morphologic impression) — definitive pT cannot be confirmed from slides alone; AJCC 8th ed. colon staging applies",
+        "pn": "Cannot be assessed — regional lymph nodes not submitted on the reviewed slides",
+        "biomarkers": [
+          "MLH1",
+          "MSH2",
+          "MSH6",
+          "PMS2",
+          "CDX2",
+          "CK20",
+          "CK7",
+          "p53",
+          "KRAS (molecular)",
+          "NRAS (molecular)",
+          "BRAF V600E (molecular/IHC)"
+        ],
+        "confidence": 0.6762
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "MX",
+        "morphology": "8140/3",
+        "site": "Transverse colon"
+      },
+      "truth_biomarkers": [],
+      "cmp": {
+        "diagnosis": {
+          "match": true,
+          "pred": "Colorectal adenocarcinoma",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "histologic_type": {
+          "match": true,
+          "pred": "Adenocarcinoma, NOS, conventional glandular type with focal acinar architectural features (8140/3)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "grade": {
+          "match": null,
+          "pred": "WHO G2 — moderately differentiated (consolidated across both slides; no significant grade heterogeneity identified, though focal subtle acinar variant architecture noted)",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage IIA"
+        },
+        "pt": {
+          "match": true,
+          "pred": "pT3 suspected (tumor invades through muscularis propria into pericolorectal tissues based on morphologic impression) — definitive pT cannot be confirmed from slides alone; AJCC 8th ed. colon staging applies",
+          "truth": "T3"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        }
+      }
+    },
+    "TCGA-AZ-4616": {
+      "pred": {
+        "diagnosis": "Colorectal Adenocarcinoma",
+        "diagnosis_line": "CECUM, COLON RESECTION: ADENOCARCINOMA, MODERATELY DIFFERENTIATED (WHO G2), MULTIFOCAL, WITH SUSPECTED LYMPHOVASCULAR INVASION; MARGINS CLOSE BUT NOT INVOLVED.",
+        "specimen_type": "Cecum, colon resection",
+        "histologic_type": "Adenocarcinoma, NOS (8140/3)",
+        "grade": "WHO G2 — Moderately differentiated",
+        "pt": "Cannot be assessed — depth of invasion through the muscularis propria and pericolic soft tissue cannot be reliably determined from the histologic sections alone without gross/oriented specimen correlation",
+        "pn": "Cannot be assessed — lymph nodes not submitted/identified on reviewed slides",
+        "biomarkers": [
+          "MLH1",
+          "MSH2",
+          "MSH6",
+          "PMS2",
+          "CDX2",
+          "CK20",
+          "CK7",
+          "p53",
+          "KRAS (molecular)",
+          "NRAS (molecular)",
+          "BRAF V600E (molecular and/or VE1 IHC)"
+        ],
+        "confidence": 0.6738999999999999
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IV",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M1",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "truth_biomarkers": [],
+      "cmp": {
+        "diagnosis": {
+          "match": true,
+          "pred": "Colorectal Adenocarcinoma",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "histologic_type": {
+          "match": true,
+          "pred": "Adenocarcinoma, NOS (8140/3)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "grade": {
+          "match": null,
+          "pred": "WHO G2 — Moderately differentiated",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage IV"
+        },
+        "pt": {
+          "match": false,
+          "pred": "Cannot be assessed — depth of invasion through the muscularis propria and pericolic soft tissue cannot be reliably determined from the histologic sections alone without gross/oriented specimen correlation",
+          "truth": "T3"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        }
+      }
+    },
+    "TCGA-T9-A92H": {
+      "pred": {
+        "diagnosis": "Colorectal Adenocarcinoma",
+        "diagnosis_line": "SIGMOID COLON, SEGMENTAL RESECTION: ADENOCARCINOMA, POORLY DIFFERENTIATED (WHO GRADE 3), MULTIFOCAL, WITH DESMOPLASTIC STROMAL REACTION; MARGINS CLOSE BUT NOT INVOLVED",
+        "specimen_type": "Sigmoid colon, segmental resection",
+        "histologic_type": "Adenocarcinoma, NOS (8140/3)",
+        "grade": "WHO G3 — poorly differentiated (heterogeneity noted across slides; dominant glandular architecture with focal solid pattern)",
+        "pt": "pT4a (suggested by upstream assessment; cannot be definitively assigned without serosal/peritoneal evaluation — AJCC 8th ed. colon)",
+        "pn": "Cannot be assessed — lymph nodes not submitted on reviewed slides",
+        "biomarkers": [
+          "MLH1",
+          "MSH2",
+          "MSH6",
+          "PMS2",
+          "CDX2",
+          "CK20",
+          "p53",
+          "KRAS (molecular)",
+          "NRAS (molecular)",
+          "BRAF V600E (molecular/IHC VE1)",
+          "MSI testing (PCR or NGS)"
+        ],
+        "confidence": 0.6848249999999999
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "truth_biomarkers": [
+        "PR"
+      ],
+      "cmp": {
+        "diagnosis": {
+          "match": true,
+          "pred": "Colorectal Adenocarcinoma",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "histologic_type": {
+          "match": true,
+          "pred": "Adenocarcinoma, NOS (8140/3)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "grade": {
+          "match": null,
+          "pred": "WHO G3 — poorly differentiated (heterogeneity noted across slides; dominant glandular architecture with focal solid pattern)",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage IIA"
+        },
+        "pt": {
+          "match": false,
+          "pred": "pT4a (suggested by upstream assessment; cannot be definitively assigned without serosal/peritoneal evaluation — AJCC 8th ed. colon)",
+          "truth": "T3"
+        },
+        "biomarkers": {
+          "recall": 0.0,
+          "found": [],
+          "missing": [
+            "PR"
+          ]
+        }
+      }
+    },
+    "TCGA-AA-3712": {
+      "pred": {
+        "diagnosis": "Colorectal adenocarcinoma, glandular with subtle acinar variant",
+        "diagnosis_line": "DESCENDING COLON, SEGMENTAL RESECTION: ADENOCARCINOMA, NOS, MODERATELY DIFFERENTIATED (WHO G2), MULTIFOCAL, WITH SUSPECTED LYMPHOVASCULAR INVASION; CLOSE BUT UNINVOLVED MARGINS.",
+        "specimen_type": "Descending colon, segmental resection (TCGA-COAD cohort)",
+        "histologic_type": "Colorectal adenocarcinoma, glandular type with subtle acinar features (ICD-O-3: 8140/3)",
+        "grade": "WHO G2 — Moderately differentiated (consolidated across all four slides; no significant heterogeneity)",
+        "pt": "pT category cannot be definitively assigned from histology alone; upstream agents suggest pT4a but depth of invasion through visceral peritoneum is not assessable on the available slides (AJCC 8th edition, Colon and Rectum)",
+        "pn": "Cannot be assessed — lymph nodes not submitted/evaluated in this analysis (pNX)",
+        "biomarkers": [
+          "MMR panel (MLH1, MSH2, MSH6, PMS2)",
+          "KRAS (codons 12, 13, 61, 146) molecular testing",
+          "NRAS (codons 12, 13, 61) molecular testing",
+          "BRAF V600E",
+          "CDX2",
+          "CK20",
+          "CK7 (to confirm colorectal phenotype CK7-/CK20+)",
+          "p53 (given QC concern regarding high-grade morphologic features)"
+        ],
+        "confidence": 0.68195
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage III",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Descending colon"
+      },
+      "truth_biomarkers": [],
+      "cmp": {
+        "diagnosis": {
+          "match": true,
+          "pred": "Colorectal adenocarcinoma, glandular with subtle acinar variant",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "histologic_type": {
+          "match": true,
+          "pred": "Colorectal adenocarcinoma, glandular type with subtle acinar features (ICD-O-3: 8140/3)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "grade": {
+          "match": null,
+          "pred": "WHO G2 — Moderately differentiated (consolidated across all four slides; no significant heterogeneity)",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage III"
+        },
+        "pt": {
+          "match": false,
+          "pred": "pT category cannot be definitively assigned from histology alone; upstream agents suggest pT4a but depth of invasion through visceral peritoneum is not assessable on the available slides (AJCC 8th edition, Colon and Rectum)",
+          "truth": "T3"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        }
+      }
+    },
+    "TCGA-AY-A71X": {
+      "pred": {
+        "diagnosis": "Colorectal Adenocarcinoma",
+        "diagnosis_line": "CECUM, COLON RESECTION: ADENOCARCINOMA, MODERATELY DIFFERENTIATED (WHO G2), WITH FOCAL SOLID (HIGH-GRADE) COMPONENT; MARGINS CLOSE BUT NOT INVOLVED",
+        "specimen_type": "Cecum, colon resection (TCGA-COAD cohort)",
+        "histologic_type": "Adenocarcinoma, NOS (8140/3)",
+        "grade": "WHO G2 (moderately differentiated), with focal high-grade (solid) component — overall grade reconciled as G2 per QC review; high-grade focus noted as adverse feature",
+        "pt": "Cannot be assessed — depth of invasion not determinable from available slide data (AJCC 8th ed. colon/rectum)",
+        "pn": "Cannot be assessed — lymph nodes not submitted/evaluated on available slides",
+        "biomarkers": [
+          "CK20",
+          "CDX2",
+          "MMR panel (MLH1, MSH2, MSH6, PMS2)",
+          "p53",
+          "KRAS / NRAS / BRAF mutational analysis",
+          "MSI testing (PCR or NGS) as reflex if MMR abnormal"
+        ],
+        "confidence": 0.6762
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage I",
+        "pT": "T2",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "truth_biomarkers": [
+        "PR"
+      ],
+      "cmp": {
+        "diagnosis": {
+          "match": true,
+          "pred": "Colorectal Adenocarcinoma",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "histologic_type": {
+          "match": true,
+          "pred": "Adenocarcinoma, NOS (8140/3)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "grade": {
+          "match": null,
+          "pred": "WHO G2 (moderately differentiated), with focal high-grade (solid) component — overall grade reconciled as G2 per QC review; high-grade focus noted as adverse feature",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage I"
+        },
+        "pt": {
+          "match": false,
+          "pred": "Cannot be assessed — depth of invasion not determinable from available slide data (AJCC 8th ed. colon/rectum)",
+          "truth": "T2"
+        },
+        "biomarkers": {
+          "recall": 0.0,
+          "found": [],
+          "missing": [
+            "PR"
+          ]
+        }
+      }
+    }
+  }
+}

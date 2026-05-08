@@ -12,11 +12,15 @@ import { GpuPanel } from "@/components/gpu/GpuPanel"
 import { BenchmarkCard } from "@/components/gpu/BenchmarkCard"
 import type OpenSeadragon from "openseadragon"
 import {
-  AnnotationCanvas,
   type Shape,
   type ToolKind,
   type PathMindSymbol,
-} from "@/components/viewer/AnnotationCanvas"
+  PATHMIND_SYMBOLS,
+} from "@/components/viewer/AnnotationTypes"
+const AnnotationCanvas = dynamicImport(
+  () => import("@/components/viewer/AnnotationCanvas").then((m) => m.AnnotationCanvas),
+  { ssr: false }
+)
 import { AnnotationToolbar } from "@/components/viewer/AnnotationToolbar"
 
 const WSIViewer = dynamicImport(
@@ -25,7 +29,7 @@ const WSIViewer = dynamicImport(
 )
 
 // localStorage persistence for shapes (drawings)
-const SHAPES_STORAGE_KEY = "pathmind:shapes:v1"
+const SHAPES_STORAGE_KEY = "pathmind:shapes:v2"
 function loadShapes(): Shape[] {
   if (typeof window === "undefined") return []
   try {
@@ -236,7 +240,7 @@ export default function Home() {
 
   // Annotation board state
   const [tool, setTool] = useState<ToolKind>("select")
-  const [annotColor, setAnnotColor] = useState<string>("#a23939")
+  const [annotColor, setAnnotColor] = useState<string>("#ffea00")
   const [strokeWidth, setStrokeWidth] = useState<number>(2.5)
   const [selectedSymbol, setSelectedSymbol] = useState<PathMindSymbol | null>(null)
   const [shapes, setShapes] = useState<Shape[]>([])

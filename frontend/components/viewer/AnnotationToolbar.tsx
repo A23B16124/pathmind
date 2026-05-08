@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { type ToolKind, type PathMindSymbol, PATHMIND_SYMBOLS } from "./AnnotationCanvas"
+import { type ToolKind, type PathMindSymbol, PATHMIND_SYMBOLS } from "./AnnotationTypes"
 
 interface AnnotationToolbarProps {
   tool: ToolKind
@@ -113,11 +113,12 @@ const TOOLS: { id: ToolKind; label: string; icon: React.ReactNode; desc: string 
 ]
 
 const COLORS = [
-  { id: "ink", value: "#1c1a16", label: "Encre" },
-  { id: "accent", value: "#a23939", label: "Pointage" },
-  { id: "ok", value: "#2f5d3a", label: "Bénin" },
-  { id: "warn", value: "#8a5a14", label: "Suspect" },
-  { id: "blue", value: "#1c4a8a", label: "Repère" },
+  { id: "yellow", value: "#ffea00", label: "Jaune fluo" },
+  { id: "magenta", value: "#ff00d4", label: "Magenta" },
+  { id: "cyan", value: "#00f0ff", label: "Cyan" },
+  { id: "green", value: "#00ff88", label: "Vert fluo" },
+  { id: "orange", value: "#ff7a00", label: "Orange" },
+  { id: "red", value: "#ff2d55", label: "Rouge fluo" },
 ]
 
 const STROKES = [

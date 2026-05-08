@@ -5,7 +5,7 @@ Fix: pass clinical_data={"site": <GDC primary site>, "sample_type": "Colon resec
 so all agents (Histo-A/B, Cross-Slide, DDx, Literature, Report-Writer) anchor
 to the colon and stop hallucinating breast cancer.
 
-Also bumps the case_id to bench2-* so it doesn't hit the cached breast reports.
+Also bumps the case_id to bench-enriched-* so it doesn't hit the cached breast reports.
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ import requests
 API = "http://localhost:8011"
 GT = Path("/root/pathmind/data/benchmark/ground_truth.json")
 MANIFEST = Path("/root/pathmind/data/benchmark/manifest.json")
-RESULTS = Path("/root/pathmind/data/benchmark/results_anchored.json")
+RESULTS = Path("/root/pathmind/data/benchmark/results_enriched.json")
 N_CASES = 5
 SLIDE_DIR_PATH = "tcga"
 POLL_INTERVAL = 15
@@ -108,7 +108,7 @@ def biomarker_overlap(pred, truth):
 
 def start_case(submitter_id, slide_files, gdc_site):
     paths = [f"{SLIDE_DIR_PATH}/{name}" for name in slide_files]
-    case_id = f"bench2-{submitter_id.lower()}"
+    case_id = f"bench-enriched-{submitter_id.lower()}"
     site = gdc_site or "Colon, NOS"
     clinical_data = {
         "site": site,

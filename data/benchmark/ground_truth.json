@@ -1,0 +1,259 @@
+{
+  "TCGA-NH-A5IV": {
+    "submitter_id": "TCGA-NH-A5IV",
+    "case_id": "cc22913d-2dda-48bb-82aa-9960b73f3e44",
+    "structured": {
+      "primary_diagnosis": "Adenocarcinoma, NOS",
+      "tumor_grade": null,
+      "stage": "Stage IIA",
+      "pT": "T3",
+      "pN": "N0",
+      "pM": "MX",
+      "morphology": "8140/3",
+      "site": "Transverse colon"
+    },
+    "from_pdf": {
+      "biomarkers": [],
+      "margin_status": "free",
+      "lymphovascular_invasion": "not identified",
+      "perineural_invasion": "identified",
+      "lymph_nodes_positive": null,
+      "lymph_nodes_total": null,
+      "raw_text_len": 3589
+    },
+    "n_slides": 2,
+    "report_pdf": "TCGA-NH-A5IV.pdf"
+  },
+  "TCGA-AZ-4616": {
+    "submitter_id": "TCGA-AZ-4616",
+    "case_id": "e703af88-c05f-4d7b-b225-d640e4d1a2a5",
+    "structured": {
+      "primary_diagnosis": "Adenocarcinoma, NOS",
+      "tumor_grade": null,
+      "stage": "Stage IV",
+      "pT": "T3",
+      "pN": "N2",
+      "pM": "M1",
+      "morphology": "8140/3",
+      "site": "Cecum"
+    },
+    "from_pdf": {
+      "biomarkers": [],
+      "margin_status": "r1",
+      "lymphovascular_invasion": null,
+      "perineural_invasion": "present",
+      "lymph_nodes_positive": null,
+      "lymph_nodes_total": null,
+      "raw_text_len": 1406
+    },
+    "n_slides": 3,
+    "report_pdf": "TCGA-AZ-4616.pdf"
+  },
+  "TCGA-T9-A92H": {
+    "submitter_id": "TCGA-T9-A92H",
+    "case_id": "81a7184e-f9f5-4e3f-9603-5f5642386c1e",
+    "structured": {
+      "primary_diagnosis": "Adenocarcinoma, NOS",
+      "tumor_grade": null,
+      "stage": "Stage IIA",
+      "pT": "T3",
+      "pN": "N0",
+      "pM": "M0",
+      "morphology": "8140/3",
+      "site": "Sigmoid colon"
+    },
+    "from_pdf": {
+      "biomarkers": [
+        "PR"
+      ],
+      "margin_status": "negative",
+      "lymphovascular_invasion": "not identified",
+      "perineural_invasion": "present",
+      "lymph_nodes_positive": null,
+      "lymph_nodes_total": null,
+      "raw_text_len": 6337
+    },
+    "n_slides": 4,
+    "report_pdf": "TCGA-T9-A92H.pdf"
+  },
+  "TCGA-AA-3712": {
+    "submitter_id": "TCGA-AA-3712",
+    "case_id": "2b94070a-21ec-457b-88af-3d2a89b97ac6",
+    "structured": {
+      "primary_diagnosis": "Adenocarcinoma, NOS",
+      "tumor_grade": null,
+      "stage": "Stage III",
+      "pT": "T3",
+      "pN": "N2",
+      "pM": "M0",
+      "morphology": "8140/3",
+      "site": "Descending colon"
+    },
+    "from_pdf": {
+      "biomarkers": [],
+      "margin_status": "free",
+      "lymphovascular_invasion": null,
+      "perineural_invasion": null,
+      "lymph_nodes_positive": null,
+      "lymph_nodes_total": null,
+      "raw_text_len": 761
+    },
+    "n_slides": 4,
+    "report_pdf": "TCGA-AA-3712.pdf"
+  },
+  "TCGA-AY-A71X": {
+    "submitter_id": "TCGA-AY-A71X",
+    "case_id": "d4da3298-3a02-44a6-bdcd-d260f38e520b",
+    "structured": {
+      "primary_diagnosis": "Adenocarcinoma, NOS",
+      "tumor_grade": null,
+      "stage": "Stage I",
+      "pT": "T2",
+      "pN": "N0",
+      "pM": "M0",
+      "morphology": "8140/3",
+      "site": "Cecum"
+    },
+    "from_pdf": {
+      "biomarkers": [
+        "PR"
+      ],
+      "margin_status": "negative",
+      "lymphovascular_invasion": "not identified",
+      "perineural_invasion": "identified",
+      "lymph_nodes_positive": null,
+      "lymph_nodes_total": null,
+      "raw_text_len": 4655
+    },
+    "n_slides": 2,
+    "report_pdf": "TCGA-AY-A71X.pdf"
+  },
+  "TCGA-AA-3971": {
+    "submitter_id": "TCGA-AA-3971",
+    "case_id": "10994156-7c2f-420e-aeb8-11d566b3d5e4",
+    "structured": {
+      "primary_diagnosis": "Adenocarcinoma, NOS",
+      "tumor_grade": null,
+      "stage": "Stage III",
+      "pT": "T3",
+      "pN": "N1",
+      "pM": "M0",
+      "morphology": "8140/3",
+      "site": "Sigmoid colon"
+    },
+    "from_pdf": {
+      "biomarkers": [],
+      "margin_status": "free",
+      "lymphovascular_invasion": null,
+      "perineural_invasion": null,
+      "lymph_nodes_positive": null,
+      "lymph_nodes_total": null,
+      "raw_text_len": 576
+    },
+    "n_slides": 3,
+    "report_pdf": "TCGA-AA-3971.pdf"
+  },
+  "TCGA-AD-6965": {
+    "submitter_id": "TCGA-AD-6965",
+    "case_id": "c8de215d-53a4-4e6c-be58-5887a8094815",
+    "structured": {
+      "primary_diagnosis": "Not Reported",
+      "tumor_grade": null,
+      "stage": null,
+      "pT": null,
+      "pN": null,
+      "pM": null,
+      "morphology": "Not Reported",
+      "site": "Not Reported"
+    },
+    "from_pdf": {
+      "biomarkers": [],
+      "margin_status": null,
+      "lymphovascular_invasion": null,
+      "perineural_invasion": null,
+      "lymph_nodes_positive": null,
+      "lymph_nodes_total": null,
+      "raw_text_len": 4189
+    },
+    "n_slides": 3,
+    "report_pdf": "TCGA-AD-6965.pdf"
+  },
+  "TCGA-CA-6716": {
+    "submitter_id": "TCGA-CA-6716",
+    "case_id": "95a54459-3fac-42d5-8ec1-ed66d971d64d",
+    "structured": {
+      "primary_diagnosis": "Papillary adenocarcinoma, NOS",
+      "tumor_grade": null,
+      "stage": "Stage IIA",
+      "pT": "T3",
+      "pN": "N0",
+      "pM": "M0",
+      "morphology": "8260/3",
+      "site": "Ascending colon"
+    },
+    "from_pdf": {
+      "biomarkers": [
+        "ER",
+        "PR"
+      ],
+      "margin_status": null,
+      "lymphovascular_invasion": null,
+      "perineural_invasion": null,
+      "lymph_nodes_positive": null,
+      "lymph_nodes_total": null,
+      "raw_text_len": 4365
+    },
+    "n_slides": 3,
+    "report_pdf": "TCGA-CA-6716.pdf"
+  },
+  "TCGA-A6-2678": {
+    "submitter_id": "TCGA-A6-2678",
+    "case_id": "3a785e32-7960-4c72-84c4-fb42c4dd86f1",
+    "structured": {
+      "primary_diagnosis": "Adenocarcinoma, NOS",
+      "tumor_grade": null,
+      "stage": "Stage IIIB",
+      "pT": "T3",
+      "pN": "N1",
+      "pM": "M0",
+      "morphology": "8140/3",
+      "site": "Transverse colon"
+    },
+    "from_pdf": {
+      "biomarkers": [],
+      "margin_status": "negative",
+      "lymphovascular_invasion": null,
+      "perineural_invasion": null,
+      "lymph_nodes_positive": null,
+      "lymph_nodes_total": null,
+      "raw_text_len": 3325
+    },
+    "n_slides": 4,
+    "report_pdf": "TCGA-A6-2678.pdf"
+  },
+  "TCGA-AZ-6599": {
+    "submitter_id": "TCGA-AZ-6599",
+    "case_id": "fbb69964-f962-4b89-b59b-dd05f8faf61a",
+    "structured": {
+      "primary_diagnosis": "Adenocarcinoma, NOS",
+      "tumor_grade": null,
+      "stage": "Stage I",
+      "pT": "T2",
+      "pN": "N0",
+      "pM": "MX",
+      "morphology": "8140/3",
+      "site": "Cecum"
+    },
+    "from_pdf": {
+      "biomarkers": [],
+      "margin_status": "free",
+      "lymphovascular_invasion": null,
+      "perineural_invasion": null,
+      "lymph_nodes_positive": null,
+      "lymph_nodes_total": null,
+      "raw_text_len": 3038
+    },
+    "n_slides": 4,
+    "report_pdf": "TCGA-AZ-6599.pdf"
+  }
+}

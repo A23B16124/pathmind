@@ -1,0 +1,548 @@
+{
+  "summary": {
+    "n_cases": 10,
+    "diagnosis_concordance": "0/10",
+    "grade_concordance": "0/10",
+    "stage_concordance": "0/10",
+    "avg_biomarker_recall": 1.0
+  },
+  "cases": {
+    "TCGA-NH-A5IV": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "grade": null,
+        "stage": null,
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC, with reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "p53",
+          "CK7",
+          "CK20",
+          "CD31 / D2-40"
+        ],
+        "confidence": 0.68425
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "MX",
+        "morphology": "8140/3",
+        "site": "Transverse colon"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "overlap": 0,
+          "expected_tokens": 2,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": null,
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage IIA"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        },
+        "confidence": 0.68425
+      }
+    },
+    "TCGA-AZ-4616": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "grade": null,
+        "stage": null,
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC, with reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "p53",
+          "D2-40 / CD31"
+        ],
+        "confidence": 0.7314766666666668
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IV",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M1",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "overlap": 0,
+          "expected_tokens": 2,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": null,
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage IV"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        },
+        "confidence": 0.7314766666666668
+      }
+    },
+    "TCGA-T9-A92H": {
+      "pred": {
+        "diagnosis": "Pancreatic neuroendocrine carcinoma",
+        "grade": null,
+        "stage": null,
+        "biomarkers": [
+          "Synaptophysin",
+          "Chromogranin A",
+          "CD56",
+          "Ki-67 (MIB-1)",
+          "p53",
+          "ER",
+          "PR",
+          "HER2 (IHC; reflex FISH if 2+)"
+        ],
+        "confidence": 0.6848249999999999
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "overlap": 0,
+          "expected_tokens": 2,
+          "pred": "Pancreatic neuroendocrine carcinoma",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": null,
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage IIA"
+        },
+        "biomarkers": {
+          "recall": 1.0,
+          "found": [
+            "PR"
+          ],
+          "missing": []
+        },
+        "confidence": 0.6848249999999999
+      }
+    },
+    "TCGA-AA-3712": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "grade": null,
+        "stage": null,
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC, with reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "Synaptophysin",
+          "Chromogranin A",
+          "p53",
+          "CD31 / D2-40"
+        ],
+        "confidence": 0.7278925
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage III",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Descending colon"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "overlap": 0,
+          "expected_tokens": 2,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": null,
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage III"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        },
+        "confidence": 0.7278925
+      }
+    },
+    "TCGA-AY-A71X": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "grade": null,
+        "stage": null,
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC, with reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "p53",
+          "D2-40 and/or CD31"
+        ],
+        "confidence": 0.68034
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage I",
+        "pT": "T2",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "overlap": 0,
+          "expected_tokens": 2,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": null,
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage I"
+        },
+        "biomarkers": {
+          "recall": 1.0,
+          "found": [
+            "PR"
+          ],
+          "missing": []
+        },
+        "confidence": 0.68034
+      }
+    },
+    "TCGA-AA-3971": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "grade": null,
+        "stage": null,
+        "biomarkers": [
+          "ER (estrogen receptor)",
+          "PR (progesterone receptor)",
+          "HER2 (IHC; reflex FISH if 2+)",
+          "Ki-67 proliferation index",
+          "E-cadherin (to exclude lobular component)",
+          "p53 (given high-grade morphology, per QC)",
+          "D2-40 / elastic stain (LVI confirmation)"
+        ],
+        "confidence": 0.7262633333333334
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage III",
+        "pT": "T3",
+        "pN": "N1",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "overlap": 0,
+          "expected_tokens": 2,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": null,
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage III"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        },
+        "confidence": 0.7262633333333334
+      }
+    },
+    "TCGA-AD-6965": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST) with subtle acinar variant features",
+        "grade": null,
+        "stage": null,
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC; reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "p53",
+          "CD31 / D2-40"
+        ],
+        "confidence": 0.7236566666666666
+      },
+      "truth": {
+        "primary_diagnosis": "Not Reported",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "Not Reported",
+        "site": "Not Reported"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "overlap": 0,
+          "expected_tokens": 2,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST) with subtle acinar variant features",
+          "truth": "Not Reported"
+        },
+        "grade": {
+          "match": false,
+          "pred": null,
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": null
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        },
+        "confidence": 0.7236566666666666
+      }
+    },
+    "TCGA-CA-6716": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma with acinar variant features",
+        "grade": null,
+        "stage": null,
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC, with reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "CK7",
+          "CK20",
+          "p53",
+          "D2-40 / CD31"
+        ],
+        "confidence": 0.6986633333333333
+      },
+      "truth": {
+        "primary_diagnosis": "Papillary adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8260/3",
+        "site": "Ascending colon"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "overlap": 0,
+          "expected_tokens": 3,
+          "pred": "Invasive ductal carcinoma with acinar variant features",
+          "truth": "Papillary adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": null,
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage IIA"
+        },
+        "biomarkers": {
+          "recall": 1.0,
+          "found": [
+            "ER",
+            "PR"
+          ],
+          "missing": []
+        },
+        "confidence": 0.6986633333333333
+      }
+    },
+    "TCGA-A6-2678": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "grade": null,
+        "stage": null,
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2",
+          "Ki-67",
+          "E-cadherin",
+          "p53",
+          "CK7",
+          "CK20",
+          "D2-40 / CD31",
+          "DPC4 / Trypsin / Chymotrypsin"
+        ],
+        "confidence": 0.7239825
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIIB",
+        "pT": "T3",
+        "pN": "N1",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Transverse colon"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "overlap": 0,
+          "expected_tokens": 2,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": null,
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage IIIB"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        },
+        "confidence": 0.7239825
+      }
+    },
+    "TCGA-AZ-6599": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "grade": null,
+        "stage": null,
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC; reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "p53",
+          "D2-40 / CD31 (LVI confirmation)"
+        ],
+        "confidence": 0.7098375000000001
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage I",
+        "pT": "T2",
+        "pN": "N0",
+        "pM": "MX",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "overlap": 0,
+          "expected_tokens": 2,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS"
+        },
+        "grade": {
+          "match": false,
+          "pred": null,
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage I"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        },
+        "confidence": 0.7098375000000001
+      }
+    }
+  }
+}

@@ -1,0 +1,697 @@
+{
+  "summary": {
+    "n_cases": 10,
+    "diagnosis_concordance": "0/10",
+    "histologic_type_concordance": "0/10",
+    "grade_concordance": "0/0",
+    "pT_concordance": "1/9",
+    "stage_concordance": "0/9",
+    "avg_biomarker_recall": 1.0
+  },
+  "cases": {
+    "TCGA-NH-A5IV": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "diagnosis_line": "BREAST, EXCISION: INVASIVE DUCTAL CARCINOMA OF NO SPECIAL TYPE (IDC-NST), GRADE III (SBR), WITH SOLID GROWTH PATTERN AND SUSPECTED LYMPHOVASCULAR INVASION; MARGINS CLOSE BUT NOT INVOLVED.",
+        "specimen_type": "Breast tissue, excision (laterality not specified)",
+        "histologic_type": "Invasive ductal carcinoma, no special type (8500/3)",
+        "grade": "Grade III (SBR) — reconciled per Quality-Control review: tubule formation 3, nuclear pleomorphism 3, mitotic count 3 (10/10 HPF) = 9/9. Note: initial Differential-Diagnostician scored Grade II; revision adopts Cross-Slide Aggregator consolidated grade based on objective mitotic count and necrosis.",
+        "pt": "Cannot be assigned — tumor size not measurable on submitted slides",
+        "pn": "Cannot be assessed — lymph nodes not submitted",
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC, with reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "p53",
+          "CK7",
+          "CK20",
+          "CD31 / D2-40"
+        ],
+        "confidence": 0.68425
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "MX",
+        "morphology": "8140/3",
+        "site": "Transverse colon"
+      },
+      "truth_biomarkers": [],
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "histologic_type": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma, no special type (8500/3)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "grade": {
+          "match": null,
+          "pred": "Grade III (SBR) — reconciled per Quality-Control review: tubule formation 3, nuclear pleomorphism 3, mitotic count 3 (10/10 HPF) = 9/9. Note: initial Differential-Diagnostician scored Grade II; revision adopts Cross-Slide Aggregator consolidated grade based on objective mitotic count and necrosis.",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage IIA"
+        },
+        "pt": {
+          "match": false,
+          "pred": "Cannot be assigned — tumor size not measurable on submitted slides",
+          "truth": "T3"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        }
+      }
+    },
+    "TCGA-AZ-4616": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "diagnosis_line": "BREAST, EXCISION: INVASIVE DUCTAL CARCINOMA OF NO SPECIAL TYPE, NOTTINGHAM (SBR) GRADE III, MULTIFOCAL — see comment regarding grade reconciliation and possible lobular component",
+        "specimen_type": "Breast tissue, excision (TCGA archival case)",
+        "histologic_type": "Invasive ductal carcinoma, no special type (ICD-O 8500/3)",
+        "grade": "Nottingham (SBR) Grade III — reconciled at case level (tubule formation: 2, nuclear pleomorphism: 2, mitoses: 3 [highest count 10/10 HPF, slide 0]; total score 7/9 → Grade II per slide-level scoring, upgraded to Grade III at case level on the basis of the dominant high-mitotic focus and inter-slide heterogeneity per QC review)",
+        "pt": "Cannot be assigned — gross tumor dimension not available from submitted digital slides",
+        "pn": "Cannot be assessed — lymph nodes not submitted",
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC, with reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "p53",
+          "D2-40 / CD31"
+        ],
+        "confidence": 0.7314766666666668
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IV",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M1",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "truth_biomarkers": [],
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "histologic_type": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma, no special type (ICD-O 8500/3)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "grade": {
+          "match": null,
+          "pred": "Nottingham (SBR) Grade III — reconciled at case level (tubule formation: 2, nuclear pleomorphism: 2, mitoses: 3 [highest count 10/10 HPF, slide 0]; total score 7/9 → Grade II per slide-level scoring, upgraded to Grade III at case level on the basis of the dominant high-mitotic focus and inter-slide heterogeneity per QC review)",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage IV"
+        },
+        "pt": {
+          "match": false,
+          "pred": "Cannot be assigned — gross tumor dimension not available from submitted digital slides",
+          "truth": "T3"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        }
+      }
+    },
+    "TCGA-T9-A92H": {
+      "pred": {
+        "diagnosis": "Pancreatic neuroendocrine carcinoma",
+        "diagnosis_line": "PANCREAS: NEUROENDOCRINE CARCINOMA, HIGH-GRADE (WHO 2019), MULTIFOCAL INVOLVEMENT IDENTIFIED ACROSS THREE OF FOUR SUBMITTED SLIDES",
+        "specimen_type": "Pancreas, biopsy/resection (site not otherwise specified)",
+        "histologic_type": "Neuroendocrine carcinoma, pancreatic (ICD-O 8246/3)",
+        "grade": "High-grade (WHO 2019); consolidated across slides — grade heterogeneity present, highest-grade focus determinative",
+        "pt": "Cannot be assessed — gross dimensions and anatomic orientation not available",
+        "pn": "Cannot be assessed — lymph nodes not submitted",
+        "biomarkers": [
+          "Synaptophysin",
+          "Chromogranin A",
+          "CD56",
+          "Ki-67 (MIB-1)",
+          "p53",
+          "ER",
+          "PR",
+          "HER2 (IHC; reflex FISH if 2+)"
+        ],
+        "confidence": 0.6848249999999999
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "truth_biomarkers": [
+        "PR"
+      ],
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "pred": "Pancreatic neuroendocrine carcinoma",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "histologic_type": {
+          "match": false,
+          "pred": "Neuroendocrine carcinoma, pancreatic (ICD-O 8246/3)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "grade": {
+          "match": null,
+          "pred": "High-grade (WHO 2019); consolidated across slides — grade heterogeneity present, highest-grade focus determinative",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage IIA"
+        },
+        "pt": {
+          "match": false,
+          "pred": "Cannot be assessed — gross dimensions and anatomic orientation not available",
+          "truth": "T3"
+        },
+        "biomarkers": {
+          "recall": 1.0,
+          "found": [
+            "PR"
+          ],
+          "missing": []
+        }
+      }
+    },
+    "TCGA-AA-3712": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "diagnosis_line": "BREAST, EXCISION: INVASIVE DUCTAL CARCINOMA OF NO SPECIAL TYPE (IDC-NST), HISTOLOGIC GRADE III (SBR/NOTTINGHAM), MULTIFOCAL, WITH SOLID AND GLANDULAR ARCHITECTURE",
+        "specimen_type": "Breast tissue, excision (laterality not specified)",
+        "histologic_type": "Invasive ductal carcinoma, no special type (ICD-O 8500/3)",
+        "grade": "Grade III (Nottingham/SBR: tubule formation 3 + nuclear pleomorphism 3 + mitotic count 3 = 9/9). Highest mitotic count 12/10 HPF (slide 0). Inter-slide grade heterogeneity acknowledged; overall case grade assigned as III based on the highest-grade focus per CAP convention.",
+        "pt": "pT2 (provisional) — definitive size measurement not assessable from submitted slides",
+        "pn": "Cannot be assessed — lymph nodes not submitted",
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC, with reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "Synaptophysin",
+          "Chromogranin A",
+          "p53",
+          "CD31 / D2-40"
+        ],
+        "confidence": 0.7278925
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage III",
+        "pT": "T3",
+        "pN": "N2",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Descending colon"
+      },
+      "truth_biomarkers": [],
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "histologic_type": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma, no special type (ICD-O 8500/3)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "grade": {
+          "match": null,
+          "pred": "Grade III (Nottingham/SBR: tubule formation 3 + nuclear pleomorphism 3 + mitotic count 3 = 9/9). Highest mitotic count 12/10 HPF (slide 0). Inter-slide grade heterogeneity acknowledged; overall case grade assigned as III based on the highest-grade focus per CAP convention.",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage III"
+        },
+        "pt": {
+          "match": false,
+          "pred": "pT2 (provisional) — definitive size measurement not assessable from submitted slides",
+          "truth": "T3"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        }
+      }
+    },
+    "TCGA-AY-A71X": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "diagnosis_line": "BREAST, EXCISION: INVASIVE DUCTAL CARCINOMA OF NO SPECIAL TYPE, GRADE III (SBR), WITH SUSPECTED LYMPHOVASCULAR INVASION; MARGINS CLOSE BUT NOT INVOLVED AT SUPERIOR AND INFERIOR ASPECTS.",
+        "specimen_type": "Breast tissue, excision (laterality not specified)",
+        "histologic_type": "Invasive ductal carcinoma, NOS (8500/3)",
+        "grade": "Grade III (SBR) — reconciled per QC review: tubule formation 3, nuclear pleomorphism 3, mitoses 3 (peak count 10/10 HPF on slide 1; grade reflects maximum field count per CAP/Nottingham guidance) = 9/9",
+        "pt": "Cannot be assigned — tumor size not assessable from histologic slides alone",
+        "pn": "Cannot be assessed — lymph nodes not submitted",
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC, with reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "p53",
+          "D2-40 and/or CD31"
+        ],
+        "confidence": 0.68034
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage I",
+        "pT": "T2",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "truth_biomarkers": [
+        "PR"
+      ],
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "histologic_type": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma, NOS (8500/3)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "grade": {
+          "match": null,
+          "pred": "Grade III (SBR) — reconciled per QC review: tubule formation 3, nuclear pleomorphism 3, mitoses 3 (peak count 10/10 HPF on slide 1; grade reflects maximum field count per CAP/Nottingham guidance) = 9/9",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage I"
+        },
+        "pt": {
+          "match": false,
+          "pred": "Cannot be assigned — tumor size not assessable from histologic slides alone",
+          "truth": "T2"
+        },
+        "biomarkers": {
+          "recall": 1.0,
+          "found": [
+            "PR"
+          ],
+          "missing": []
+        }
+      }
+    },
+    "TCGA-AA-3971": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "diagnosis_line": "BREAST, EXCISION: INVASIVE DUCTAL CARCINOMA OF NO SPECIAL TYPE (IDC-NST), NOTTINGHAM/SBR GRADE III (3+3+3=9/9), MULTIFOCAL DISTRIBUTION; SIZE NOT DEFINITIVELY ASSESSABLE FROM SUBMITTED SLIDES.",
+        "specimen_type": "Breast tissue, excisional biopsy (TCGA archival case)",
+        "histologic_type": "Invasive ductal carcinoma, no special type (IDC-NST) (ICD-O 8500/3)",
+        "grade": "Nottingham/SBR Grade III (tubule formation: 3, nuclear pleomorphism: 3, mitotic count: 3; total 9/9). Note: inter-slide grade heterogeneity observed; grade reflects highest-grade focus per CAP convention.",
+        "pt": "Cannot be assigned — tumor size not measurable from available slides",
+        "pn": "Cannot be assessed — no lymph nodes submitted",
+        "biomarkers": [
+          "ER (estrogen receptor)",
+          "PR (progesterone receptor)",
+          "HER2 (IHC; reflex FISH if 2+)",
+          "Ki-67 proliferation index",
+          "E-cadherin (to exclude lobular component)",
+          "p53 (given high-grade morphology, per QC)",
+          "D2-40 / elastic stain (LVI confirmation)"
+        ],
+        "confidence": 0.7262633333333334
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage III",
+        "pT": "T3",
+        "pN": "N1",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Sigmoid colon"
+      },
+      "truth_biomarkers": [],
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "histologic_type": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma, no special type (IDC-NST) (ICD-O 8500/3)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "grade": {
+          "match": null,
+          "pred": "Nottingham/SBR Grade III (tubule formation: 3, nuclear pleomorphism: 3, mitotic count: 3; total 9/9). Note: inter-slide grade heterogeneity observed; grade reflects highest-grade focus per CAP convention.",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage III"
+        },
+        "pt": {
+          "match": false,
+          "pred": "Cannot be assigned — tumor size not measurable from available slides",
+          "truth": "T3"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        }
+      }
+    },
+    "TCGA-AD-6965": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST) with subtle acinar variant features",
+        "diagnosis_line": "BREAST, EXCISION: INVASIVE DUCTAL CARCINOMA OF NO SPECIAL TYPE (IDC-NST), GRADE III (SBR), MULTIFOCAL; SIZE NOT ASSESSABLE FROM SUBMITTED MATERIAL",
+        "specimen_type": "Breast tissue, excision (laterality not specified)",
+        "histologic_type": "Invasive ductal carcinoma, no special type (8500/3); subtle acinar variant features noted; lobular component cannot be excluded in slide 2 pending E-cadherin",
+        "grade": "Grade III (SBR), revised upward from initial Grade II per Quality-Control review — consolidated across slides on the basis of nuclear pleomorphism score 3, mitotic count up to 10/10 HPF (score 3), and tubule formation score 2 in the dominant component (T2+N3+M3 = 8/9). Intratumoral grade heterogeneity acknowledged (slide 2 with focal Grade II areas).",
+        "pt": "Cannot be assigned — tumor dimensions not assessable from submitted slides",
+        "pn": "Cannot be assessed — lymph nodes not submitted",
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC; reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "p53",
+          "CD31 / D2-40"
+        ],
+        "confidence": 0.7236566666666666
+      },
+      "truth": {
+        "primary_diagnosis": "Not Reported",
+        "tumor_grade": null,
+        "stage": null,
+        "pT": null,
+        "pN": null,
+        "pM": null,
+        "morphology": "Not Reported",
+        "site": "Not Reported"
+      },
+      "truth_biomarkers": [],
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST) with subtle acinar variant features",
+          "truth": "Not Reported",
+          "core": "reported"
+        },
+        "histologic_type": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma, no special type (8500/3); subtle acinar variant features noted; lobular component cannot be excluded in slide 2 pending E-cadherin",
+          "truth": "Not Reported",
+          "core": "reported"
+        },
+        "grade": {
+          "match": null,
+          "pred": "Grade III (SBR), revised upward from initial Grade II per Quality-Control review — consolidated across slides on the basis of nuclear pleomorphism score 3, mitotic count up to 10/10 HPF (score 3), and tubule formation score 2 in the dominant component (T2+N3+M3 = 8/9). Intratumoral grade heterogeneity acknowledged (slide 2 with focal Grade II areas).",
+          "truth": null
+        },
+        "stage": {
+          "match": null,
+          "pred": null,
+          "truth": null
+        },
+        "pt": {
+          "match": null,
+          "pred": "Cannot be assigned — tumor dimensions not assessable from submitted slides",
+          "truth": null
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        }
+      }
+    },
+    "TCGA-CA-6716": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma with acinar variant features",
+        "diagnosis_line": "BREAST, EXCISION: INVASIVE DUCTAL CARCINOMA OF NO SPECIAL TYPE WITH ACINAR VARIANT FEATURES, GRADE III (SBR), MULTIFOCAL; MARGINS NOT ASSESSABLE ON SUBMITTED MATERIAL",
+        "specimen_type": "Breast tissue, excisional specimen (TCGA archival)",
+        "histologic_type": "Invasive ductal carcinoma, NOS, with acinar variant features (8500/3)",
+        "grade": "Grade III (SBR) — upgraded from initial Grade II based on highest mitotic count of 10/10 HPF identified on cross-slide synthesis (slide 1); tubule formation 2, nuclear pleomorphism 2, mitoses 3",
+        "pt": "Cannot be assigned — gross tumor dimensions not available from submitted slide metadata",
+        "pn": "Cannot be assessed — lymph nodes not submitted",
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC, with reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "CK7",
+          "CK20",
+          "p53",
+          "D2-40 / CD31"
+        ],
+        "confidence": 0.6986633333333333
+      },
+      "truth": {
+        "primary_diagnosis": "Papillary adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIA",
+        "pT": "T3",
+        "pN": "N0",
+        "pM": "M0",
+        "morphology": "8260/3",
+        "site": "Ascending colon"
+      },
+      "truth_biomarkers": [
+        "ER",
+        "PR"
+      ],
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma with acinar variant features",
+          "truth": "Papillary adenocarcinoma, NOS",
+          "core": "papillary"
+        },
+        "histologic_type": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma, NOS, with acinar variant features (8500/3)",
+          "truth": "Papillary adenocarcinoma, NOS",
+          "core": "papillary"
+        },
+        "grade": {
+          "match": null,
+          "pred": "Grade III (SBR) — upgraded from initial Grade II based on highest mitotic count of 10/10 HPF identified on cross-slide synthesis (slide 1); tubule formation 2, nuclear pleomorphism 2, mitoses 3",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage IIA"
+        },
+        "pt": {
+          "match": false,
+          "pred": "Cannot be assigned — gross tumor dimensions not available from submitted slide metadata",
+          "truth": "T3"
+        },
+        "biomarkers": {
+          "recall": 1.0,
+          "found": [
+            "ER",
+            "PR"
+          ],
+          "missing": []
+        }
+      }
+    },
+    "TCGA-A6-2678": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "diagnosis_line": "BREAST EXCISION: INVASIVE DUCTAL CARCINOMA OF NO SPECIAL TYPE, GRADE III (SBR 9/9), MULTIFOCAL — SIZE NOT ASSESSABLE FROM SUBMITTED SLIDES",
+        "specimen_type": "Breast excision (laterality not specified)",
+        "histologic_type": "Invasive ductal carcinoma, no special type (8500/3)",
+        "grade": "Grade III (SBR: tubule formation 3 + nuclear pleomorphism 3 + mitoses 3 = 9/9)",
+        "pt": "Cannot be definitively assigned — size not measurable on submitted slides (provisional pT2 based on multifocal distribution)",
+        "pn": "Cannot be assessed — lymph nodes not submitted",
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2",
+          "Ki-67",
+          "E-cadherin",
+          "p53",
+          "CK7",
+          "CK20",
+          "D2-40 / CD31",
+          "DPC4 / Trypsin / Chymotrypsin"
+        ],
+        "confidence": 0.7239825
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage IIIB",
+        "pT": "T3",
+        "pN": "N1",
+        "pM": "M0",
+        "morphology": "8140/3",
+        "site": "Transverse colon"
+      },
+      "truth_biomarkers": [],
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "histologic_type": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma, no special type (8500/3)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "grade": {
+          "match": null,
+          "pred": "Grade III (SBR: tubule formation 3 + nuclear pleomorphism 3 + mitoses 3 = 9/9)",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage IIIB"
+        },
+        "pt": {
+          "match": false,
+          "pred": "Cannot be definitively assigned — size not measurable on submitted slides (provisional pT2 based on multifocal distribution)",
+          "truth": "T3"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        }
+      }
+    },
+    "TCGA-AZ-6599": {
+      "pred": {
+        "diagnosis": "Invasive ductal carcinoma of no special type (IDC-NST)",
+        "diagnosis_line": "BREAST EXCISION: INVASIVE DUCTAL CARCINOMA OF NO SPECIAL TYPE, GRADE III (SBR), APPROXIMATELY 42 mm",
+        "specimen_type": "Breast excision",
+        "histologic_type": "Invasive ductal carcinoma, no special type (8500/3)",
+        "grade": "Grade III (SBR), reconciled per Cross-Slide Synthesis and Histo-A; tubule formation, nuclear pleomorphism, and mitotic activity (10/10 HPF) consistent with high-grade morphology",
+        "pt": "pT2 (tumor size 42 mm; not fully assessable from submitted slides)",
+        "pn": "Cannot be assessed — lymph nodes not submitted",
+        "biomarkers": [
+          "ER",
+          "PR",
+          "HER2 (IHC; reflex FISH if 2+)",
+          "Ki-67",
+          "E-cadherin",
+          "p53",
+          "D2-40 / CD31 (LVI confirmation)"
+        ],
+        "confidence": 0.7098375000000001
+      },
+      "truth": {
+        "primary_diagnosis": "Adenocarcinoma, NOS",
+        "tumor_grade": null,
+        "stage": "Stage I",
+        "pT": "T2",
+        "pN": "N0",
+        "pM": "MX",
+        "morphology": "8140/3",
+        "site": "Cecum"
+      },
+      "truth_biomarkers": [],
+      "cmp": {
+        "diagnosis": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma of no special type (IDC-NST)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "histologic_type": {
+          "match": false,
+          "pred": "Invasive ductal carcinoma, no special type (8500/3)",
+          "truth": "Adenocarcinoma, NOS",
+          "core": "adenocarcinoma"
+        },
+        "grade": {
+          "match": null,
+          "pred": "Grade III (SBR), reconciled per Cross-Slide Synthesis and Histo-A; tubule formation, nuclear pleomorphism, and mitotic activity (10/10 HPF) consistent with high-grade morphology",
+          "truth": null
+        },
+        "stage": {
+          "match": false,
+          "pred": null,
+          "truth": "Stage I"
+        },
+        "pt": {
+          "match": true,
+          "pred": "pT2 (tumor size 42 mm; not fully assessable from submitted slides)",
+          "truth": "T2"
+        },
+        "biomarkers": {
+          "recall": null,
+          "found": [],
+          "missing": []
+        }
+      }
+    }
+  }
+}
