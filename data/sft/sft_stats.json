@@ -1,0 +1,14 @@
+{
+  "total": 20,
+  "by_task": {
+    "histopathologist_b": 15,
+    "cross_slide_aggregator": 5
+  },
+  "cases": {
+    "TCGA-NH-A5IV": 3,
+    "TCGA-AZ-4616": 4,
+    "TCGA-T9-A92H": 5,
+    "TCGA-AA-3712": 5,
+    "TCGA-AY-A71X": 3
+  }
+}
