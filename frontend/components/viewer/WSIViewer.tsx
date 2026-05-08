@@ -334,6 +334,7 @@ interface WSIViewerProps {
   className?: string
   overlays?: Overlay[]
   onRoiClick?: (roiIndex: number, label: string) => void
+  onViewerReady?: (viewer: OpenSeadragon.Viewer | null) => void
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || ''
@@ -359,7 +360,7 @@ function buildTileSource(slideId: string, slidePath?: string): unknown {
   }
 }
 
-export function WSIViewer({ slideId, slidePath, className, overlays, onRoiClick }: WSIViewerProps) {
+export function WSIViewer({ slideId, slidePath, className, overlays, onRoiClick, onViewerReady }: WSIViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null)
   const isReadyRef = useRef(false)
@@ -397,13 +398,15 @@ export function WSIViewer({ slideId, slidePath, className, overlays, onRoiClick 
     viewer.addHandler('open', () => {
       isReadyRef.current = true
     })
+    onViewerReady?.(viewer)
 
     return () => {
       isReadyRef.current = false
+      onViewerReady?.(null)
       viewer.destroy()
       viewerRef.current = null
     }
-  }, [])
+  }, [onViewerReady])
 
   // Re-open with a new tile source when slideId changes
   useEffect(() => {

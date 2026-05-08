@@ -10,11 +10,36 @@ import { connectStream, startAnalysis } from "@/lib/ws"
 import { DEMO_CASES, demoSlides } from "@/lib/demo"
 import { GpuPanel } from "@/components/gpu/GpuPanel"
 import { BenchmarkCard } from "@/components/gpu/BenchmarkCard"
+import type OpenSeadragon from "openseadragon"
+import {
+  AnnotationCanvas,
+  type Shape,
+  type ToolKind,
+  type PathMindSymbol,
+} from "@/components/viewer/AnnotationCanvas"
+import { AnnotationToolbar } from "@/components/viewer/AnnotationToolbar"
 
 const WSIViewer = dynamicImport(
   () => import("@/components/viewer/WSIViewer").then((m) => m.WSIViewer),
   { ssr: false }
 )
+
+// localStorage persistence for shapes (drawings)
+const SHAPES_STORAGE_KEY = "pathmind:shapes:v1"
+function loadShapes(): Shape[] {
+  if (typeof window === "undefined") return []
+  try {
+    const raw = window.localStorage.getItem(SHAPES_STORAGE_KEY)
+    if (!raw) return []
+    return JSON.parse(raw) as Shape[]
+  } catch {
+    return []
+  }
+}
+function persistShapes(shapes: Shape[]) {
+  if (typeof window === "undefined") return
+  window.localStorage.setItem(SHAPES_STORAGE_KEY, JSON.stringify(shapes))
+}
 
 const VolumeViewer = dynamicImport(
   () => import("@/components/viewer/VolumeViewer"),
@@ -209,8 +234,63 @@ export default function Home() {
   const [pinDraft, setPinDraft] = useState("")
   const stopRef = useRef<(() => void) | null>(null)
 
+  // Annotation board state
+  const [tool, setTool] = useState<ToolKind>("select")
+  const [annotColor, setAnnotColor] = useState<string>("#a23939")
+  const [strokeWidth, setStrokeWidth] = useState<number>(2.5)
+  const [selectedSymbol, setSelectedSymbol] = useState<PathMindSymbol | null>(null)
+  const [shapes, setShapes] = useState<Shape[]>([])
+  const [osdViewer, setOsdViewer] = useState<OpenSeadragon.Viewer | null>(null)
+
+  useEffect(() => {
+    setShapes(loadShapes())
+  }, [])
+
   const caseId = activeCase?.case_id
   const { notes, add: addNote, update: updateNote, remove: removeNote } = useNotes(caseId)
+
+  const addShape = useCallback((s: Shape) => {
+    setShapes((prev) => {
+      const next = [...prev, s]
+      persistShapes(next)
+      return next
+    })
+  }, [])
+
+  const removeShape = useCallback((id: string) => {
+    setShapes((prev) => {
+      const next = prev.filter((s) => s.id !== id)
+      persistShapes(next)
+      return next
+    })
+  }, [])
+
+  const undoLastShape = useCallback(() => {
+    setShapes((prev) => {
+      if (!caseId) return prev
+      const idx = [...prev]
+        .reverse()
+        .findIndex((s) => s.caseId === caseId && s.slideIndex === activeSlideIndex)
+      if (idx === -1) return prev
+      const realIdx = prev.length - 1 - idx
+      const next = [...prev.slice(0, realIdx), ...prev.slice(realIdx + 1)]
+      persistShapes(next)
+      return next
+    })
+  }, [caseId, activeSlideIndex])
+
+  const clearSlideShapes = useCallback(() => {
+    setShapes((prev) => {
+      if (!caseId) return prev
+      const next = prev.filter((s) => !(s.caseId === caseId && s.slideIndex === activeSlideIndex))
+      persistShapes(next)
+      return next
+    })
+  }, [caseId, activeSlideIndex])
+
+  const handleViewerReady = useCallback((v: OpenSeadragon.Viewer | null) => {
+    setOsdViewer(v)
+  }, [])
 
   useEffect(() => () => stopRef.current?.(), [])
 
@@ -532,6 +612,26 @@ export default function Home() {
           </div>
         )}
 
+        {/* Annotation toolbar (floating bottom-center) */}
+        {viewMode === "2d" && caseId && (
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
+            <AnnotationToolbar
+              tool={tool}
+              setTool={setTool}
+              color={annotColor}
+              setColor={setAnnotColor}
+              strokeWidth={strokeWidth}
+              setStrokeWidth={setStrokeWidth}
+              selectedSymbol={selectedSymbol}
+              setSelectedSymbol={setSelectedSymbol}
+              shapeCount={shapes.filter((s) => s.caseId === caseId && s.slideIndex === activeSlideIndex).length}
+              onUndo={undoLastShape}
+              onClear={clearSlideShapes}
+              disabled={!osdViewer}
+            />
+          </div>
+        )}
+
         {/* Pin mode hint banner */}
         {pinMode && !pendingPin && (
           <div className="absolute top-[110px] left-1/2 -translate-x-1/2 z-20 bg-[var(--accent)] text-[var(--paper)] px-4 py-2 border border-[var(--accent)] pointer-events-none">
@@ -551,7 +651,25 @@ export default function Home() {
                 className="w-full h-full"
                 overlays={liveOverlays}
                 onRoiClick={(roiIndex, label) => setSelectedRoi({ roiIndex, label })}
+                onViewerReady={handleViewerReady}
               />
+
+              {/* Annotation canvas — drawings, shapes, measure, symbols */}
+              <div className="annotation-canvas-host absolute inset-0">
+                <AnnotationCanvas
+                  viewer={osdViewer}
+                  caseId={caseId}
+                  slideIndex={activeSlideIndex}
+                  tool={tool}
+                  color={annotColor}
+                  strokeWidth={strokeWidth}
+                  selectedSymbol={selectedSymbol}
+                  shapes={shapes.filter((s) => s.caseId === caseId)}
+                  micronsPerPixel={0.25}
+                  onAddShape={addShape}
+                  onRemoveShape={removeShape}
+                />
+              </div>
 
               {/* Pin overlay layer (existing notes + pending) */}
               <div
