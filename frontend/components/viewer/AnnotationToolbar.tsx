@@ -160,6 +160,7 @@ export function AnnotationToolbar({
                 if (t.id === "symbol") {
                   setSymbolMenuOpen((v) => !v)
                   setTool("symbol")
+                  if (!selectedSymbol) setSelectedSymbol(PATHMIND_SYMBOLS[0])
                 } else {
                   setSymbolMenuOpen(false)
                   setTool(t.id)

@@ -287,13 +287,26 @@ export function AnnotationCanvas({
       return
     }
     e.preventDefault()
-    ;(e.target as HTMLElement).releasePointerCapture(e.pointerId)
+    try {
+      ;(e.target as HTMLElement).releasePointerCapture(e.pointerId)
+    } catch {}
 
     const id = `s-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
     const base = { id, caseId, slideIndex, color, strokeWidth, createdAt: Date.now() }
 
-    if (draft.type === "pen" && draft.points && draft.points.length >= 2) {
-      onAddShape({ ...base, type: "pen", points: draft.points })
+    if (draft.type === "pen") {
+      // Pen: accept stroke as soon as it has 2+ points; tiny click → drop a single dot
+      if (draft.points && draft.points.length >= 2) {
+        onAddShape({ ...base, type: "pen", points: draft.points })
+      } else if (draft.points && draft.points.length === 1) {
+        // single click → small dot (2-point segment of 1px length)
+        const p = draft.points[0]
+        onAddShape({
+          ...base,
+          type: "pen",
+          points: [p, { x: p.x + 1, y: p.y + 1 }],
+        })
+      }
     } else if (
       (draft.type === "arrow" || draft.type === "rect" || draft.type === "circle" || draft.type === "measure") &&
       draft.start &&
@@ -301,8 +314,25 @@ export function AnnotationCanvas({
     ) {
       const dx = draft.end.x - draft.start.x
       const dy = draft.end.y - draft.start.y
-      if (Math.hypot(dx, dy) > 4) {
+      const moved = Math.hypot(dx, dy)
+      if (moved > 2) {
         onAddShape({ ...base, type: draft.type, start: draft.start, end: draft.end })
+      } else {
+        // Single click → place a default-sized shape so the user gets immediate feedback.
+        // Size is in IMAGE pixels: ~150 px ≈ 37 µm @ 0.25 µm/px (small but visible).
+        const defSize = 150
+        const a = draft.start
+        let endPt = draft.end
+        if (draft.type === "arrow") {
+          endPt = { x: a.x + defSize, y: a.y - defSize / 2 }
+        } else if (draft.type === "rect") {
+          endPt = { x: a.x + defSize, y: a.y + defSize * 0.7 }
+        } else if (draft.type === "circle") {
+          endPt = { x: a.x + defSize / 2, y: a.y }
+        } else if (draft.type === "measure") {
+          endPt = { x: a.x + defSize, y: a.y }
+        }
+        onAddShape({ ...base, type: draft.type, start: a, end: endPt })
       }
     }
     setDraft(null)
@@ -377,9 +407,26 @@ export function AnnotationCanvas({
         </div>
       )}
 
+      {/* Active-tool hint (top-left of viewer when in drawing mode) */}
+      {isDrawing && (
+        <div className="absolute top-[110px] left-3 z-10 bg-[var(--accent)] text-[var(--paper)] px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest pointer-events-none flex items-center gap-2 shadow-lg">
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--paper)] animate-pulse" />
+          Mode {tool === "pen" ? "stylo" : tool === "arrow" ? "flèche" : tool === "rect" ? "rectangle" : tool === "circle" ? "cercle" : tool === "measure" ? "mesure" : tool === "text" ? "texte" : tool === "symbol" ? `symbole : ${selectedSymbol?.label ?? "—"}` : tool === "eraser" ? "gomme" : tool}
+          <span className="text-[var(--paper)]/70 normal-case tracking-normal pl-2 border-l border-[var(--paper)]/30">
+            {tool === "pen" || tool === "arrow" || tool === "rect" || tool === "circle" || tool === "measure"
+              ? "cliquez ou glissez sur la lame"
+              : tool === "text" || tool === "symbol"
+              ? "cliquez sur la lame"
+              : tool === "eraser"
+              ? "cliquez sur un tracé pour le supprimer"
+              : ""}
+          </span>
+        </div>
+      )}
+
       {/* Image-size hint (debug, shows the assumed scale) */}
       {imageSize.w > 1 && (
-        <div className="absolute bottom-2 left-2 font-mono text-[10px] text-[var(--paper)]/60 bg-black/30 px-1.5 py-0.5">
+        <div className="absolute bottom-2 left-2 font-mono text-[10px] text-[var(--paper)]/60 bg-black/30 px-1.5 py-0.5 pointer-events-none">
           {imageSize.w}×{imageSize.h} px · {micronsPerPixel} µm/px
         </div>
       )}
