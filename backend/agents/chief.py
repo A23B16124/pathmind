@@ -115,6 +115,7 @@ class ChiefAgent(BaseAgent):
             messages=[{"role": "user", "content": user}],
             max_tokens=6000,
             json_schema=REPORT_SCHEMA,
+            timeout=240.0,
         )
 
         await self.emit(case_id, "done", result)
